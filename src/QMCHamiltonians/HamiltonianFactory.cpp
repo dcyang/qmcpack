@@ -39,6 +39,7 @@
 #include "QMCHamiltonians/StaticStructureFactor.h"
 #include "QMCHamiltonians/SpinDensity.h"
 #include "QMCHamiltonians/OrbitalImages.h"
+#include "QMCHamiltonians/LennardJonesPBC.h"
 #if !defined(REMOVE_TRACEMANAGER)
 #include "QMCHamiltonians/EnergyDensityEstimator.h"
 #include "QMCHamiltonians/DensityMatrices1B.h"
@@ -155,6 +156,7 @@ bool HamiltonianFactory::build(xmlNodePtr cur, bool buildtree)
       {
         addCoulombPotential(cur);
       }
+      else if(potType == "LennardJones") addAtomicDimerPotential(cur);
 #if !defined(QMC_CUDA) && QMC_BUILD_LEVEL>2
       else if (potType == "skpot")
       {

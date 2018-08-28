@@ -23,7 +23,7 @@ namespace qmcplusplus
 {
 
 /**@ingroup nnlist
- * @brief A derived classe from DistacneTableData, specialized for dense-asymmetric case
+ * @brief A derived classe from DistanceTableData, specialized for dense-asymmetric case
  *
  * AsymmetricDTD stands for Asymmetric Distance Table Data with
  * distinct source and target sets.
