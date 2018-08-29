@@ -47,6 +47,7 @@ ENDIF(NOT QMC_COMPLEX)
 SET(JASTROW_SRCS
   Jastrow/LRTwoBodyJastrow.cpp
   Jastrow/PadeJastrowBuilder.cpp
+  Jastrow/McMillanJastrowBuilder.cpp
   Jastrow/JastrowBuilder.cpp
   Jastrow/BsplineJastrowBuilder.cpp
   Jastrow/kSpaceJastrow.cpp
