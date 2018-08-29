@@ -1,5 +1,5 @@
-#ifndef QMCPLUSPLUS_HELENNARDJONES_H
-#define QMCPLUSPLUS_HELENNARDJONES_H
+#ifndef QMCPLUSPLUS_LENNARDJONESPBC_H
+#define QMCPLUSPLUS_LENNARDJONESPBC_H
 #include "Lattice/ParticleBConds.h"
 #include "Particle/ParticleSet.h"
 #include "Particle/SymmetricDistanceTableData.h"
