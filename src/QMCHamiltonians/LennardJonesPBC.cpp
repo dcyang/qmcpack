@@ -7,13 +7,16 @@
 
 namespace qmcplusplus
 {
-    LennardJonesPBC::LennardJonesPBC(ParticleSet &He_atoms):
-        HeConfig(He_atoms), d_table(0), rcut(He_atoms.LRBox.LR_rc)
+    LennardJonesPBC::LennardJonesPBC(ParticleSet &He_atoms, RealType sigma_rhs, RealType epsilon_rhs):
+        HeConfig(He_atoms), d_table(0), rcut(He_atoms.LRBox.LR_rc), sigma(sigma_rhs), epsilon(epsilon_rhs)
     {
         //set the distance tables
         d_table = DistanceTable::add(He_atoms,DT_AOS);  // AOS = array of structs
         // d_table = SymmetricDTD<RealType, OHMMS_DIM, SUPERCELL_BULK>::add(He_atoms,DT_AOS);  // AOS = array of structs
         nParticles = He_atoms.getTotalNum();
+        // v2_shift = v2(rcut);
+        tailCorrection = (nParticles*nParticles/(16.0*rcut))*v2_tail(rcut);
+        // coefficient works out to N*rho/2 ... since V = (2*rcut)^3
 
         set_energy_domain(potential);
         set_quantum_domain(quantum);
@@ -53,7 +56,7 @@ namespace qmcplusplus
       }
       e *= 4.0*epsilon;
 
-      // TODO: add approximate long-range part here...
+      e += tailCorrection;
 
       return Value=e;
     }
@@ -91,7 +94,8 @@ namespace qmcplusplus
         if (sigma < 1.0e-10) sigma = 4.830139974; // bohr radii
         if (epsilon < 1.0e-10) epsilon = 3.236460251e-5; // Ha
 
-        // TODO: remove this block later
+        /*
+        // debug lines
         app_log() << "<NENE>" << std::endl;
         app_log() << "title = " << title << std::endl;
         app_log() << "targetInp = " << targetInp << std::endl;
@@ -102,8 +106,9 @@ namespace qmcplusplus
         // app_log() << "physical = " << physical << std::endl;
         app_log() << "</NENE>" << std::endl;
         app_log().flush();
+        */
 
-        LennardJonesPBC *ljp = new LennardJonesPBC(*targetPtcl);
+        LennardJonesPBC *ljp = new LennardJonesPBC(*targetPtcl, sigma, epsilon);
         ljp->sigma = sigma;
         ljp->epsilon = epsilon;
 
