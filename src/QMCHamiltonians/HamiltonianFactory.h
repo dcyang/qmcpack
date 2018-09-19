@@ -95,7 +95,7 @@ class HamiltonianFactory: public MPIObjectBase
   void addPseudoPotential(xmlNodePtr cur);
   void addCorePolPotential(xmlNodePtr cur);
   void addMPCPotential(xmlNodePtr cur, bool physical=false);
-  void addAtomicDimerPotential(xmlNodePtr cur);
+  void addAtomicPairPotential(xmlNodePtr cur);
 
 };
 }

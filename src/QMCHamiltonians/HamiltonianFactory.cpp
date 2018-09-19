@@ -156,7 +156,7 @@ bool HamiltonianFactory::build(xmlNodePtr cur, bool buildtree)
       {
         addCoulombPotential(cur);
       }
-      else if(potType == "LennardJones") addAtomicDimerPotential(cur);
+      else if(potType == "LennardJones") addAtomicPairPotential(cur);
 #if !defined(QMC_CUDA) && QMC_BUILD_LEVEL>2
       else if (potType == "skpot")
       {

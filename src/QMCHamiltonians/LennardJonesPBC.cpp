@@ -11,8 +11,8 @@ namespace qmcplusplus
         HeConfig(He_atoms), d_table(0), rcut(He_atoms.LRBox.LR_rc), sigma(sigma_rhs), epsilon(epsilon_rhs)
     {
         //set the distance tables
-        d_table = DistanceTable::add(He_atoms,DT_AOS);  // AOS = array of structs
-        // d_table = SymmetricDTD<RealType, OHMMS_DIM, SUPERCELL_BULK>::add(He_atoms,DT_AOS);  // AOS = array of structs
+        d_table = DistanceTable::add(He_atoms,DT_SOA_PREFERRED);
+        // d_table = SymmetricDTD<RealType, OHMMS_DIM, SUPERCELL_BULK>::add(He_atoms,DT_SOA_PREFERRED);
         nParticles = He_atoms.getTotalNum();
         // v2_shift = v2(rcut);
         tailCorrection = (nParticles*nParticles/(16.0*rcut))*v2_tail(rcut);
@@ -24,8 +24,8 @@ namespace qmcplusplus
 
     void LennardJonesPBC::resetTargetParticleSet(ParticleSet& P)
     {
-        d_table = DistanceTable::add(HeConfig,P,DT_AOS);
-        // d_table = SymmetricDTD<RealType, OHMMS_DIM, SUPERCELL_BULK>::add(HeConfig,P,DT_AOS);
+        d_table = DistanceTable::add(HeConfig,P,DT_SOA_PREFERRED);
+        // d_table = SymmetricDTD<RealType, OHMMS_DIM, SUPERCELL_BULK>::add(HeConfig,P,DT_SOA_PREFERRED);
         rcut = P.LRBox.LR_rc;
     }
 
@@ -34,24 +34,15 @@ namespace qmcplusplus
       //calculate the Electron-Core Dipole matrix
       //CoreElDipole=0.0;
       RealType e = 0.0;
-      for (int i=0; i<nParticles; ++i) {
-        // XXX: d_table == P.DistTables[0] ... no need to define as separate d_aa
-        // XXX: ... need a closer look at M, J, IJ, PairID in d_table
-        //      take CoulombPBCAA::evaluate() for example
-        for (int nn=d_table->M[i]; nn<d_table->M[i+1]; ++nn) {
-          if (d_table->r(nn) > rcut) continue;
+      for (size_t i=1; i < nParticles; ++i) {
+        const RealType* restrict dist=d_table->Distances[i];
+        for (size_t j = 0; j < i; ++j) {
+          if (dist[j] > rcut) continue;
           // looks like "sphere" carving isn't fully implemented (supporting only Coulomb?)
           // -> doing this manually
 
-          // int j(d_table->J[nn]);
-          RealType srinv6 = std::pow(sigma*d_table->rinv(nn), 6.0);
+          RealType srinv6 = std::pow(sigma/dist[j], 6.0);
           e += srinv6*srinv6 - srinv6;
-          /*
-#pragma omp master
-          {
-            app_log() << "d_table->M[" << i << "] (" << nn << ", " << d_table->J[nn] << ") = " << d_table->r(nn) << "; " << rcut << std::endl;
-          }
-          */
         }
       }
       e *= 4.0*epsilon;
@@ -61,7 +52,7 @@ namespace qmcplusplus
       return Value=e;
     }
 
-    void HamiltonianFactory::addAtomicDimerPotential(xmlNodePtr cur) {
+    void HamiltonianFactory::addAtomicPairPotential(xmlNodePtr cur) {
         typedef QMCHamiltonian::Return_t Return_t;
         std::string targetInp(targetPtcl->getName());
         std::string sourceInp(targetPtcl->getName());
@@ -94,6 +85,12 @@ namespace qmcplusplus
         if (sigma < 1.0e-10) sigma = 4.830139974; // bohr radii
         if (epsilon < 1.0e-10) epsilon = 3.236460251e-5; // Ha
 
+        LennardJonesPBC *ljp = new LennardJonesPBC(*targetPtcl, sigma, epsilon);
+
+        targetH->addOperator(ljp, title);
+        // appends to the vector targetH->H
+
+        app_log() << "  LennardJonesPBC tail correction for " << title << ": " << ljp->tailCorrection << std::endl;
         /*
         // debug lines
         app_log() << "<NENE>" << std::endl;
@@ -107,12 +104,5 @@ namespace qmcplusplus
         app_log() << "</NENE>" << std::endl;
         app_log().flush();
         */
-
-        LennardJonesPBC *ljp = new LennardJonesPBC(*targetPtcl, sigma, epsilon);
-        ljp->sigma = sigma;
-        ljp->epsilon = epsilon;
-
-        targetH->addOperator(ljp, title);
-        // appends to the vector targetH->H
     }
 }
