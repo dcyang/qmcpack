@@ -81,11 +81,14 @@ namespace qmcplusplus
           {
             PRE.error("Failed. Species are incorrect.",true);
           }
+          /*
+          // TODO: implement as necessary
           if(cusp<-1e6)
           {
             RealType qq=species(chargeInd,ia)*species(chargeInd,ib);
             cusp = (ia==ib)? -0.25*qq:-0.5*qq;
           }
+          */
           std::ostringstream o;
           o<<"j2"<<ia<<ib;
           RadFuncType *functor = new RadFuncType();
