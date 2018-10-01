@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
     
     
-/** @file McMillanFunctor.h
+/** @file McMillanFunctors.h
  * @brief Functor which implements McMillan two-body correlations
  */
 #ifndef QMCPLUSPLUS_MCMILLAN1965_H
@@ -27,13 +27,11 @@ namespace qmcplusplus
 {
 
   /** Implements a function \f$ u(r) = \frac{1}{2*A}\left[1-\exp(-A*r)\right], \f$
-   *
-   * McMillan, PR 138 A442 (1965)
-   *
+   *  McMillan, PR 138 A442 (1965)
+   *  "MS": added Mirror image term about r_WS and Shifted to zero at r_WS
    */
-  // XXX: old code below
   template<class T>
-    struct McMillanFunctor: public OptimizableFunctorBase
+    struct McMillanFunctor_MS: public OptimizableFunctorBase
   {
     ///whether the parameters are optimizable
     bool Opt_A, Opt_B;
@@ -48,7 +46,7 @@ namespace qmcplusplus
     std::string ID_A, ID_B;
 
     ///default constructor
-    explicit McMillanFunctor(real_type a = 5.0, real_type b = 5.7448, real_type r0 = 2.5)
+    explicit McMillanFunctor_MS(real_type a = 5.0, real_type b = 5.7448, real_type r0 = 2.0)
       : A(a), B(b), rcusp(r0), Opt_A(true), Opt_B(true), ID_A("0"), ID_B("0")
     {
       reset();
@@ -56,12 +54,12 @@ namespace qmcplusplus
 
     OptimizableFunctorBase* makeClone() const
     {
-      return new McMillanFunctor<T>(*this);
+      return new McMillanFunctor_MS<T>(*this);
     }
 
     void reset() {
       reset(A, B);
-      // rcusp = 2.5;
+      // rcusp = 2.0;
       real_type Y;
       c1 = evaluate(rcusp, Y, c2);
       c2 = -0.5*Y/(rcusp*c1);
@@ -74,28 +72,16 @@ namespace qmcplusplus
 
     inline real_type evaluate(real_type r) const
     {
-      return ( r < rcusp
-          ? c1*std::exp(-c2*r*r)
-          : ( r < cutoff_radius
-            ? std::pow(B,A)*(std::pow(r,-A) + std::pow(cutoff_radius+cutoff_radius-r,-A)) + uShift
-            : 0.0 ) );
+      return ( r < cutoff_radius
+          ? std::pow(B,A)*(std::pow(r,-A) + std::pow(cutoff_radius+cutoff_radius-r,-A)) + uShift
+          : 0.0 );
     }
 
     inline real_type
       evaluate(real_type r, real_type& dudr, real_type& d2udr2) const
       {
 	real_type val;
-	if (r < rcusp) {
-	  val = c1*std::exp(-c2*r*r);
-	  dudr = -2.0*c1*c2*r*std::exp(-c2*r*r);
-	  d2udr2 = -2.0*c1*c2*std::exp(-c2*r*r) + 4.0*c1*c2*c2*r*r*std::exp(-c2*r*r);
-	  /*
-	     val = 17318.0912945689*std::exp(-1.00041061270143*r*r);
-	     dudr = -34650.4046456380*r*std::exp(-1.00041061270143*r*r);
-	     d2udr2 = -34650.4046456380*std::exp(-1.00041061270143*r*r) + 69329.2650837902*r*r*std::exp(-1.00041061270143*r*r);
-	     */
-	}
-	else if (r < cutoff_radius) {
+	if (r < cutoff_radius) {
 	  real_type rd = 2.0*cutoff_radius - r;
           real_type f1, f2, g1, g2;
 	  val = std::pow(B,A)*(std::pow(r,-A) + std::pow(rd,-A) - 2.0*std::pow(cutoff_radius,-A));
@@ -110,24 +96,13 @@ namespace qmcplusplus
 	return val;
       }
 
-    /*
-    inline real_type
-      evaluate(real_type r, real_type& dudr, real_type& d2udr2, real_type& d3udr3) const
-      {
-        real_type u = 1.0/(1.0+B*r);
-        dudr = A*u*u;
-        d2udr2 = -B*B*dudr*u;
-        d3udr3 = -3.0*B*d2udr2*u;
-        return A*u*r;
-      }
-    */
-
     inline real_type evaluateV(const int iat, const int iStart, const int iEnd,
         const T* restrict _distArray, T* restrict distArrayCompressed ) const
     {
       real_type sum(0);
       for(int idx=iStart; idx<iEnd; idx++)
-        if (idx!=iat) sum += evaluate(_distArray[idx]);
+        if (idx!=iat)
+          sum += evaluate(_distArray[idx]);
       return sum;
     }
 

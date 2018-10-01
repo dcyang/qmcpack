@@ -15,7 +15,7 @@ namespace qmcplusplus
         // d_table = SymmetricDTD<RealType, OHMMS_DIM, SUPERCELL_BULK>::add(He_atoms,DT_SOA_PREFERRED);
         nParticles = He_atoms.getTotalNum();
         // v2_shift = v2(rcut);
-        tailCorrection = (nParticles*nParticles/(16.0*rcut))*v2_tail(rcut);
+        tailCorrection = (nParticles*nParticles/(16.0*rcut*rcut*rcut))*v2_tail(rcut);
         // coefficient works out to N*rho/2 ... since V = (2*rcut)^3
 
         set_energy_domain(potential);
@@ -91,18 +91,5 @@ namespace qmcplusplus
         // appends to the vector targetH->H
 
         app_log() << "  LennardJonesPBC tail correction for " << title << ": " << ljp->tailCorrection << std::endl;
-        /*
-        // debug lines
-        app_log() << "<NENE>" << std::endl;
-        app_log() << "title = " << title << std::endl;
-        app_log() << "targetInp = " << targetInp << std::endl;
-        app_log() << "sourceInp = " << sourceInp << std::endl;
-        // app_log() << "pbc = " << pbc << std::endl;
-        app_log() << "sigma = " << sigma << std::endl;
-        app_log() << "epsilon = " << epsilon << std::endl;
-        // app_log() << "physical = " << physical << std::endl;
-        app_log() << "</NENE>" << std::endl;
-        app_log().flush();
-        */
     }
 }

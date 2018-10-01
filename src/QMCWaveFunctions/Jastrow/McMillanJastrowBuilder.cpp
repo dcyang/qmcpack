@@ -48,7 +48,7 @@ namespace qmcplusplus
     //bool spindep=(spin=="yes");
     SpeciesSet& species(targetPtcl.getSpeciesSet());
     int chargeInd=species.addAttribute("charge");
-    typedef McMillanFunctor<RealType> RadFuncType;
+    typedef McMillanFunctor_MS<RealType> RadFuncType;
     if(sourceOpt == targetPtcl.getName())
     {
       //two-body
