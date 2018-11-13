@@ -16,6 +16,7 @@
 #include "QMCWaveFunctions/Jastrow/JastrowBuilder.h"
 #include "QMCWaveFunctions/Jastrow/PadeJastrowBuilder.h"
 #include "QMCWaveFunctions/Jastrow/McMillanJastrowBuilder.h"
+#include "QMCWaveFunctions/Jastrow/GaussianJastrowBuilder.h"
 #include "QMCWaveFunctions/Jastrow/RPAJastrow.h"
 #include "QMCWaveFunctions/Jastrow/BsplineJastrowBuilder.h"
 #include "QMCWaveFunctions/Jastrow/kSpaceJastrowBuilder.h"
@@ -117,6 +118,12 @@ bool JastrowBuilder::addOneBody(xmlNodePtr cur)
     app_log() << "\n  Using BsplineBuilder for one-body jastrow with B-spline functions" << std::endl;
     BsplineJastrowBuilder jb(targetPtcl,targetPsi,*sourcePtcl);
     success=jb.put(cur);
+  }
+  else if (funcOpt.find("gauss") != std::string::npos)
+  {
+    app_log() << "\n  Using GaussianJastrowBuilder for one-body jastrow with Gaussian functions" << std::endl;
+    GaussianJastrowBuilder jg(targetPtcl,targetPsi,*sourcePtcl);
+    success=jg.put(cur);
   }
   else
     if (funcOpt == "rpa" )

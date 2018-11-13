@@ -17,6 +17,7 @@
 #include "Particle/DistanceTable.h"
 #include "QMCWaveFunctions/Jastrow/JABBuilder.h"
 #include "QMCWaveFunctions/Jastrow/PadeFunctors.h"
+#include "QMCWaveFunctions/Jastrow/GaussianFunctors.h"
 #if QMC_BUILD_LEVEL>2
 #include "QMCWaveFunctions/Jastrow/BsplineJastrowBuilder.h"
 #include "QMCWaveFunctions/Jastrow/BsplineFunctor.h"
@@ -111,6 +112,7 @@ bool JABBuilder::put(xmlNodePtr cur)
   OhmmsAttributeSet aAttrib;
   aAttrib.add(jastfunction,"function");
   aAttrib.put(cur);
+  tolower(jastfunction);
   bool success=false;
   app_log() << "  One-Body Jastrow Function = " << jastfunction << std::endl;
   if (jastfunction == "pade")
