@@ -48,6 +48,7 @@ SET(JASTROW_SRCS
   Jastrow/LRTwoBodyJastrow.cpp
   Jastrow/PadeJastrowBuilder.cpp
   Jastrow/McMillanJastrowBuilder.cpp
+  Jastrow/GaussianJastrowBuilder.cpp
   Jastrow/JastrowBuilder.cpp
   Jastrow/BsplineJastrowBuilder.cpp
   Jastrow/kSpaceJastrow.cpp
