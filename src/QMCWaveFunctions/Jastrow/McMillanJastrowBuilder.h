@@ -12,7 +12,6 @@
     
 #ifndef QMCPLUSPLUS_MCMILLAN_JASTROW_BUILDER_H
 #define QMCPLUSPLUS_MCMILLAN_JASTROW_BUILDER_H
-#include "QMCWaveFunctions/Jastrow/McMillanFunctors.h"
 #include "QMCWaveFunctions/WaveFunctionComponentBuilder.h"
 
 namespace qmcplusplus

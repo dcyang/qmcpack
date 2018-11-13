@@ -13,6 +13,7 @@
 #include "QMCWaveFunctions/Jastrow/McMillanJastrowBuilder.h"
 #include "QMCWaveFunctions/Jastrow/TwoBodyJastrowOrbital.h"
 #include "QMCWaveFunctions/Jastrow/J2OrbitalSoA.h"
+#include "QMCWaveFunctions/Jastrow/McMillanFunctors.h"
 #include "QMCWaveFunctions/DiffWaveFunctionComponent.h"
 #include "Utilities/IteratorUtility.h"
 #include "Utilities/ProgressReportEngine.h"
@@ -38,8 +39,6 @@ namespace qmcplusplus
     std::string spin="yes";
     std::string id_a="jaa_a";
     std::string id_b="jaa_b";
-    RealType pade_a=1.0;
-    RealType pade_b=1.0;
     OhmmsAttributeSet pattrib;
     pattrib.add(jname,"name");
     pattrib.add(spin,"spin");
@@ -89,8 +88,7 @@ namespace qmcplusplus
             cusp = (ia==ib)? -0.25*qq:-0.5*qq;
           }
           */
-          std::ostringstream o;
-          o<<"j2"<<ia<<ib;
+          // std::ostringstream o; o<<"j2"<<ia<<ib;     // this line seems unnecessary
           RadFuncType *functor = new RadFuncType();
           functor->cutoff_radius = targetPtcl.LRBox.LR_rc;
           functor->put(cur);

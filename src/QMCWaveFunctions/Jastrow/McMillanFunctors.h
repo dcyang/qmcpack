@@ -39,15 +39,12 @@ namespace qmcplusplus
     real_type A, B;
     real_type uShift;
 
-    /// internal variables
-    real_type rcusp, c1, c2;
-
     ///id of A, B
     std::string ID_A, ID_B;
 
     ///default constructor
-    explicit McMillanFunctor_MS(real_type a = 5.0, real_type b = 5.7448, real_type r0 = 2.0)
-      : A(a), B(b), rcusp(r0), Opt_A(true), Opt_B(true), ID_A("0"), ID_B("0")
+    explicit McMillanFunctor_MS(real_type a = 5.0, real_type b = 4.9133)
+      : A(a), B(b), Opt_A(true), Opt_B(true), ID_A("0"), ID_B("0")
     {
       reset();
     }
@@ -59,11 +56,6 @@ namespace qmcplusplus
 
     void reset() {
       reset(A, B);
-      // rcusp = 2.0;
-      real_type Y;
-      c1 = evaluate(rcusp, Y, c2);
-      c2 = -0.5*Y/(rcusp*c1);
-      c1 *= std::exp(-c2*rcusp*rcusp);
     }
     inline void reset(real_type a, real_type b) {
       A = a; B = b;
@@ -189,13 +181,14 @@ namespace qmcplusplus
 	//@todo Var -> <param(eter) role="opt"/>
         std::string cname((const char*)(tcur->name));
         tolower(cname);
-	if(cname == "parameter" || cname == "var") {
+	if(cname.find("param") != std::string::npos || cname.find("var") != std::string::npos) {
           std::string pName((const char*)(xmlGetProp(tcur,(const xmlChar *)"name")));
 	  //            string idname((const char*)(xmlGetProp(tcur,(const xmlChar *)"id")));
 	  if(pName == "a") {
 	    ID_A = (const char*)(xmlGetProp(tcur,(const xmlChar *)"id"));
 	    putContent(A,tcur);
-	  } else if(pName == "b") {
+          }
+          else if(pName == "b") {
 	    ID_B = (const char*)(xmlGetProp(tcur,(const xmlChar *)"id"));
 	    putContent(B,tcur);
 	  }
@@ -208,11 +201,6 @@ namespace qmcplusplus
       if (Opt_B) myVars.insert(ID_B, B, Opt_B, optimize::OTHER_P);
       app_log() << "  McMillan Jastrow parameters (A, B) = (" << A << ", " << B << ")" << std::endl;
 
-      real_type Y;
-      c1 = evaluate(rcusp, Y, c2);
-      c2 = -Y/(2.0*rcusp*c1);
-      c1 *= std::exp(c2*rcusp*rcusp);
-      // std::cout << "NENE: " << rcusp << ", " << cutoff_radius << ", " << c1 << ", " << c2 << std::endl << evaluate(rcusp-0.0001) << ", " << evaluate(rcusp+0.0001) << std::endl;
       app_log() << "  Mirror-imaging and shifting -log(Psi) about rcut = " << cutoff_radius << std::endl;
 
       return true;
@@ -235,10 +223,6 @@ namespace qmcplusplus
       int ia=myVars.where(0); if(ia>-1) A=active[ia];
       int ib=myVars.where(1); if(ib>-1) B=active[ib];
       reset(A,B);
-      real_type Y;
-      c1 = evaluate(rcusp, Y, c2);
-      c2 = -Y/(2.0*rcusp*c1);
-      c1 *= std::exp(-c2*rcusp*rcusp);
     }
   };
 }
