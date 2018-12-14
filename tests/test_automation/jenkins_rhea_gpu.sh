@@ -23,6 +23,7 @@ module load hdf5
 module load git
 module load cudatoolkit/8.0.44
 module load cmake/3.6.1
+module load boost
 
 env
 module list
@@ -50,7 +51,9 @@ fi
 # because Andreas tells me (and I observe) that GPU builds are unstable with Cmake
 time make -j 24
 time make -j 24
-time ctest -L unit
+
+time ctest -L unit --output-on-failure
+
 
 
 echo ""
@@ -68,7 +71,9 @@ time cmake -DQMC_COMPLEX=0 -DQMC_MIXED_PRECISION=1 -DENABLE_SOA=1 -DCMAKE_C_COMP
 
 time make -j 24
 time make -j 24
-time ctest -L unit
+
+time ctest -L unit --output-on-failure
+
 
 
 echo ""
@@ -86,7 +91,9 @@ time cmake -DQMC_COMPLEX=1 -DQMC_MIXED_PRECISION=0 -DCMAKE_C_COMPILER="mpicc" -D
 
 time make -j 24
 time make -j 24
-time ctest -L unit
+
+time ctest -L unit --output-on-failure
+
 
 echo ""
 echo ""
@@ -103,7 +110,9 @@ time cmake -DQMC_COMPLEX=1 -DQMC_MIXED_PRECISION=1 -DENABLE_SOA=1 -DCMAKE_C_COMP
 
 time make -j 24
 time make -j 24
-time ctest -L unit
+
+time ctest -L unit --output-on-failure
+
 
 EOF
 
