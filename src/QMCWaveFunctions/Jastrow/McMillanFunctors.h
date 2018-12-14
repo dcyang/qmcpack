@@ -140,17 +140,17 @@ namespace qmcplusplus
       real_type u = phi(r) + phi(r_m) + uShift;
       if(Opt_A)
       {
-        derivs[i][0]= phi(r)*alpha(r) + phi(r_m)*alpha(r_m) + uShift*alpha(cutoff_radius); //du/da
-        derivs[i][1]= phi(r)*(g(r)*alpha(r) + alphaPrime(r)) - phi(r_m)*(g(r_m)*alpha(r_m) + alphaPrime(r_m)); //d(du/da)/dr
+        derivs[i][0]= phi(r)*alpha(r) + phi(r_m)*alpha(r_m) + uShift*alpha(cutoff_radius);      // ∂u/∂a
+        derivs[i][1]= phi(r)*(g(r)*alpha(r) + alphaPrime(r)) - phi(r_m)*(g(r_m)*alpha(r_m) + alphaPrime(r_m));  // d(∂u/∂a)/dr
         derivs[i][2]= phi(r)*((1.0 + 1.0/A)*g(r)*g(r)*alpha(r) + 2.0*g(r)*alphaPrime(r) + alpha2Prime(r))
-          + phi(r_m)*((1.0 + 1.0/A)*g(r_m)*g(r_m)*alpha(r_m) + 2.0*g(r_m)*alphaPrime(r_m) + alpha2Prime(r_m)); //d^2 (du/da)/dr
+          + phi(r_m)*((1.0 + 1.0/A)*g(r_m)*g(r_m)*alpha(r_m) + 2.0*g(r_m)*alphaPrime(r_m) + alpha2Prime(r_m));  // d²(∂u/∂a)/dr²
         ++i;
       }
       if(Opt_B)
       {
-        derivs[i][0]= phi(r)*beta(r) + phi(r_m)*beta(r_m) + uShift*beta(cutoff_radius); //du/db
-        derivs[i][1]= phi(r)*g(r)*beta(r) - phi(r_m)*g(r_m)*beta(r_m); //d(du/db)/dr
-        derivs[i][2]= (phi(r)*g(r)*g(r)*beta(r) + phi(r_m)*g(r_m)*g(r_m)*beta(r_m))*(1.0 + 1.0/A); //d^2(du/db)/dr^2
+        derivs[i][0]= phi(r)*beta(r) + phi(r_m)*beta(r_m) + uShift*beta(cutoff_radius); // ∂u/∂b
+        derivs[i][1]= phi(r)*g(r)*beta(r) - phi(r_m)*g(r_m)*beta(r_m);  // d(∂u/∂b)/dr
+        derivs[i][2]= (phi(r)*g(r)*g(r)*beta(r) + phi(r_m)*g(r_m)*g(r_m)*beta(r_m))*(1.0 + 1.0/A);      // d²(∂u/∂b)/dr²
         ++i;
       }
       return true;
@@ -164,12 +164,12 @@ namespace qmcplusplus
       real_type u = phi(r) + phi(r_m) + uShift;
       if(Opt_A)
       {
-        derivs[i]= phi(r)*alpha(r) + phi(r_m)*alpha(r_m) + uShift*alpha(cutoff_radius); //du/da
+        derivs[i]= phi(r)*alpha(r) + phi(r_m)*alpha(r_m) + uShift*alpha(cutoff_radius); // ∂u/∂a
         ++i;
       }
       if(Opt_B)
       {
-        derivs[i]= phi(r)*beta(r) + phi(r_m)*beta(r_m) + uShift*beta(cutoff_radius); //du/db
+        derivs[i]= phi(r)*beta(r) + phi(r_m)*beta(r_m) + uShift*beta(cutoff_radius);    // ∂u/∂b
         ++i;
       }
       return true;
@@ -187,21 +187,46 @@ namespace qmcplusplus
 	  if(pName == "a") {
 	    ID_A = (const char*)(xmlGetProp(tcur,(const xmlChar *)"id"));
 	    putContent(A,tcur);
+
+            std::string optimize("yes");
+            OhmmsAttributeSet pAttrib;
+            pAttrib.add(optimize, "optimize");
+            pAttrib.put(tcur);
+
+            if (optimize.find("no") != std::string::npos
+                || optimize.find("false") != std::string::npos
+                || optimize.find("0") != std::string::npos) Opt_A = false;
           }
           else if(pName == "b") {
 	    ID_B = (const char*)(xmlGetProp(tcur,(const xmlChar *)"id"));
 	    putContent(B,tcur);
+
+            std::string optimize("yes");
+            OhmmsAttributeSet pAttrib;
+            pAttrib.add(optimize, "optimize");
+            pAttrib.put(tcur);
+
+            if (optimize.find("no") != std::string::npos
+                || optimize.find("false") != std::string::npos
+                || optimize.find("0") != std::string::npos) Opt_B = false;
 	  }
 	}
 	tcur = tcur->next;
       }
       reset(A,B);
-      // optimize::* flags defined in Optimize/VariableSet.h
-      if (Opt_A) myVars.insert(ID_A, A, Opt_A, optimize::OTHER_P);
-      if (Opt_B) myVars.insert(ID_B, B, Opt_B, optimize::OTHER_P);
-      app_log() << "  McMillan Jastrow parameters (A, B) = (" << A << ", " << B << ")" << std::endl;
 
-      app_log() << "  Mirror-imaging and shifting -log(Psi) about rcut = " << cutoff_radius << std::endl;
+      app_log() << "  McMillan Jastrow parameters (A, B) = (" << A << ", " << B << ")" << std::endl;
+      // optimize::* flags defined in Optimize/VariableSet.h
+      if (Opt_A) {
+        myVars.insert(ID_A, A, Opt_A, optimize::OTHER_P);
+        app_log() << "  A is set to be optimizable." << std::endl;
+      }
+      if (Opt_B) {
+        myVars.insert(ID_B, B, Opt_B, optimize::OTHER_P);
+        app_log() << "  B is set to be optimizable." << std::endl;
+      }
+
+      app_log() << "  Mirror-imaging and shifting -log(Psi) = (B/r)^a about rcut = " << cutoff_radius << std::endl;
 
       return true;
     }
