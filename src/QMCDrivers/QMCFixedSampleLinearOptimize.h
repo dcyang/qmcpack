@@ -56,7 +56,7 @@ private:
   inline bool ValidCostFunction(bool valid)
   {
     if (!valid)
-      app_log()<<" Cost Function is Invalid. If this frequently, try reducing the step size of the line minimization or reduce the number of cycles. " << std::endl;
+      app_log()<<"  Cost Function is invalid. If this happens frequently, try reducing the step size of the line minimization or reduce the number of cycles. " << std::endl;
     return valid;
   }
 

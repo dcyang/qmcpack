@@ -33,7 +33,7 @@ QMCCostFunctionOMP::QMCCostFunctionOMP(MCWalkerConfiguration& w,
   QMCCostFunctionBase(w,psi,h,comm)
 {
   CSWeight=1.0;
-  app_log()<<" Using QMCCostFunctionOMP::QMCCostFunctionOMP"<< std::endl;
+  app_log()<<"  Using QMCCostFunctionOMP::QMCCostFunctionOMP"<< std::endl;
 }
 
 

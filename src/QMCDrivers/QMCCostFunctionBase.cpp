@@ -423,7 +423,7 @@ QMCCostFunctionBase::put(xmlNodePtr q)
   if (cset.empty())
   {
     if (msg_stream)
-      *msg_stream << " Using Default Cost Function: Cost = <|E-E_ff|^2>" << std::endl;
+      *msg_stream << "  Using Default Cost Function: Cost = <|E-E_ff|^2>" << std::endl;
   }
   else
     resetCostFunction(cset);
@@ -450,6 +450,12 @@ void QMCCostFunctionBase::resetCostFunction(std::vector<xmlNodePtr>& cset)
     else if ((pname == "reweightedVariance") || (pname == "reweightedvariance"))
       putContent(w_var,cset[i]);
   }
+  Return_t w_total = w_en + w_w + w_abs + w_var;
+  w_en /= w_total; w_w /= w_total; w_abs /= w_total; w_var /= w_total;
+  if (w_en > 0.0) app_log()<<"  Using Cost Function weight " << w_en << " of energy" << std::endl;
+  if (w_w > 0.0) app_log()<<"  Using Cost Function weight " << w_w << " of unreweighted energy variance" << std::endl;
+  if (w_abs > 0.0) app_log()<<"  Using Cost Function weight " << w_abs << " of <|E-E_ff|>" << std::endl;
+  if (w_var > 0.0) app_log()<<"  Using Cost Function weight " << w_var << " of reweighted energy variance" << std::endl;
 }
 
 
@@ -464,6 +470,22 @@ void QMCCostFunctionBase::updateXmlNodes()
     xmlXPathContextPtr acontext = xmlXPathNewContext(m_doc_out);
     //check var
     xmlXPathObjectPtr result = xmlXPathEvalExpression((const xmlChar*)"//var",acontext);
+    for (int iparam=0; iparam<result->nodesetval->nodeNr; iparam++)
+    {
+      xmlNodePtr cur= result->nodesetval->nodeTab[iparam];
+      const xmlChar* iptr=xmlGetProp(cur,(const xmlChar*)"id");
+      if (iptr == NULL)
+        continue;
+      std::string aname((const char*)iptr);
+      opt_variables_type::iterator oit(OptVariablesForPsi.find(aname));
+      if (oit != OptVariablesForPsi.end())
+      {
+        paramNodes[aname]=cur;
+      }
+    }
+    xmlXPathFreeObject(result);
+    //check parameter
+    result = xmlXPathEvalExpression((const xmlChar*)"//parameter",acontext);
     for (int iparam=0; iparam<result->nodesetval->nodeNr; iparam++)
     {
       xmlNodePtr cur= result->nodesetval->nodeTab[iparam];
