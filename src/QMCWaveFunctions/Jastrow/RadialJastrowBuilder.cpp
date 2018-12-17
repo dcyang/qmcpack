@@ -267,9 +267,9 @@ bool RadialJastrowBuilder::createJ2(xmlNodePtr cur)
       {
         char fname[32];
         if(qmc_common.mpi_groups>1)
-          sprintf(fname,"J2.%s.g%03d.dat",pairType.c_str(),taskid);
+          sprintf(fname,"%s.%s.g%03d.dat", j2name.c_str(), pairType.c_str(), taskid);
         else
-          sprintf(fname,"J2.%s.dat",pairType.c_str());
+          sprintf(fname,"%s.%s.dat", j2name.c_str(), pairType.c_str());
         std::ofstream os(fname);
         print(*functor, os);
       }
@@ -552,7 +552,7 @@ bool RadialJastrowBuilder::put(xmlNodePtr cur)
     {
       app_error() << "Unknown two body jastrow function: " << Jastfunction << ".\n";
     }
-    }
+  }
   return success;
 }
 

@@ -15,10 +15,6 @@
     
     
 #include "QMCWaveFunctions/Jastrow/JastrowBuilder.h"
-// #include "QMCWaveFunctions/Jastrow/McMillanJastrowBuilder.h"
-// #include "QMCWaveFunctions/Jastrow/GaussianJastrowBuilder.h"
-#include "QMCWaveFunctions/Jastrow/RPAJastrow.h"
-// #include "QMCWaveFunctions/Jastrow/BsplineJastrowBuilder.h"
 #include "QMCWaveFunctions/Jastrow/kSpaceJastrowBuilder.h"
 #if OHMMS_DIM ==3
 #include "QMCWaveFunctions/Jastrow/eeI_JastrowBuilder.h"

@@ -66,7 +66,7 @@ MCWalkerConfiguration* ParticleSetPool::getWalkerSet(const std::string& pname)
     mc=getParticleSet(pname);
   if(mc ==0)
   {
-    APP_ABORT("ParticleSePool::getWalkerSet missing "+ pname);
+    APP_ABORT("ParticleSetPool::getWalkerSet missing "+ pname);
   }
   return dynamic_cast<MCWalkerConfiguration*>(mc);
 }

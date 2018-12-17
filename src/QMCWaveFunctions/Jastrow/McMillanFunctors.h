@@ -245,9 +245,17 @@ namespace qmcplusplus
 
     void resetParameters(const opt_variables_type& active)
     {
-      int ia=myVars.where(0); if(ia>-1) A=active[ia];
-      int ib=myVars.where(1); if(ib>-1) B=active[ib];
-      reset(A,B);
+      int i = 0;
+      double A_rhs = A, B_rhs = B;
+      if (Opt_A) {
+        int j = myVars.where(i); if (j > -1) A_rhs = active[j];
+        ++i;
+      }
+      if (Opt_B) {
+        int j = myVars.where(i); if (j > -1) B_rhs = active[j];
+        ++i;
+      }
+      reset(A_rhs,B_rhs);
     }
   };
 }

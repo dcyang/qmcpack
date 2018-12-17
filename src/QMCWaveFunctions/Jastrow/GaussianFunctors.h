@@ -56,7 +56,7 @@ namespace qmcplusplus
      * @param ida id of A
      */
     explicit GaussianFunctor(real_type a, const std::string& ida)
-      :A(a),ID_A(ida), Opt_A(false)
+      :A(a),ID_A(ida), Opt_A(true)
     {
       reset();
     }
@@ -69,29 +69,34 @@ namespace qmcplusplus
     void reset()
     {
       cutoff_radius=1.0e4; //some big range
-      //A=a; B0=b; Scale=s;
+    }
+
+    void reset(double A_rhs)
+    {
+      cutoff_radius=1.0e4; //some big range
+      A=A_rhs;
     }
 
     inline real_type evaluate(real_type r) const
     {
-      return A*r*r;
+      return A*A*r*r;
     }
 
     inline real_type
       evaluate(real_type r, real_type& dudr, real_type& d2udr2) const
       {
-        dudr = 2.0*A*r;
-        d2udr2 = 2.0*A;
-        return A*r*r;
+        dudr = 2.0*A*A*r;
+        d2udr2 = 2.0*A*A;
+        return A*A*r*r;
       }
 
     inline real_type
       evaluate(real_type r, real_type& dudr, real_type& d2udr2, real_type& d3udr3) const
       {
-        dudr = 2.0*A*r;
-        d2udr2 = 2.0*A;
+        dudr = 2.0*A*A*r;
+        d2udr2 = 2.0*A*A;
         d3udr3 = 0.0;
-        return A*r*r;
+        return A*A*r*r;
       }
 
     inline real_type evaluateV(const int iat, const int iStart, const int iEnd,
@@ -135,9 +140,9 @@ namespace qmcplusplus
       int i=0;
       if (Opt_A)
       {
-        derivs[i][0]= r*r; //du/da
-        derivs[i][1]= 2.0*r; //d(du/da)/dr
-        derivs[i][2]= 2.0; //d^2 (du/da)/dr^2
+        derivs[i][0]= (A+A)*r*r;        // ∂u/∂a
+        derivs[i][1]= 4.0*A*r;          // d(∂u/∂a)/dr
+        derivs[i][2]= 4.0*A;            // d²(∂u/∂a)/dr²
         ++i;
       }
       return true;
@@ -149,7 +154,7 @@ namespace qmcplusplus
       int i=0;
       if (Opt_A)
       {
-        derivs[i]= r*r; //du/da
+        derivs[i] = (A+A)*r*r;           // ∂u/∂a
         ++i;
       }
       return true;
@@ -176,16 +181,27 @@ namespace qmcplusplus
           {
             ID_A = id_in;
             putContent(Atemp,tcur);
-            Opt_A=true;         // may need to move this elsewhere
+
+            std::string optimize("yes");
+            OhmmsAttributeSet pAttrib;
+            pAttrib.add(optimize, "optimize");
+            pAttrib.put(tcur);
+
+            if (optimize.find("no") != std::string::npos
+                || optimize.find("false") != std::string::npos
+                || optimize.find("0") != std::string::npos) Opt_A = false;
           }
         }
         tcur = tcur->next;
       }
       A=Atemp;
       reset();
-      myVars.clear();
-      if (Opt_A) myVars.insert(ID_A,A, Opt_A,optimize::LOGLINEAR_P);
+      // myVars.clear();        // XXX: WHY is this needed?
       app_log() << "  Gaussian Jastrow parameter A = " << A << std::endl;
+      if (Opt_A) {
+        myVars.insert(ID_A,A, Opt_A,optimize::LOGLINEAR_P);
+        app_log() << "  A is set to be optimizable." << std::endl;
+      }
 
       return true;
     }
@@ -204,17 +220,13 @@ namespace qmcplusplus
 
     void resetParameters(const opt_variables_type& active)
     {
-      if(myVars.size())
-      {
-        int ia=myVars.where(0);
-        if(ia>-1)
-        {
-          int i=0;
-          if (Opt_A)
-            A=myVars[i++]=active[ia++];
-        }
-        reset();
+      int i = 0;
+      double A_rhs = A;
+      if (Opt_A) {
+        int j = myVars.where(i); if (j > -1) A_rhs = active[j];
+        ++i;
       }
+      reset(A_rhs);
     }
   };
 }
