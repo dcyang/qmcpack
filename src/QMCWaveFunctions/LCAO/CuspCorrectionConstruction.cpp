@@ -725,7 +725,7 @@ void generateCuspInfo(Matrix<CuspCorrectionParameters>& info,
       auto& cref(*(local_phi.C));
       for (int ip = 0; ip < cref.cols(); ip++)
       {
-        if (std::abs(cref(mo_idx, ip)) > 0)
+        if (std::abs(cref(mo_idx, ip)) > std::numeric_limits<RealType>::epsilon() * 100)
         {
           corrO = true;
           break;
