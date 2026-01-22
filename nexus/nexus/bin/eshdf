@@ -12,7 +12,7 @@ import numpy as np
 def find_nexus_modules():
     import os
     import sys
-    nexus_lib = os.path.realpath(os.path.join(__file__,'..','..','..','nexus'))
+    nexus_lib = os.path.realpath(os.path.join(__file__,'..','..','..'))
     assert(os.path.exists(nexus_lib))
     sys.path.insert(0,nexus_lib)
     import nexus
