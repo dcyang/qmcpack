@@ -23,9 +23,9 @@ namespace qmcplusplus
 {
 MCPopulation::MCPopulation(int num_ranks,
                            int this_rank,
-                           ParticleSet* elecs,
-                           TrialWaveFunction* trial_wf,
-                           QMCHamiltonian* hamiltonian)
+                           ParticleSet& elecs,
+                           TrialWaveFunction& trial_wf,
+                           QMCHamiltonian& hamiltonian)
     : trial_wf_(trial_wf), elec_particle_set_(elecs), hamiltonian_(hamiltonian), num_ranks_(num_ranks), rank_(this_rank)
 {}
 
@@ -75,7 +75,7 @@ void MCPopulation::createWalkers(IndexType num_walkers, const WalkerConfiguratio
   // buffer;
   // Ye: need to resize walker_t and ParticleSet Properties
   // Really MCPopulation does not own this elec_particle_set_  seems like it should be immutable
-  elec_particle_set_->Properties.resize(1, elec_particle_set_->PropertyList.size());
+  elec_particle_set_.Properties.resize(1, elec_particle_set_.PropertyList.size());
 
   // This pattern is begging for a micro benchmark, is this really better
   // than the simpler walkers_.pushback;
@@ -112,22 +112,22 @@ void MCPopulation::createWalkers(IndexType num_walkers, const WalkerConfiguratio
     {
       // These walkers are orphans they don't get their intial configuration from a walkerconfig
       // but from the golden particle set.  They get an walker ID of 0;
-      walkers_[iw] = std::make_unique<MCPWalker>(walker_ids[iw], 0 /* parent_id */, elec_particle_set_->getTotalNum());
+      walkers_[iw] = std::make_unique<MCPWalker>(walker_ids[iw], 0 /* parent_id */, elec_particle_set_.getTotalNum());
       // Should these get a randomize from source?
       // This seems to be what happens in legacy but its surprisingly opaque there
       // How is it not undesirable to have all these walkers start from the same positions
-      walkers_[iw]->R     = elec_particle_set_->R;
-      walkers_[iw]->spins = elec_particle_set_->spins;
+      walkers_[iw]->R     = elec_particle_set_.R;
+      walkers_[iw]->spins = elec_particle_set_.spins;
     }
 
-    walkers_[iw]->Properties = elec_particle_set_->Properties;
+    walkers_[iw]->Properties = elec_particle_set_.Properties;
     walkers_[iw]->registerData();
     walkers_[iw]->DataSet.allocate();
 
-    walker_elec_particle_sets_[iw]  = std::make_unique<ParticleSet>(*elec_particle_set_);
-    walker_trial_wavefunctions_[iw] = trial_wf_->makeClone(*walker_elec_particle_sets_[iw]);
+    walker_elec_particle_sets_[iw]  = std::make_unique<ParticleSet>(elec_particle_set_);
+    walker_trial_wavefunctions_[iw] = trial_wf_.makeClone(*walker_elec_particle_sets_[iw]);
     walker_hamiltonians_[iw] =
-        hamiltonian_->makeClone(*walker_elec_particle_sets_[iw], *walker_trial_wavefunctions_[iw]);
+        hamiltonian_.makeClone(*walker_elec_particle_sets_[iw], *walker_trial_wavefunctions_[iw]);
   };
 
   outputManager.resume();
@@ -205,10 +205,10 @@ WalkerElementsRef MCPopulation::spawnWalker()
 
     outputManager.pause();
 
-    walker_elec_particle_sets_.emplace_back(std::make_unique<ParticleSet>(*elec_particle_set_));
-    walker_trial_wavefunctions_.emplace_back(trial_wf_->makeClone(*walker_elec_particle_sets_.back()));
+    walker_elec_particle_sets_.emplace_back(std::make_unique<ParticleSet>(elec_particle_set_));
+    walker_trial_wavefunctions_.emplace_back(trial_wf_.makeClone(*walker_elec_particle_sets_.back()));
     walker_hamiltonians_.emplace_back(
-        hamiltonian_->makeClone(*walker_elec_particle_sets_.back(), *walker_trial_wavefunctions_.back()));
+        hamiltonian_.makeClone(*walker_elec_particle_sets_.back(), *walker_trial_wavefunctions_.back()));
     walkers_.back()->Multiplicity = 1.0;
     walkers_.back()->Weight       = 1.0;
   }
@@ -325,7 +325,7 @@ void MCPopulation::checkIntegrity() const
 
 void MCPopulation::saveWalkerConfigurations(WalkerConfigurations& walker_configs)
 {
-  walker_configs.resize(walker_elec_particle_sets_.size(), elec_particle_set_->getTotalNum());
+  walker_configs.resize(walker_elec_particle_sets_.size(), elec_particle_set_.getTotalNum());
   for (int iw = 0; iw < walker_elec_particle_sets_.size(); iw++)
   {
     walker_configs[iw]->R      = walkers_[iw]->R;
