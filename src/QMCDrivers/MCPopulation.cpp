@@ -352,5 +352,3 @@ void MCPopulation::saveWalkerConfigurations(WalkerConfigurations& walker_configs
   }
 }
 } // namespace qmcplusplus
-//////////////////////////////////////////////////////////////////////////////////////
-// This file is distributed under the University of Illinois/NCSA Open Source License.
