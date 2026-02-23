@@ -112,8 +112,7 @@ void propg_fac_shared(boost::mpi3::communicator& world)
     const char* wlk_xml_block =
         ((type == CLOSED) ? (wlk_xml_block_closed) : (type == COLLINEAR ? wlk_xml_block_coll : wlk_xml_block_noncol));
     Libxml2Document doc3;
-    okay = doc3.parseFromString(wlk_xml_block);
-    REQUIRE(okay);
+    REQUIRE(doc3.parseFromString(wlk_xml_block));
 
     // Create unique restart filename to avoid issues with running tests in parallel
     // through ctest.
@@ -133,8 +132,7 @@ void propg_fac_shared(boost::mpi3::communicator& world)
     )";
     const char* wfn_xml_block = wfn_xml.c_str();
     Libxml2Document doc2;
-    okay = doc2.parseFromString(wfn_xml_block);
-    REQUIRE(okay);
+    REQUIRE(doc2.parseFromString(wfn_xml_block));
     std::string wfn_name("wfn0");
     WavefunctionFactory WfnFac(InfoMap);
     WfnFac.push(wfn_name, doc2.getRoot());
@@ -152,8 +150,7 @@ void propg_fac_shared(boost::mpi3::communicator& world)
 
     const char* propg_xml_block = R"(<Propagator name="prop0"></Propagator>)";
     Libxml2Document doc4;
-    okay = doc4.parseFromString(propg_xml_block);
-    REQUIRE(okay);
+    REQUIRE(doc4.parseFromString(propg_xml_block));
     std::string prop_name("prop0");
     PropagatorFactory PropgFac(InfoMap);
     PropgFac.push(prop_name, doc4.getRoot());
@@ -288,8 +285,7 @@ void propg_fac_distributed(boost::mpi3::communicator& world, int ngrp)
     const char* wlk_xml_block =
         ((type == CLOSED) ? (wlk_xml_block_closed) : (type == COLLINEAR ? wlk_xml_block_coll : wlk_xml_block_noncol));
     Libxml2Document doc3;
-    okay = doc3.parseFromString(wlk_xml_block);
-    REQUIRE(okay);
+    REQUIRE(doc3.parseFromString(wlk_xml_block));
 
     std::string restart_file = create_test_hdf(UTEST_WFN, UTEST_HAMIL);
     app_log() << " propg_fac_distributed destroy restart_file " << restart_file << "\n";
@@ -306,8 +302,7 @@ void propg_fac_distributed(boost::mpi3::communicator& world, int ngrp)
     )";
     const char* wfn_xml_block = wfn_xml.c_str();
     Libxml2Document doc2;
-    okay = doc2.parseFromString(wfn_xml_block);
-    REQUIRE(okay);
+    REQUIRE(doc2.parseFromString(wfn_xml_block));
     std::string wfn_name("wfn0");
     WavefunctionFactory WfnFac(InfoMap);
     WfnFac.push(wfn_name, doc2.getRoot());
@@ -327,8 +322,7 @@ void propg_fac_distributed(boost::mpi3::communicator& world, int ngrp)
     std::string str_             = std::string(R"(<Propagator name="prop0"> <parameter name="nnodes">)") +
         std::to_string(gTG.getTotalNodes()) + std::string(R"(</parameter> </Propagator>)");
     Libxml2Document doc4;
-    okay = doc4.parseFromString(str_.c_str());
-    REQUIRE(okay);
+    REQUIRE(doc4.parseFromString(str_.c_str()));
     std::string prop_name("prop0");
     PropagatorFactory PropgFac(InfoMap);
     PropgFac.push(prop_name, doc4.getRoot());
