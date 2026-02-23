@@ -59,8 +59,7 @@ TEST_CASE("DMCDriver+QMCDriverNew integration", "[drivers]")
   outputManager.pause();
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(valid_dmc_input_sections[valid_dmc_input_dmc_batch_index]);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(valid_dmc_input_sections[valid_dmc_input_dmc_batch_index]));
   xmlNodePtr node = doc.getRoot();
   QMCDriverInput qmcdriver_input;
   qmcdriver_input.readXML(node);

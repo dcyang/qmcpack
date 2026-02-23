@@ -220,8 +220,7 @@ TEST_CASE("Evaluate_ecp", "[hamiltonian]")
   </tmp>
   )";
   Libxml2Document doc;
-  bool okay = doc.parseFromString(particles);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(particles));
 
   xmlNodePtr root = doc.getRoot();
 
@@ -240,8 +239,7 @@ TEST_CASE("Evaluate_ecp", "[hamiltonian]")
       </jastrow>
   </tmp>
   )";
-  bool okay3             = doc.parseFromString(particles2);
-  REQUIRE(okay3);
+  REQUIRE(doc.parseFromString(particles2));
 
   root = doc.getRoot();
 
@@ -515,8 +513,7 @@ TEST_CASE("Evaluate_soecp", "[hamiltonian]")
   </tmp>
   )";
   Libxml2Document doc;
-  bool okay = doc.parseFromString(particles);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(particles));
   xmlNodePtr root = doc.getRoot();
   xmlNodePtr jas2 = xmlFirstElementChild(root);
   RadialJastrowBuilder jastrow(c, elec);

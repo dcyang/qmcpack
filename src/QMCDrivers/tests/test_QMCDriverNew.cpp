@@ -35,8 +35,7 @@ TEST_CASE("QMCDriverNew tiny case", "[drivers]")
   outputManager.pause();
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(valid_vmc_input_sections[valid_vmc_input_vmc_tiny_index]);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(valid_vmc_input_sections[valid_vmc_input_vmc_tiny_index]));
   xmlNodePtr node = doc.getRoot();
   QMCDriverInput qmcdriver_input;
   qmcdriver_input.readXML(node);
@@ -78,8 +77,7 @@ TEST_CASE("QMCDriverNew walker counts", "[drivers]")
   outputManager.pause();
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(valid_dmc_input_sections[valid_dmc_input_dmc_batch_index]);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(valid_dmc_input_sections[valid_dmc_input_dmc_batch_index]));
   xmlNodePtr node = doc.getRoot();
   QMCDriverInput qmcdriver_input;
   qmcdriver_input.readXML(node);
@@ -110,8 +108,7 @@ TEST_CASE("QMCDriverNew test driver operations", "[drivers]")
   outputManager.pause();
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(valid_vmc_input_sections[valid_vmc_input_vmc_tiny_index]);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(valid_vmc_input_sections[valid_vmc_input_vmc_tiny_index]));
   xmlNodePtr node = doc.getRoot();
 
   QMCDriverInput qmcdriver_input;

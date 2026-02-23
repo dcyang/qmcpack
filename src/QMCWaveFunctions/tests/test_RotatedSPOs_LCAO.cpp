@@ -63,8 +63,7 @@ void setupParticleSetPool(ParticleSetPool& pp)
 </tmp>)";
   Libxml2Document doc;
 
-  bool okay = doc.parseFromString(particles);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(particles));
 
   xmlNodePtr root = doc.getRoot();
 
@@ -113,8 +112,7 @@ void setupParticleSetPoolBe(ParticleSetPool& pp)
 
   Libxml2Document doc;
 
-  bool okay = doc.parseFromString(particles);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(particles));
 
   xmlNodePtr root = doc.getRoot();
 
@@ -238,8 +236,7 @@ TEST_CASE("Rotated LCAO WF0 zero angle", "[qmcapp]")
   std::string wf_input = setupRotationXML("", "", identity_coeff, identity_coeff);
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(wf_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(wf_input));
 
   xmlNodePtr root = doc.getRoot();
 
@@ -311,8 +308,7 @@ TEST_CASE("Rotated LCAO WF1", "[qmcapp]")
   std::string wf_input = setupRotationXML("0.1", "0.2", identity_coeff, identity_coeff);
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(wf_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(wf_input));
 
   xmlNodePtr root = doc.getRoot();
 
@@ -409,8 +405,7 @@ TEST_CASE("Rotated LCAO WF2 with jastrow", "[qmcapp]")
    </wavefunction>)";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(wf_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(wf_input));
 
   xmlNodePtr root = doc.getRoot();
 
@@ -485,8 +480,7 @@ TEST_CASE("Rotated LCAO WF1, MO coeff rotated, zero angle", "[qmcapp]")
   std::string wf_input = setupRotationXML("", "", coeff_rot_by_point1, coeff_rot_by_point2);
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(wf_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(wf_input));
 
   xmlNodePtr root = doc.getRoot();
 
@@ -548,8 +542,7 @@ TEST_CASE("Rotated LCAO WF1 MO coeff rotated, half angle", "[qmcapp]")
   std::string wf_input = setupRotationXML("0.05", "0.1", coeff_rot_by_point05, coeff_rot_by_point1);
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(wf_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(wf_input));
 
   xmlNodePtr root = doc.getRoot();
 
@@ -650,8 +643,7 @@ TEST_CASE("Rotated LCAO rotation consistency", "[qmcapp]")
    </wavefunction>)";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(wf_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(wf_input));
 
   xmlNodePtr root = doc.getRoot();
 
@@ -750,8 +742,7 @@ TEST_CASE("Rotated LCAO Be single determinant", "[qmcapp]")
   REQUIRE(wp.empty() == true);
 
   Libxml2Document doc;
-  bool okay = doc.parse("rot_Be_STO.wfnoj.xml");
-  REQUIRE(okay);
+  REQUIRE(doc.parse("rot_Be_STO.wfnoj.xml"));
   xmlNodePtr root = doc.getRoot();
 
   wp.put(xmlFirstElementChild(root));
@@ -816,8 +807,7 @@ TEST_CASE("Rotated LCAO Be multi determinant with one determinant", "[qmcapp]")
   REQUIRE(wp.empty() == true);
 
   Libxml2Document doc;
-  bool okay = doc.parse("rot_multi_1det_Be_STO.wfnoj.xml");
-  REQUIRE(okay);
+  REQUIRE(doc.parse("rot_multi_1det_Be_STO.wfnoj.xml"));
   xmlNodePtr root = doc.getRoot();
 
   wp.put(xmlFirstElementChild(root));
@@ -882,8 +872,7 @@ TEST_CASE("Rotated LCAO Be two determinant", "[qmcapp]")
   REQUIRE(wp.empty() == true);
 
   Libxml2Document doc;
-  bool okay = doc.parse("rot_multi_2det_Be_STO.wfnoj.xml");
-  REQUIRE(okay);
+  REQUIRE(doc.parse("rot_multi_2det_Be_STO.wfnoj.xml"));
   xmlNodePtr root = doc.getRoot();
 
   wp.put(xmlFirstElementChild(root));
