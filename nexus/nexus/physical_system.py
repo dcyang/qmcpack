@@ -37,7 +37,7 @@ from copy import deepcopy
 import numpy as np
 from .developer import DevBase, obj
 from .unit_converter import convert
-from .periodic_table import is_element, ptable
+from .periodic_table import Elements
 from .structure import Structure, generate_structure, read_structure
 
 
@@ -60,7 +60,8 @@ class Matter(DevBase):
     #end def new_particles
 
     def is_element(self,name,symbol=False):
-        return is_element(name,symbol=symbol)
+        is_elem, element = Elements.is_element(name, return_element=symbol)
+        return is_elem, element.symbol
     #end def is_element
 #end class Matter
 
@@ -221,31 +222,45 @@ class Particles(Matter):
     #end def electron_counts
 #end class Particles
 
-me_amu = convert(1.,'me','amu')
+amu_me = convert(1.,'amu','me')
 
 plist = [
     Particle('up_electron'  ,1.0,-1, 1),
     Particle('down_electron',1.0,-1,-1),
     ]
 
-for name,a in ptable.elements.items():
+for elem in Elements:
     spin = 0 # don't have this data
-    protons  = a.atomic_number
-    neutrons = int(round(a.atomic_weight['amu']-a.atomic_number))
-    p = Ion(a.symbol,a.atomic_weight['me'],a.atomic_number,spin,protons,neutrons)
+    protons  = elem.atomic_number
+    neutrons = int(round(elem.atomic_weight-elem.atomic_number))
+    p = Ion(
+        elem.symbol,
+        elem.atomic_weight * amu_me,
+        elem.atomic_number,
+        spin,
+        protons,
+        neutrons,
+    )
     plist.append(p)
 #end for
-for name,iso in ptable.isotopes.items():
-    for mass_number,a in iso.items():
+for elem in Elements:
+    for mass_number,rel_atomic_mass in elem.isotopes.items():
         spin = 0 # don't have this data
-        protons  = a.atomic_number
-        neutrons = int(round(a.atomic_weight['amu']-a.atomic_number))
-        p = Ion(a.symbol+'_'+str(mass_number),a.atomic_weight['me'],a.atomic_number,spin,protons,neutrons)
+        protons  = elem.atomic_number
+        neutrons = int(round(rel_atomic_mass - elem.atomic_number))
+        p = Ion(
+            f"{elem.symbol}_{mass_number}",
+            rel_atomic_mass * amu_me,
+            elem.atomic_number,
+            spin,
+            protons,
+            neutrons,
+        )
         plist.append(p)
     #end for
 #end for
 
-Matter.set_elements(ptable.elements.keys())
+Matter.set_elements([e.symbol for e in Elements])
 Matter.set_particle_collection(Particles(plist))
 
 del plist
@@ -704,7 +719,7 @@ def generate_physical_system(**kwargs):
     remove = []
     for var in kwargs:
         #if var in Matter.elements:
-        if is_element(var):     
+        if Elements.is_element(var):
             valency[var] = kwargs[var]
             remove.append(var)
         #end if
