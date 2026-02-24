@@ -1865,7 +1865,7 @@ def user_examples(label):
                     dgen = obj(dgen)
                     dref = obj(dref)
                     msg = 'reference and generated input files differ\n'
-                    msg += 'reference file: '+filepath+'\n'
+                    msg += 'reference file: '+os.path.realpath(filepath)+'\n'
                     msg += 'reference file difference\n'
                     msg += 40*'='+'\n'
                     msg += str(dref)
