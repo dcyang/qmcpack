@@ -79,8 +79,7 @@ TEST_CASE("J1 spin evaluate derivatives Jastrow", "[wavefunction]")
 </wavefunction>
 )";
   Libxml2Document doc;
-  bool okay = doc.parseFromString(jasxml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(jasxml));
   xmlNodePtr jas1 = doc.getRoot();
   WaveFunctionFactory wf_factory(elec_, ptcl.getPool(), c);
   RuntimeOptions runtime_options;
@@ -198,8 +197,7 @@ TEST_CASE("J1 spin evaluate derivatives multiparticle Jastrow", "[wavefunction]"
 </wavefunction>
 )";
   Libxml2Document doc;
-  bool okay = doc.parseFromString(jasxml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(jasxml));
   xmlNodePtr jas1 = doc.getRoot();
   WaveFunctionFactory wf_factory(elec_, ptcl.getPool(), c);
   RuntimeOptions runtime_options;

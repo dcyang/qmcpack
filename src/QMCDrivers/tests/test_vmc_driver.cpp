@@ -97,8 +97,7 @@ TEST_CASE("VMC", "[drivers][vmc]")
   </qmc>
   )";
   Libxml2Document doc;
-  bool okay = doc.parseFromString(vmc_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(vmc_input));
   xmlNodePtr root = doc.getRoot();
 
   vmc_omp.process(root); // need to call 'process' for QMCDriver, which in turn calls 'put'
@@ -183,8 +182,7 @@ TEST_CASE("SOVMC", "[drivers][vmc]")
   </qmc>
   )";
   Libxml2Document doc;
-  bool okay = doc.parseFromString(vmc_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(vmc_input));
   xmlNodePtr root = doc.getRoot();
 
   vmc_omp.process(root); // need to call 'process' for QMCDriver, which in turn calls 'put'
@@ -274,8 +272,7 @@ TEST_CASE("SOVMC-alle", "[drivers][vmc]")
   )";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(vmc_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(vmc_input));
   xmlNodePtr root = doc.getRoot();
 
   vmc_omp.process(root); // need to call 'process' for QMCDriver, which in turn calls 'put'

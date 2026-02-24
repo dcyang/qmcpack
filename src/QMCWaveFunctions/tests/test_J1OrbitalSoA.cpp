@@ -74,8 +74,7 @@ TEST_CASE("J1 evaluate derivatives Jastrow", "[wavefunction]")
 </wavefunction>
 )";
   Libxml2Document doc;
-  bool okay = doc.parseFromString(jasxml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(jasxml));
 
   xmlNodePtr jas1 = doc.getRoot();
 
@@ -175,8 +174,7 @@ TEST_CASE("J1 evaluate derivatives Jastrow with two species", "[wavefunction]")
 </wavefunction>
 )";
   Libxml2Document doc;
-  bool okay = doc.parseFromString(jasxml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(jasxml));
 
   xmlNodePtr jas1 = doc.getRoot();
 
@@ -273,8 +271,7 @@ TEST_CASE("J1 evaluate derivatives Jastrow with two species one without Jastrow"
 </wavefunction>
 )";
   Libxml2Document doc;
-  bool okay = doc.parseFromString(jasxml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(jasxml));
 
   xmlNodePtr jas1 = doc.getRoot();
 
