@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 
-@dataclass(frozen=True)
+@dataclass
 class ElementData:
     """Dataclass for storing element data."""
     symbol: str
@@ -33,6 +33,16 @@ class ElementData:
     atomic_weight: float
     group: int
     isotopes: dict[int, float]
+
+    def __hash__(self):
+        return hash((
+            self.symbol,
+            self.atomic_number,
+            self.atomic_weight,
+            self.group,
+            tuple(self.isotopes.keys()),
+            tuple(self.isotopes.values()),
+        ))
 #end class ElementData
 
 
@@ -53,7 +63,8 @@ class Elements(ElementData, Enum):
         Lanthanides and Actinides are 0.
     isotopes : dict[int, float]
         A dictionary of the isotopes for the element [2]_.
-        This can be accessed as ``Element.Name.isotopes[mass_number]``.
+        This can be accessed as ``Element.Name.isotopes[mass_number]``,
+        which yields the relative atomic mass.
 
     References
     ----------
@@ -143,7 +154,7 @@ class Elements(ElementData, Enum):
             f"atomic_weight={self.atomic_weight}, "
             f"group={self.group}>"
         )
-    
+
 
     def __str__(self) -> str:
         return self.symbol
@@ -154,12 +165,11 @@ class Elements(ElementData, Enum):
         """Workaround to not having access to ``_add_alias_`` or
         ``_add_value_alias_`` from Python 3.13. This function
         automatically gets called when the traditional lookup fails.
-
-        
         """
         if isinstance(value, str):
+            value = value.strip()
             if value.isalpha(): # `Elements("h")` or `Elements("hydrogen")`
-                val_title = value.strip().title()
+                val_title = value.title()
                 for elem in cls:
                     if val_title == elem.symbol or val_title == elem.name:
                         return elem

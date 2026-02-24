@@ -11,7 +11,7 @@ def test_periodic_table():
     from ..testing import value_eq
     from ..periodic_table import Elements
 
-    ref_elements = set([
+    ref_elements = (
         "Xx", "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",
         "Ne", "Na", "Mg", "Al", "Si", "P",  "S",  "Cl", "Ar", "K",
         "Ca", "Sc", "Ti", "V",  "Cr", "Mn", "Fe", "Co", "Ni", "Cu",
@@ -24,18 +24,21 @@ def test_periodic_table():
         "Th", "Pa", "U",  "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es",
         "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt",
         "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
-    ])
+    )
 
-    ref_atomic_numbers = set(range(0,len(ref_elements)+1))
-    
+    ref_atomic_numbers = tuple(range(0,len(ref_elements)))
+
     elements = [e.symbol for e in Elements]
     atomic_numbers = [e.atomic_number for e in Elements]
 
-    missing = elements - set(elements)
-    assert(len(missing) == 0)
+    assert(len(elements) == len(ref_elements))
+    assert(len(atomic_numbers) == len(ref_atomic_numbers))
 
-    missing = ref_atomic_numbers - set(atomic_numbers)
-    assert(len(missing) == 0)
+    for elem in elements:
+        assert(elem in ref_elements)
+
+    for number in atomic_numbers:
+        assert(number in ref_atomic_numbers)
     
     ref_carbon_name     = "Carbon"
     ref_carbon_symbol   = "C"

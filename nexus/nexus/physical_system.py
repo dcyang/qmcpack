@@ -60,8 +60,12 @@ class Matter(DevBase):
     #end def new_particles
 
     def is_element(self,name,symbol=False):
-        is_elem, element = Elements.is_element(name, return_element=symbol)
-        return is_elem, element.symbol
+        if symbol is True:
+            is_elem, element = Elements.is_element(name, return_element=symbol)
+            return is_elem, element.symbol
+        else:
+            is_elem = Elements.is_element(name)
+            return is_elem
     #end def is_element
 #end class Matter
 
@@ -244,7 +248,7 @@ for elem in Elements:
     plist.append(p)
 #end for
 for elem in Elements:
-    for mass_number,rel_atomic_mass in elem.isotopes.items():
+    for mass_number, rel_atomic_mass in elem.isotopes.items():
         spin = 0 # don't have this data
         protons  = elem.atomic_number
         neutrons = int(round(rel_atomic_mass - elem.atomic_number))
@@ -271,7 +275,6 @@ class PhysicalSystem(Matter):
 
     def __init__(self,structure=None,net_charge=0,net_spin=0,particles=None,**valency):
         self.pseudized = False
-
         if structure is None:
             self.structure = Structure()
         else:

@@ -5008,7 +5008,7 @@ class Structure(Sobj):
             if isinstance(n,str):
                 elem.append(n)
             else:
-                elem.append(Elements(n))
+                elem.append(Elements(n).symbol)
             #end if
         #end for
         self.dim   = 3
