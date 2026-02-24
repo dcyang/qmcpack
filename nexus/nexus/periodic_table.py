@@ -184,14 +184,6 @@ class Elements(ElementData, Enum):
                                 return elem
                 except ValueError: # We don't support `Elements("1.0")`
                     pass
-        elif isinstance(value, float): # `Elements(1.0)`
-            val_int = int(value)
-            if val_int == value:
-                for elem in cls:
-                    if val_int == elem.atomic_number:
-                        return elem
-            else:
-                pass
         raise ValueError(f"Can not determine element for input value: {value}!")
 
 

@@ -11,7 +11,7 @@ def test_periodic_table():
     from ..testing import value_eq
     from ..periodic_table import Elements
 
-    ref_elements = (
+    ref_element_symbols = (
         "Xx", "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",
         "Ne", "Na", "Mg", "Al", "Si", "P",  "S",  "Cl", "Ar", "K",
         "Ca", "Sc", "Ti", "V",  "Cr", "Mn", "Fe", "Co", "Ni", "Cu",
@@ -26,16 +26,16 @@ def test_periodic_table():
         "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
     )
 
-    ref_atomic_numbers = tuple(range(0,len(ref_elements)))
+    ref_atomic_numbers = tuple(range(0,len(ref_element_symbols)))
 
-    elements = [e.symbol for e in Elements]
+    element_symbols = [e.symbol for e in Elements]
     atomic_numbers = [e.atomic_number for e in Elements]
 
-    assert(len(elements) == len(ref_elements))
+    assert(len(element_symbols) == len(ref_element_symbols))
     assert(len(atomic_numbers) == len(ref_atomic_numbers))
 
-    for elem in elements:
-        assert(elem in ref_elements)
+    for elem in element_symbols:
+        assert(elem in ref_element_symbols)
 
     for number in atomic_numbers:
         assert(number in ref_atomic_numbers)
@@ -49,6 +49,7 @@ def test_periodic_table():
 
     assert(Elements.Carbon.name          == ref_carbon_name)
     assert(Elements.Carbon.symbol        == ref_carbon_symbol)
+    assert(str(Elements.Carbon)          == ref_carbon_symbol)
     assert(Elements.Carbon.atomic_number == ref_carbon_number)
     assert(Elements.Carbon.atomic_weight == ref_carbon_weight)
     assert(Elements.Carbon.group         == ref_carbon_group)
@@ -56,6 +57,7 @@ def test_periodic_table():
 
     assert(Elements.C.name          == ref_carbon_name)
     assert(Elements.C.symbol        == ref_carbon_symbol)
+    assert(str(Elements.C)          == ref_carbon_symbol)
     assert(Elements.C.atomic_number == ref_carbon_number)
     assert(Elements.C.atomic_weight == ref_carbon_weight)
     assert(Elements.C.group         == ref_carbon_group)
@@ -101,7 +103,7 @@ def test_call_elements():
 def test_is_element():
     from ..periodic_table import Elements
 
-    ref_symbols = set([
+    ref_symbols = (
         "Xx", "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",
         "Ne", "Na", "Mg", "Al", "Si", "P",  "S",  "Cl", "Ar", "K",
         "Ca", "Sc", "Ti", "V",  "Cr", "Mn", "Fe", "Co", "Ni", "Cu",
@@ -114,9 +116,9 @@ def test_is_element():
         "Th", "Pa", "U",  "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es",
         "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt",
         "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
-    ])
+    )
 
-    ref_elements = set([
+    ref_elements = (
         Elements.Xx,
         Elements.H,  Elements.He, Elements.Li, Elements.Be, Elements.B,
         Elements.C,  Elements.N,  Elements.O,  Elements.F,  Elements.Ne,
@@ -142,12 +144,16 @@ def test_is_element():
         Elements.Sg, Elements.Bh, Elements.Hs, Elements.Mt, Elements.Ds,
         Elements.Rg, Elements.Cn, Elements.Nh, Elements.Fl, Elements.Mc,
         Elements.Lv, Elements.Ts, Elements.Og,
-    ])
+    )
 
     for symbol, element in zip(ref_symbols, ref_elements):
         assert(Elements.is_element(symbol)) # True for symbols
         assert(Elements.is_element(element)) # True for members
 
+        is_elem, elem = Elements.is_element(element, return_element=True)
+        assert(is_elem)
+        assert(elem.symbol is symbol)
+        assert(elem is element)
         is_elem, elem = Elements.is_element(symbol, return_element=True)
         assert(is_elem)
         assert(elem.symbol is symbol)
@@ -166,6 +172,12 @@ def test_is_element():
         "C_123",
         "C_a",
         "C_abc",
+        "C-1",
+        "C-2",
+        "C-12",
+        "C-123",
+        "C-a",
+        "C-abc",
         "c",
         "c1",
         "c2",
@@ -177,6 +189,12 @@ def test_is_element():
         "c_123",
         "c_a",
         "c_abc",
+        "c-1",
+        "c-2",
+        "c-12",
+        "c-123",
+        "c-a",
+        "c-abc",
     )
 
     for string in funky_carbon_strs:
@@ -201,6 +219,12 @@ def test_is_element():
         "Co_123",
         "Co_a",
         "Co_abc",
+        "Co-1",
+        "Co-2",
+        "Co-12",
+        "Co-123",
+        "Co-a",
+        "Co-abc",
         "co",
         "co1",
         "co2",
@@ -212,6 +236,12 @@ def test_is_element():
         "co_123",
         "co_a",
         "co_abc",
+        "co-1",
+        "co-2",
+        "co-12",
+        "co-123",
+        "co-a",
+        "co-abc",
     ]
     for string in funky_cobalt_strs:
         assert(Elements.is_element(string))
@@ -223,3 +253,31 @@ def test_is_element():
         assert(element.name == "Cobalt")
     #end for
 #end def test_is_element
+
+
+def test_element_set():
+    from ..periodic_table import Elements
+    ref_set = set([
+        Elements.Xx,
+        Elements.H,
+        Elements.Dy,
+        Elements.U,
+        Elements.Nh,
+    ])
+
+    element_set = set([
+        Elements.Xx,
+        Elements.H,  Elements.H,  Elements.H,
+        Elements.Dy,
+        Elements.U,  Elements.U,  Elements.U,  Elements.U,  Elements.U,
+        Elements.Nh, Elements.Nh, Elements.Nh, Elements.Nh,
+    ])
+
+    assert(ref_set == element_set)
+
+
+def test_representation():
+    from ..periodic_table import Elements
+
+    ref_repr = "<Elements.Carbon: symbol='C', atomic_number=6, atomic_weight=12.011, group=14>"
+    assert(repr(Elements.Carbon) == ref_repr)
