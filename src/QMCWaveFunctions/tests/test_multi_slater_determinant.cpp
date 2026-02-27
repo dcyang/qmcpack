@@ -79,8 +79,7 @@ void test_LiH_msd(const std::string& spo_xml_string,
   elec_.resetGroups();
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(spo_xml_string);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(spo_xml_string));
 
   xmlNodePtr ein_xml = doc.getRoot();
 
@@ -439,8 +438,7 @@ void test_Bi_msd(const std::string& spo_xml_string,
   elec_.resetGroups();
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(spo_xml_string);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(spo_xml_string));
 
   xmlNodePtr ein_xml = doc.getRoot();
 

@@ -143,8 +143,7 @@ void test_hcpBe_rotation(bool use_single_det, bool use_nlpp_batched)
     wf_input = wf_input_single_det;
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(wf_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(wf_input));
 
   xmlNodePtr root = doc.getRoot();
 
@@ -172,11 +171,10 @@ void test_hcpBe_rotation(bool use_single_det, bool use_nlpp_batched)
   if (use_nlpp_batched)
     ham_input = ham_input_nlpp_batched;
 
-  HamiltonianFactory hf("h0", elec, pp.getPool(), wp.getPool(), c);
+  HamiltonianFactory hf("h0", elec, pp.getPool(), wp.getWaveFunction(), c);
 
   Libxml2Document doc2;
-  bool okay2 = doc2.parseFromString(ham_input);
-  REQUIRE(okay2);
+  REQUIRE(doc2.parseFromString(ham_input));
 
   xmlNodePtr root2 = doc2.getRoot();
   hf.put(root2);

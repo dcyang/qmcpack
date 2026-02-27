@@ -237,9 +237,7 @@ TEST_CASE("OneBodyDensityMatrices::OneBodyDensityMatrices", "[estimators]")
   using Input        = testing::ValidOneBodyDensityMatricesInput;
   using SpeciesCases = testing::SpeciesCases;
   Libxml2Document doc;
-  bool okay = doc.parseFromString(Input::getXml(Input::valid::VANILLA));
-  if (!okay)
-    throw std::runtime_error("cannot parse OneBodyDensitMatricesInput section");
+  REQUIRE(doc.parseFromString(Input::getXml(Input::valid::VANILLA)));
   xmlNodePtr node = doc.getRoot();
   OneBodyDensityMatricesInput obdmi(node);
   auto lattice     = testing::makeTestLattice();
@@ -287,9 +285,7 @@ TEST_CASE("OneBodyDensityMatrices::generateSamples", "[estimators]")
 
   auto samplingCaseRunner = [&pset_target, &species_set, &spo_map](Input::valid test_case) {
     Libxml2Document doc;
-    bool okay = doc.parseFromString(Input::getXml(test_case));
-    if (!okay)
-      throw std::runtime_error("cannot parse OneBodyDensitMatricesInput section");
+    REQUIRE(doc.parseFromString(Input::getXml(test_case)));
     xmlNodePtr node = doc.getRoot();
     OneBodyDensityMatricesInput obdmi(node);
 
@@ -326,9 +322,7 @@ TEST_CASE("OneBodyDensityMatrices::generateSamplesForSpinor", "[estimators]")
 
   auto samplingCaseRunner = [&pset_target, &species_set, &spo_map](Input::valid test_case) {
     Libxml2Document doc;
-    bool okay = doc.parseFromString(Input::getXml(test_case));
-    if (!okay)
-      throw std::runtime_error("cannot parse OneBodyDensitMatricesInput section");
+    REQUIRE(doc.parseFromString(Input::getXml(test_case)));
     xmlNodePtr node = doc.getRoot();
     OneBodyDensityMatricesInput obdmi(node);
 
@@ -363,9 +357,7 @@ TEST_CASE("OneBodyDensityMatrices::spawnCrowdClone()", "[estimators]")
   auto& spo_map = psi.getSPOMap();
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(Input::getXml(Input::valid::VANILLA));
-  if (!okay)
-    throw std::runtime_error("cannot parse OneBodyDensitMatricesInput section");
+  REQUIRE(doc.parseFromString(Input::getXml(Input::valid::VANILLA)));
   xmlNodePtr node = doc.getRoot();
   OneBodyDensityMatricesInput obdmi(node);
 
@@ -385,9 +377,7 @@ TEST_CASE("OneBodyDensityMatrices::accumulate", "[estimators]")
   Communicate* comm = OHMMS::Controller;
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(Input::getXml(Input::valid::VANILLA));
-  if (!okay)
-    throw std::runtime_error("cannot parse OneBodyDensitMatricesInput section");
+  REQUIRE(doc.parseFromString(Input::getXml(Input::valid::VANILLA)));
   xmlNodePtr node = doc.getRoot();
   OneBodyDensityMatricesInput obdmi(node);
   auto particle_pool = MinimalParticlePool::make_diamondC_1x1x1(comm);
@@ -478,9 +468,7 @@ TEST_CASE("OneBodyDensityMatrices::evaluateMatrix", "[estimators]")
        std::vector<Input::valid>{Input::valid::VANILLA, Input::valid::SCALE, Input::valid::GRID})
   {
     Libxml2Document doc;
-    bool okay = doc.parseFromString(Input::getXml(valid_integrator));
-    if (!okay)
-      throw std::runtime_error("cannot parse OneBodyDensitMatricesInput section");
+    REQUIRE(doc.parseFromString(Input::getXml(valid_integrator)));
     xmlNodePtr node = doc.getRoot();
     OneBodyDensityMatricesInput obdmi(node);
 
@@ -530,9 +518,7 @@ TEST_CASE("OneBodyDensityMatrices::registerAndWrite", "[estimators]")
   Communicate* comm = OHMMS::Controller;
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(Input::getXml(Input::valid::VANILLA));
-  if (!okay)
-    throw std::runtime_error("cannot parse OneBodyDensitMatricesInput section");
+  REQUIRE(doc.parseFromString(Input::getXml(Input::valid::VANILLA)));
   xmlNodePtr node = doc.getRoot();
   OneBodyDensityMatricesInput obdmi(node);
 
