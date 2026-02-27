@@ -52,7 +52,7 @@ TEST_CASE("StructureFactorEstimator::StructureFactorEstimator", "[estimators]")
   // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
 
   Libxml2Document doc;
-  bool okay       = doc.parseFromString(Input::getXml(Input::valid::SKALL));
+  REQUIRE(doc.parseFromString(Input::getXml(Input::valid::SKALL)));
   xmlNodePtr node = doc.getRoot();
   UPtr<StructureFactorInput> sf_in;
   sf_in = std::make_unique<StructureFactorInput>(node);
@@ -68,7 +68,7 @@ TEST_CASE("StructureFactorEstimator::Accumulate", "[estimators]")
   comm = OHMMS::Controller;
 
   Libxml2Document doc;
-  bool okay       = doc.parseFromString(Input::getXml(Input::valid::SKALL));
+  REQUIRE(doc.parseFromString(Input::getXml(Input::valid::SKALL)));
   xmlNodePtr node = doc.getRoot();
   UPtr<StructureFactorInput> sf_in;
   sf_in = std::make_unique<StructureFactorInput>(node);

@@ -68,9 +68,7 @@ TEST_CASE("MomentumDistribution::MomentumDistribution", "[estimators]")
 
   // Read xml into input object
   Libxml2Document doc;
-  bool okay = doc.parseFromString(xml);
-  if (!okay)
-    throw std::runtime_error("cannot parse MomentumDistributionInput section");
+  REQUIRE(doc.parseFromString(xml));
   xmlNodePtr node = doc.getRoot();
   MomentumDistributionInput mdi(node);
 
@@ -116,9 +114,7 @@ TEST_CASE("MomentumDistribution::accumulate", "[estimators]")
 
   // Read xml into input object
   Libxml2Document doc;
-  bool okay = doc.parseFromString(xml);
-  if (!okay)
-    throw std::runtime_error("cannot parse MomentumDistributionInput section");
+  REQUIRE(doc.parseFromString(xml));
   xmlNodePtr node = doc.getRoot();
   MomentumDistributionInput mdi(node);
 
@@ -226,9 +222,7 @@ TEST_CASE("MomentumDistribution::spawnCrowdClone", "[estimators]")
 
   // Read xml into input object
   Libxml2Document doc;
-  bool okay = doc.parseFromString(xml);
-  if (!okay)
-    throw std::runtime_error("cannot parse MomentumDistributionInput section");
+  REQUIRE(doc.parseFromString(xml));
   xmlNodePtr node = doc.getRoot();
   MomentumDistributionInput mdi(node);
 

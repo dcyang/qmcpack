@@ -124,8 +124,7 @@ void testTrialWaveFunction_diamondC_2x1x1(const int ndelay, const OffloadSwitche
   }
 #endif
   Libxml2Document doc;
-  bool okay = doc.parseFromString(offload_switches.spo ? spo_omp_xml : spo_xml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(offload_switches.spo ? spo_omp_xml : spo_xml));
 
   xmlNodePtr spo_root = doc.getRoot();
   xmlNodePtr ein1     = xmlFirstElementChild(spo_root);
@@ -165,8 +164,7 @@ void testTrialWaveFunction_diamondC_2x1x1(const int ndelay, const OffloadSwitche
 </tmp>)XML";
 
   Libxml2Document doc_jas;
-  okay = doc.parseFromString(offload_switches.jas ? jas_omp_input : jas_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(offload_switches.jas ? jas_omp_input : jas_input));
 
   xmlNodePtr jas_root = doc.getRoot();
   xmlNodePtr jas1     = xmlFirstElementChild(jas_root);

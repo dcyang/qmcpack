@@ -74,8 +74,7 @@ void create_CN_particlesets(ParticleSet& elec, ParticleSet& ions)
   </tmp>)";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(particles);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(particles));
 
   xmlNodePtr root  = doc.getRoot();
   xmlNodePtr part1 = xmlFirstElementChild(root);
@@ -152,8 +151,7 @@ std::unique_ptr<QMCHamiltonian> create_CN_Hamiltonian(HamiltonianFactory& hf)
          </hamiltonian>)";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(hamiltonian_xml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(hamiltonian_xml));
 
   xmlNodePtr root = doc.getRoot();
   hf.put(root);
@@ -1859,8 +1857,7 @@ TEST_CASE("Eloc_Derivatives:slater_fastderiv_complex_pbc", "[hamiltonian]")
 
 
   Libxml2Document hdoc;
-  bool okay2 = hdoc.parseFromString(hamiltonian_xml);
-  REQUIRE(okay2);
+  REQUIRE(hdoc.parseFromString(hamiltonian_xml));
 
   xmlNodePtr hroot = hdoc.getRoot();
   hf.put(hroot);
@@ -2358,8 +2355,7 @@ TEST_CASE("Eloc_Derivatives:proto_md_wj", "[hamiltonian]")
          </hamiltonian>";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(hamiltonian_xml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(hamiltonian_xml));
 
   xmlNodePtr root = doc.getRoot();
   hf.put(root);
@@ -2526,8 +2522,7 @@ TEST_CASE("Eloc_Derivatives:proto_md_wj", "[hamiltonian]")
          </hamiltonian>";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(hamiltonian_xml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(hamiltonian_xml));
 
   xmlNodePtr root = doc.getRoot();
   hf.put(root);
@@ -2680,8 +2675,7 @@ TEST_CASE("Eloc_Derivatives:proto_md_wj", "[hamiltonian]")
          </hamiltonian>";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(hamiltonian_xml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(hamiltonian_xml));
 
   xmlNodePtr root = doc.getRoot();
   hf.put(root);

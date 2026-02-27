@@ -70,8 +70,7 @@ TEST_CASE("HamiltonianFactory", "[hamiltonian]")
 </hamiltonian>)";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(hamiltonian_xml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(hamiltonian_xml));
 
   xmlNodePtr root = doc.getRoot();
   hf.put(root);
@@ -123,8 +122,7 @@ TEST_CASE("HamiltonianFactory pseudopotential", "[hamiltonian]")
 </hamiltonian>)";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(hamilonian_xml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(hamilonian_xml));
 
   xmlNodePtr root = doc.getRoot();
   hf.put(root);

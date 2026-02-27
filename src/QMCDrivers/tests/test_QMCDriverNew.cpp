@@ -35,8 +35,7 @@ TEST_CASE("QMCDriverNew tiny case", "[drivers]")
   outputManager.pause();
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(valid_vmc_input_sections[valid_vmc_input_vmc_tiny_index]);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(valid_vmc_input_sections[valid_vmc_input_vmc_tiny_index]));
   xmlNodePtr node = doc.getRoot();
   QMCDriverInput qmcdriver_input;
   qmcdriver_input.readXML(node);
@@ -48,9 +47,9 @@ TEST_CASE("QMCDriverNew tiny case", "[drivers]")
   WalkerConfigurations walker_confs;
   RandomNumberGeneratorPool rng_pool(1);
   QMCDriverNewTestWrapper qmcdriver(test_project, std::move(qmcdriver_input), walker_confs,
-                                    MCPopulation(comm->size(), comm->rank(), particle_pool.getParticleSet("e"),
-                                                 &wavefunction_pool.getWaveFunction().value().get(),
-                                                 hamiltonian_pool.getPrimary()),
+                                    MCPopulation(comm->size(), comm->rank(), *particle_pool.getParticleSet("e"),
+                                                 wavefunction_pool.getWaveFunction().value(),
+                                                 *hamiltonian_pool.getPrimary()),
                                     rng_pool.getRngRefs(), comm);
 
   // setStatus must be called before process
@@ -78,8 +77,7 @@ TEST_CASE("QMCDriverNew walker counts", "[drivers]")
   outputManager.pause();
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(valid_dmc_input_sections[valid_dmc_input_dmc_batch_index]);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(valid_dmc_input_sections[valid_dmc_input_dmc_batch_index]));
   xmlNodePtr node = doc.getRoot();
   QMCDriverInput qmcdriver_input;
   qmcdriver_input.readXML(node);
@@ -93,9 +91,9 @@ TEST_CASE("QMCDriverNew walker counts", "[drivers]")
   WalkerConfigurations walker_confs;
   RandomNumberGeneratorPool rng_pool(8);
   QMCDriverNewTestWrapper qmc_batched(test_project, std::move(qmcdriver_copy), walker_confs,
-                                      MCPopulation(comm->size(), comm->rank(), particle_pool.getParticleSet("e"),
-                                                   &wavefunction_pool.getWaveFunction().value().get(),
-                                                   hamiltonian_pool.getPrimary()),
+                                      MCPopulation(comm->size(), comm->rank(), *particle_pool.getParticleSet("e"),
+                                                   wavefunction_pool.getWaveFunction().value(),
+                                                   *hamiltonian_pool.getPrimary()),
                                       rng_pool.getRngRefs(), comm);
 
   qmc_batched.testAdjustGlobalWalkerCount();
@@ -110,8 +108,7 @@ TEST_CASE("QMCDriverNew test driver operations", "[drivers]")
   outputManager.pause();
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(valid_vmc_input_sections[valid_vmc_input_vmc_tiny_index]);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(valid_vmc_input_sections[valid_vmc_input_vmc_tiny_index]));
   xmlNodePtr node = doc.getRoot();
 
   QMCDriverInput qmcdriver_input;
@@ -124,9 +121,9 @@ TEST_CASE("QMCDriverNew test driver operations", "[drivers]")
   WalkerConfigurations walker_confs;
   RandomNumberGeneratorPool rng_pool(1);
   QMCDriverNewTestWrapper qmcdriver(test_project, std::move(qmcdriver_input), walker_confs,
-                                    MCPopulation(comm->size(), comm->rank(), particle_pool.getParticleSet("e"),
-                                                 &wavefunction_pool.getWaveFunction().value().get(),
-                                                 hamiltonian_pool.getPrimary()),
+                                    MCPopulation(comm->size(), comm->rank(), *particle_pool.getParticleSet("e"),
+                                                 wavefunction_pool.getWaveFunction().value().get(),
+                                                 *hamiltonian_pool.getPrimary()),
                                     rng_pool.getRngRefs(), comm);
 
 

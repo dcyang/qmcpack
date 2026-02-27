@@ -64,8 +64,7 @@ void setupParticleSetPool(ParticleSetPool& pp)
 )";
   Libxml2Document doc;
 
-  bool okay = doc.parseFromString(particles);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(particles));
 
   xmlNodePtr root     = doc.getRoot();
   xmlNodePtr sim_cell = xmlFirstElementChild(root);
@@ -111,8 +110,7 @@ TEST_CASE("WaveFunctionPool", "[wavefunction]")
   )";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(wf_input);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(wf_input));
 
   xmlNodePtr root = doc.getRoot();
 

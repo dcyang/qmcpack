@@ -41,8 +41,7 @@ TEST_CASE("HamiltonianPool", "[qmcapp]")
 </hamiltonian>)";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(hamiltonian_xml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(hamiltonian_xml));
 
   xmlNodePtr root = doc.getRoot();
 
