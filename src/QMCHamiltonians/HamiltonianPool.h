@@ -17,10 +17,11 @@
 #ifndef QMCPLUSPLUS_QMCHAMILTONIANS_H
 #define QMCPLUSPLUS_QMCHAMILTONIANS_H
 
+#include <map>
 #include "QMCHamiltonian.h"
 #include "OhmmsData/OhmmsElementBase.h"
 #include "Message/MPIObjectBase.h"
-#include <map>
+#include "Utilities/ObjectPool.h"
 
 struct Libxml2Document;
 
@@ -37,10 +38,10 @@ class WaveFunctionPool;
  * This object handles \<hamiltonian\> elements and
  * functions as a builder class for QMCHamiltonian objects.
  */
-class HamiltonianPool : public MPIObjectBase
+class HamiltonianPool : public MPIObjectBase, public ObjectPool<QMCHamiltonian>
 {
 public:
-  using PoolType = std::map<std::string, const std::unique_ptr<QMCHamiltonian>>;
+  using PoolType = typename ObjectPool<QMCHamiltonian>::Pool;
 
   HamiltonianPool(ParticleSetPool& pset_pool,
                   WaveFunctionPool& psi_pool,
@@ -54,41 +55,15 @@ public:
 
   bool put(xmlNodePtr cur);
   bool get(std::ostream& os) const;
-  void reset();
 
-  inline bool empty() const { return myPool.empty(); }
-
-  /** return the pointer to the primary QMCHamiltonian
-   *
-   * The first QMCHamiltonian is assigned to the primaryH.
-   * The last QMCHamiltonian with role="primary" will be the primaryH.
+  /** look up hamiltonian by name
+   * @param pname hamiltonian name to look up
+   * if pname is empty and the pool contains one entry, return the only entry
+   * if pname is not empty and not found in the pool, throw error
    */
-  inline QMCHamiltonian* getPrimary() { return primaryH; }
-
-  /** return the pointer to a QMCHamiltonian with the name
-   * @param pname name of the QMCHamiltonian
-   */
-  inline QMCHamiltonian* getHamiltonian(const std::string& pname)
-  {
-    PoolType::iterator hit(myPool.find(pname));
-    if (hit == myPool.end())
-    {
-      if (myPool.empty())
-        return nullptr;
-      else
-        return myPool.begin()->second.get();
-    }
-    else
-      return hit->second.get();
-  }
-
-  void setDocument(Libxml2Document* doc) { curDoc = doc; }
+  OptionalRef<QMCHamiltonian> getHamiltonian(const std::string& pname = "");
 
 private:
-  /** pointer to the primary QMCHamiltonian
-   */
-  QMCHamiltonian* primaryH;
-
   /** pointer to ParticleSetPool
    *
    * QMCHamiltonian needs to know which ParticleSet object
@@ -104,13 +79,6 @@ private:
    * e.g., NonLocalPPotential.
    */
   WaveFunctionPool& psi_pool_;
-
-
-  /** point to the working document */
-  Libxml2Document* curDoc;
-
-  /** storage for QMCHamiltonian */
-  PoolType myPool;
 };
 } // namespace qmcplusplus
 #endif

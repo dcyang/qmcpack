@@ -76,9 +76,9 @@ TEST_CASE("integrateListeners", "[hamiltonian]")
   UPtrVector<TrialWaveFunction> twfs;
   std::vector<ParticleSet> psets;
 
+  QMCHamiltonian& ham(hamiltonian_pool.getHamiltonian().value());
   // This must be done before clones otherwise the clone particle sets do not have the correct state.
-  hamiltonian_pool.getPrimary()->informOperatorsOfListener();
-
+  ham.informOperatorsOfListener();
 
   int num_walkers   = 4;
   int num_electrons = particle_pool.getParticleSet("e")->getTotalNum();
@@ -89,7 +89,7 @@ TEST_CASE("integrateListeners", "[hamiltonian]")
     psets.emplace_back(pset_target);
     psets.back().randomizeFromSource(*particle_pool.getParticleSet("ion"));
     twfs.emplace_back(psi.makeClone(psets.back()));
-    hams.emplace_back(hamiltonian_pool.getPrimary()->makeClone(psets.back(), *twfs.back()));
+    hams.emplace_back(ham.makeClone(psets.back(), *twfs.back()));
   }
 
   RefVector<QMCHamiltonian> ham_refs = convertUPtrToRefVector(hams);
