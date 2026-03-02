@@ -171,8 +171,7 @@ void doSOECPotentialTest(bool use_VPs)
   </tmp>
   )";
   Libxml2Document doc;
-  bool okay = doc.parseFromString(particles);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(particles));
   xmlNodePtr root = doc.getRoot();
   xmlNodePtr jas2 = xmlFirstElementChild(root);
   RadialJastrowBuilder jastrow(c, elec);
@@ -187,8 +186,7 @@ void doSOECPotentialTest(bool use_VPs)
   //Now we set up the SO ECP component.
   SOECPotential so_ecp(ions, elec, false, use_VPs);
   ECPComponentBuilder ecp_comp_builder("test_read_soecp", c);
-  okay = ecp_comp_builder.read_pp_file("so_ecp_test.xml");
-  REQUIRE(okay);
+  REQUIRE(ecp_comp_builder.read_pp_file("so_ecp_test.xml"));
   UPtr<SOECPComponent> so_ecp_comp = std::move(ecp_comp_builder.pp_so);
   so_ecp.addComponent(0, std::move(so_ecp_comp));
   UPtr<OperatorBase> so_ecp2_ptr = so_ecp.makeClone(elec2, *psi_clone);
@@ -250,8 +248,7 @@ void doSOECPotentialTest(bool use_VPs)
     SOECPotential so_ecp_exact(ions, elec, true, true);
     //srule is 0 for exact evaluation
     ECPComponentBuilder ecp_comp_builder("test_read_soecp", c, -1, -1, 0);
-    okay = ecp_comp_builder.read_pp_file("so_ecp_test.xml");
-    REQUIRE(okay);
+    REQUIRE(ecp_comp_builder.read_pp_file("so_ecp_test.xml"));
     UPtr<SOECPComponent> so_ecp_comp = std::move(ecp_comp_builder.pp_so);
     so_ecp_exact.addComponent(0, std::move(so_ecp_comp));
 
