@@ -17,7 +17,6 @@
 #ifndef QMCPLUSPLUS_QMCHAMILTONIANS_H
 #define QMCPLUSPLUS_QMCHAMILTONIANS_H
 
-#include <map>
 #include "QMCHamiltonian.h"
 #include "OhmmsData/OhmmsElementBase.h"
 #include "Message/MPIObjectBase.h"
@@ -41,8 +40,6 @@ class WaveFunctionPool;
 class HamiltonianPool : public MPIObjectBase, public ObjectPool<QMCHamiltonian>
 {
 public:
-  using PoolType = typename ObjectPool<QMCHamiltonian>::Pool;
-
   HamiltonianPool(ParticleSetPool& pset_pool,
                   WaveFunctionPool& psi_pool,
                   Communicate* c,
