@@ -49,7 +49,7 @@ TEST_CASE("QMCDriverNew tiny case", "[drivers]")
   QMCDriverNewTestWrapper qmcdriver(test_project, std::move(qmcdriver_input), walker_confs,
                                     MCPopulation(comm->size(), comm->rank(), *particle_pool.getParticleSet("e"),
                                                  wavefunction_pool.getWaveFunction().value(),
-                                                 *hamiltonian_pool.getPrimary()),
+                                                 hamiltonian_pool.getHamiltonian().value()),
                                     rng_pool.getRngRefs(), comm);
 
   // setStatus must be called before process
@@ -93,7 +93,7 @@ TEST_CASE("QMCDriverNew walker counts", "[drivers]")
   QMCDriverNewTestWrapper qmc_batched(test_project, std::move(qmcdriver_copy), walker_confs,
                                       MCPopulation(comm->size(), comm->rank(), *particle_pool.getParticleSet("e"),
                                                    wavefunction_pool.getWaveFunction().value(),
-                                                   *hamiltonian_pool.getPrimary()),
+                                                   hamiltonian_pool.getHamiltonian().value()),
                                       rng_pool.getRngRefs(), comm);
 
   qmc_batched.testAdjustGlobalWalkerCount();
@@ -123,7 +123,7 @@ TEST_CASE("QMCDriverNew test driver operations", "[drivers]")
   QMCDriverNewTestWrapper qmcdriver(test_project, std::move(qmcdriver_input), walker_confs,
                                     MCPopulation(comm->size(), comm->rank(), *particle_pool.getParticleSet("e"),
                                                  wavefunction_pool.getWaveFunction().value().get(),
-                                                 *hamiltonian_pool.getPrimary()),
+                                                 hamiltonian_pool.getHamiltonian().value()),
                                     rng_pool.getRngRefs(), comm);
 
 
