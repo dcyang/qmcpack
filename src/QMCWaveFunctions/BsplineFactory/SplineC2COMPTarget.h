@@ -126,9 +126,7 @@ public:
   virtual bool isOMPoffload() const override { return true; }
 
   void createResource(ResourceCollection& collection) const override
-  {
-    auto resource_index = collection.addResource(std::make_unique<SplineOMPTargetMultiWalkerMem<ST, ComplexT>>());
-  }
+  { auto resource_index = collection.addResource(std::make_unique<SplineOMPTargetMultiWalkerMem<ST, ComplexT>>()); }
 
   void acquireResource(ResourceCollection& collection, const RefVectorWithLeader<SPOSet>& spo_list) const override
   {
@@ -162,22 +160,6 @@ public:
     myL.resize(npad);
     myH.resize(npad);
     mygH.resize(npad);
-  }
-
-  void bcast_tables(Communicate* comm) { chunked_bcast(comm, SplineInst->getSplinePtr()); }
-
-  void gather_tables(Communicate* comm)
-  {
-    if (comm->size() == 1)
-      return;
-    const int Nbands      = kPoints.size();
-    const int Nbandgroups = comm->size();
-    offset.resize(Nbandgroups + 1, 0);
-    FairDivideLow(Nbands, Nbandgroups, offset);
-
-    for (size_t ib = 0; ib < offset.size(); ib++)
-      offset[ib] *= 2;
-    gatherv(comm, SplineInst->getSplinePtr(), SplineInst->getSplinePtr()->z_stride, offset);
   }
 
   template<typename BCT>

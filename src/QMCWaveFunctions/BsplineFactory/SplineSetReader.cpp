@@ -83,7 +83,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
   {
     myComm->barrier();
     Timer now;
-    bspline->bcast_tables(myComm);
+    SplineUtils<typename SA::DataType>::bcast(*bspline->SplineInst, *myComm);
     app_log() << "  Time to bcast the table = " << now.elapsed() << std::endl;
   }
 
@@ -194,7 +194,16 @@ void SplineSetReader<SA>::initialize_spline_pio_gather(const int spin,
     {
       band_group_comm.getGroupLeaderComm()->barrier();
       Timer now;
-      bspline.gather_tables(band_group_comm.getGroupLeaderComm());
+      if (bspline.isComplex())
+      {
+        std::vector<int> offset(band_groups.size());
+        for (int i = 0; i < offset.size(); i++)
+          offset[i] = band_groups[i] * 2;
+        SplineUtils<typename SA::DataType>::gatherv(*bspline.SplineInst, offset, *band_group_comm.getGroupLeaderComm());
+      }
+      else
+        SplineUtils<typename SA::DataType>::gatherv(*bspline.SplineInst, band_groups,
+                                                    *band_group_comm.getGroupLeaderComm());
       app_log() << "  Time to gather the table = " << now.elapsed() << std::endl;
     }
   }

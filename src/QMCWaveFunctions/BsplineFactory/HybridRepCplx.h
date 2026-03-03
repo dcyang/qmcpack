@@ -67,8 +67,6 @@ private:
 public:
   HybridRepCplx(const std::string& my_name) : SPLINEBASE(my_name) {}
 
-  auto& getMultiSpline3D() {return *SPLINEBASE::SplineInst; }
-
   bool isRotationSupported() const override { return SPLINEBASE::isRotationSupported(); }
   void storeParamsBeforeRotation() override
   {
@@ -86,18 +84,6 @@ public:
   bool isOMPoffload() const final { return false; }
 
   std::unique_ptr<SPOSet> makeClone() const override { return std::make_unique<HybridRepCplx>(*this); }
-
-  void bcast_tables(Communicate* comm)
-  {
-    SPLINEBASE::bcast_tables(comm);
-    HYBRIDBASE::bcast_tables(comm);
-  }
-
-  void gather_tables(Communicate* comm)
-  {
-    SPLINEBASE::gather_tables(comm);
-    HYBRIDBASE::gather_atomic_tables(comm, SPLINEBASE::offset);
-  }
 
   void evaluateValue(const ParticleSet& P, const int iat, ValueVector& psi) override
   {
@@ -162,9 +148,7 @@ public:
                             const RefVector<ValueVector>& psi_list,
                             const std::vector<const ValueType*>& invRow_ptr_list,
                             std::vector<std::vector<ValueType>>& ratios_list) const final
-  {
-    BsplineSet::mw_evaluateDetRatios(spo_list, vp_list, psi_list, invRow_ptr_list, ratios_list);
-  }
+  { BsplineSet::mw_evaluateDetRatios(spo_list, vp_list, psi_list, invRow_ptr_list, ratios_list); }
 
   void evaluateVGL(const ParticleSet& P, const int iat, ValueVector& psi, GradVector& dpsi, ValueVector& d2psi) override
   {
@@ -190,9 +174,7 @@ public:
                       const RefVector<ValueVector>& psi_v_list,
                       const RefVector<GradVector>& dpsi_v_list,
                       const RefVector<ValueVector>& d2psi_v_list) const final
-  {
-    BsplineSet::mw_evaluateVGL(sa_list, P_list, iat, psi_v_list, dpsi_v_list, d2psi_v_list);
-  }
+  { BsplineSet::mw_evaluateVGL(sa_list, P_list, iat, psi_v_list, dpsi_v_list, d2psi_v_list); }
 
   void mw_evaluateVGLandDetRatioGrads(const RefVectorWithLeader<SPOSet>& spo_list,
                                       const RefVectorWithLeader<ParticleSet>& P_list,
@@ -201,9 +183,7 @@ public:
                                       OffloadMWVGLArray& phi_vgl_v,
                                       std::vector<ValueType>& ratios,
                                       std::vector<GradType>& grads) const final
-  {
-    BsplineSet::mw_evaluateVGLandDetRatioGrads(spo_list, P_list, iat, invRow_ptr_list, phi_vgl_v, ratios, grads);
-  }
+  { BsplineSet::mw_evaluateVGLandDetRatioGrads(spo_list, P_list, iat, invRow_ptr_list, phi_vgl_v, ratios, grads); }
 
   void evaluateVGH(const ParticleSet& P,
                    const int iat,
@@ -225,9 +205,7 @@ public:
                      GradVector& dpsi,
                      HessVector& grad_grad_psi,
                      GGGVector& grad_grad_grad_psi) override
-  {
-    APP_ABORT("HybridRepCplx::evaluate_vghgh not implemented!");
-  }
+  { APP_ABORT("HybridRepCplx::evaluate_vghgh not implemented!"); }
 
   void evaluate_notranspose(const ParticleSet& P,
                             int first,
