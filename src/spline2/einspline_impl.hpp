@@ -20,10 +20,8 @@
 #ifndef QMCPLUSPLUS_EINSPLINE_IMPL_H
 #define QMCPLUSPLUS_EINSPLINE_IMPL_H
 
-#ifndef QMCPLUSPLUS_EINSPLINE_ENGINE_HPP
-#error "einspline_impl.hpp is used only by einspline_engine.hpp"
-#endif
 #include "CPU/SIMD/algorithm.hpp"
+#include "einspline/multi_bspline.h"
 #include "einspline/multi_bspline_copy.h"
 
 namespace qmcplusplus

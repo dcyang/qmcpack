@@ -101,10 +101,10 @@ struct dim_traits<4>
   template<typename data_type>
   static void setdim(data_type& a, hsize_t* dims)
   {
-    dims[0] = a.spliner->x_grid.num + 3;
-    dims[1] = a.spliner->y_grid.num + 3;
-    dims[2] = a.spliner->z_grid.num + 3;
-    dims[3] = a.spliner->z_stride;
+    dims[0] = a.spliner.x_grid.num + 3;
+    dims[1] = a.spliner.y_grid.num + 3;
+    dims[2] = a.spliner.z_grid.num + 3;
+    dims[3] = a.spliner.z_stride;
   }
 };
 
@@ -115,113 +115,32 @@ struct dim_traits<2>
   template<typename data_type>
   static void setdim(data_type& a, hsize_t* dims)
   {
-    dims[0] = a.spliner->x_grid.num + 2;
-    dims[1] = a.spliner->x_stride;
+    dims[0] = a.spliner.x_grid.num + 2;
+    dims[1] = a.spliner.x_stride;
   }
 };
 
 /** specialization of h5data_proxy for einspline_engine
    */
-template<typename ENGT>
-struct h5data_proxy<einspline_engine<ENGT>>
-    : public h5_space_type<typename einspline_engine<ENGT>::value_type, einspline_engine<ENGT>::D + 1>
+template<typename T, unsigned D>
+struct h5data_proxy<einspline_engine<T, D>>
+    : public h5_space_type<T, D + 1>
 {
-  enum
-  {
-    D = einspline_engine<ENGT>::D
-  };
-  using value_type = typename einspline_engine<ENGT>::value_type;
-  using Base       = h5_space_type<value_type, D + 1>;
+  using value_type = T;
+  using Base       = h5_space_type<T, D + 1>;
   using Base::dims;
   using Base::get_address;
-  using data_type = einspline_engine<ENGT>;
+  using data_type = einspline_engine<T, D>;
 
   inline h5data_proxy(const data_type& a) { dim_traits<D + 1>::setdim(a, dims); }
 
   inline bool read(data_type& ref, hid_t grp, const std::string& aname, hid_t xfer_plist = H5P_DEFAULT)
   {
-    if (ref.spliner)
-      return h5d_read(grp, aname, get_address(ref.spliner->coefs), xfer_plist);
-    else
-      return false;
+    return h5d_read(grp, aname, get_address(ref.spliner.coefs), xfer_plist);
   }
 
   inline bool write(const data_type& ref, hid_t grp, const std::string& aname, hid_t xfer_plist = H5P_DEFAULT) const
-  { return h5d_write(grp, aname.c_str(), Base::rank, dims, get_address(ref.spliner->coefs), xfer_plist); }
-};
-
-template<typename GT>
-void print_grid(GT& grid)
-{
-  std::cout << grid.start << " " << grid.end << " " << grid.num << " " << grid.delta << " " << grid.delta_inv
-            << std::endl;
-}
-
-template<typename ENGT>
-void print_spliner(ENGT* spline)
-{
-  std::cout << "xgrid       ";
-  print_grid(spline->x_grid);
-  std::cout << "ygrid       ";
-  print_grid(spline->y_grid);
-  std::cout << "zgrid       ";
-  print_grid(spline->z_grid);
-}
-
-
-/** engine to create a einspline based on the input einspline
-   */
-template<typename T>
-struct GridConvert
-{
-  ///number of points in each direction including BC
-  int N[3];
-  ///offset
-  int Offset[3];
-  ///number of points of the original grid
-  int BaseN[3];
-  ///offset of the original grid, always 0
-  int BaseOffset[3];
-  ///spacing to be added or removed from the buffer
-  TinyVector<T, 3> Delta;
-
-  template<typename ENGT1, typename ENGT2, typename PT>
-  void create(ENGT1*& out, ENGT2* in, PT& lower, PT& upper, int num)
-  {
-    using real_type = typename bspline_engine_traits<ENGT1>::real_type;
-
-    Ugrid agrid[3];
-    agrid[0] = in->x_grid;
-    agrid[1] = in->y_grid;
-    agrid[2] = in->z_grid;
-
-    typename bspline_engine_traits<ENGT1>::BCType xyz_bc[3];
-    xyz_bc[0].lCode = in->xBC.lCode;
-    xyz_bc[0].rCode = in->xBC.rCode;
-    xyz_bc[1].lCode = in->yBC.lCode;
-    xyz_bc[1].rCode = in->yBC.rCode;
-    xyz_bc[2].lCode = in->zBC.lCode;
-    xyz_bc[2].rCode = in->zBC.rCode;
-
-    for (int i = 0; i < 3; ++i)
-    {
-      int ngi        = (int)(lower[i] * agrid[i].delta_inv);
-      int ngf        = (int)(upper[i] * agrid[i].delta_inv) + 1;
-      agrid[i].num   = std::min(agrid[i].num, ngf - ngi);
-      ngf            = agrid[i].num + ngi;
-      agrid[i].start = static_cast<real_type>(ngi) * agrid[i].delta;
-      agrid[i].end   = static_cast<real_type>(ngf) * agrid[i].delta;
-
-      if (xyz_bc[i].lCode == PERIODIC || xyz_bc[i].lCode == ANTIPERIODIC)
-        N[i] = agrid[i].num + 3;
-      else
-        N[i] = agrid[i].num + 2;
-
-      Delta[i]  = agrid[i].delta;
-      Offset[i] = ngi;
-    }
-    out = einspline::create(out, agrid, xyz_bc, num);
-  }
+  { return h5d_write(grp, aname.c_str(), Base::rank, dims, get_address(ref.spliner.coefs), xfer_plist); }
 };
 
 namespace einspline
