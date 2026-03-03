@@ -34,24 +34,6 @@ inline void SplineC2ROMPTarget<ST>::set_spline(SingleSplineType* spline_r,
 }
 
 template<typename ST>
-bool SplineC2ROMPTarget<ST>::read_splines(hdf_archive& h5f)
-{
-  std::ostringstream o;
-  o << "spline_" << MyIndex;
-  einspline_engine<SplineType> bigtable(SplineInst->getSplinePtr());
-  return h5f.readEntry(bigtable, o.str().c_str()); //"spline_0");
-}
-
-template<typename ST>
-bool SplineC2ROMPTarget<ST>::write_splines(hdf_archive& h5f)
-{
-  std::ostringstream o;
-  o << "spline_" << MyIndex;
-  einspline_engine<SplineType> bigtable(SplineInst->getSplinePtr());
-  return h5f.writeEntry(bigtable, o.str().c_str()); //"spline_0");
-}
-
-template<typename ST>
 inline void SplineC2ROMPTarget<ST>::assign_v(const PointType& r,
                                              const vContainer_type& myV,
                                              ValueVector& psi,
@@ -370,9 +352,9 @@ void SplineC2ROMPTarget<ST>::mw_evaluateDetRatios(const RefVectorWithLeader<SPOS
         const size_t last_cplx  = omptarget::min(last / 2, num_complex_splines);
         PRAGMA_OFFLOAD("omp parallel for")
         for (int index = first_cplx; index < last_cplx; index++)
-          C2R::assign_v(pos_scratch[iat * 6], pos_scratch[iat * 6 + 1], pos_scratch[iat * 6 + 2],
-                        psi_iat_ptr, offload_scratch_iat_ptr, myKcart_ptr, myKcart_padded_size, first_spo_local,
-                        nComplexBands_local, index);
+          C2R::assign_v(pos_scratch[iat * 6], pos_scratch[iat * 6 + 1], pos_scratch[iat * 6 + 2], psi_iat_ptr,
+                        offload_scratch_iat_ptr, myKcart_ptr, myKcart_padded_size, first_spo_local, nComplexBands_local,
+                        index);
 
         const size_t first_real = first_cplx + omptarget::min(nComplexBands_local, first_cplx);
         const size_t last_real =

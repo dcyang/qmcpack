@@ -23,6 +23,7 @@
 #include "Concurrency/OpenMP.h"
 #include <Timer.h>
 #include "OneSplineOrbData.hpp"
+#include "SplineUtils.h"
 
 namespace qmcplusplus
 {
@@ -154,7 +155,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
     hdf_archive h5f(myComm);
     const auto splinefile = getSplineDumpFileName(bandgroup);
     h5f.open(splinefile, H5F_ACC_RDONLY);
-    foundspline = bspline->read_splines(h5f);
+    foundspline = SplineUtils<DataType>::read(bspline->getMultiSpline3D(), h5f) && bspline->read_atomic_splines(h5f);
     if (foundspline)
       app_log() << "  Successfully restored 3D B-spline coefficients from " << splinefile << ". The reading time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -175,7 +176,8 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
       h5f.write(classname, "class_name");
       int sizeD = sizeof(DataType);
       h5f.write(sizeD, "sizeof");
-      bspline->write_splines(h5f);
+      SplineUtils<DataType>::write(bspline->getMultiSpline3D(), h5f);
+      bspline->write_atomic_splines(h5f);
       h5f.close();
       app_log() << "  Stored spline coefficients in " << splinefile << " for potential reuse. The writing time is "
                 << now.elapsed() << " sec." << std::endl;

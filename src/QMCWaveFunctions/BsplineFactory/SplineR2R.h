@@ -67,8 +67,6 @@ private:
   bool IsGamma;
   ///\f$GGt=G^t G \f$, transformation for tensor in LatticeUnit to CartesianUnit, e.g. Hessian
   Tensor<ST, 3> GGt;
-  ///multi bspline set
-  std::shared_ptr<MultiBsplineBase<ST>> SplineInst;
   /// const offload copy of GGt
   std::shared_ptr<OffloadVector<ST>> GGt_offload;
   /// const offload copy of GPrimLattice_G
@@ -83,6 +81,8 @@ private:
   Matrix<TT> ratios_private;
 
 protected:
+  ///multi bspline set
+  std::shared_ptr<MultiBsplineBase<ST>> SplineInst;
   ///primitive cell
   CrystalLattice<ST, 3> PrimLattice;
   /// intermediate result vectors
@@ -182,10 +182,6 @@ public:
   inline void flush_zero() { SplineInst->flush_zero(); }
 
   void set_spline(SingleSplineType* spline_r, SingleSplineType* spline_i, int twist, int ispline, int level);
-
-  bool read_splines(hdf_archive& h5f);
-
-  bool write_splines(hdf_archive& h5f);
 
   /** convert position in PrimLattice unit and return sign */
   inline int convertPos(const PointType& r, PointType& ru) const

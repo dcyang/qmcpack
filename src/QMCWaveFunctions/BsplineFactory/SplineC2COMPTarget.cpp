@@ -36,29 +36,11 @@ inline void SplineC2COMPTarget<ST>::set_spline(SingleSplineType* spline_r,
 }
 
 template<typename ST>
-bool SplineC2COMPTarget<ST>::read_splines(hdf_archive& h5f)
-{
-  std::ostringstream o;
-  o << "spline_" << MyIndex;
-  einspline_engine<SplineType> bigtable(SplineInst->getSplinePtr());
-  return h5f.readEntry(bigtable, o.str().c_str()); //"spline_0");
-}
-
-template<typename ST>
-bool SplineC2COMPTarget<ST>::write_splines(hdf_archive& h5f)
-{
-  std::ostringstream o;
-  o << "spline_" << MyIndex;
-  einspline_engine<SplineType> bigtable(SplineInst->getSplinePtr());
-  return h5f.writeEntry(bigtable, o.str().c_str()); //"spline_0");
-}
-
-template<typename ST>
 void SplineC2COMPTarget<ST>::storeParamsBeforeRotation()
 {
-  const auto spline_ptr = SplineInst->getSplinePtr();
+  const auto spline_ptr     = SplineInst->getSplinePtr();
   const auto coefs_tot_size = spline_ptr->coefs_size;
-  coef_copy_ = std::make_shared<std::vector<ST>>(coefs_tot_size);
+  coef_copy_                = std::make_shared<std::vector<ST>>(coefs_tot_size);
   std::copy_n(spline_ptr->coefs, coefs_tot_size, coef_copy_->begin());
 }
 
@@ -87,8 +69,8 @@ void SplineC2COMPTarget<ST>::applyRotation(const ValueMatrix& rot_mat, bool use_
     //Note that Nsplines needs to be divided by 2 since spl_coefs and coef_copy_ are stored as reals.
     //Also casting them as ValueType so they are complex to do the correct gemm
     BLAS::gemm('N', 'N', OrbitalSetSize, basis_set_size, OrbitalSetSize, ValueType(1.0, 0.0), rot_mat.data(),
-               OrbitalSetSize, (ValueType*)coef_copy_->data(), Nsplines / 2, ValueType(0.0, 0.0),
-               (ValueType*)spl_coefs, Nsplines / 2);
+               OrbitalSetSize, (ValueType*)coef_copy_->data(), Nsplines / 2, ValueType(0.0, 0.0), (ValueType*)spl_coefs,
+               Nsplines / 2);
   }
   else
   {

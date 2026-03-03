@@ -38,24 +38,6 @@ inline void SplineC2R<ST>::set_spline(SingleSplineType* spline_r,
 }
 
 template<typename ST>
-bool SplineC2R<ST>::read_splines(hdf_archive& h5f)
-{
-  std::ostringstream o;
-  o << "spline_" << MyIndex;
-  einspline_engine<SplineType> bigtable(SplineInst->getSplinePtr());
-  return h5f.readEntry(bigtable, o.str().c_str()); //"spline_0");
-}
-
-template<typename ST>
-bool SplineC2R<ST>::write_splines(hdf_archive& h5f)
-{
-  std::ostringstream o;
-  o << "spline_" << MyIndex;
-  einspline_engine<SplineType> bigtable(SplineInst->getSplinePtr());
-  return h5f.writeEntry(bigtable, o.str().c_str()); //"spline_0");
-}
-
-template<typename ST>
 inline void SplineC2R<ST>::assign_v(const PointType& r,
                                     const vContainer_type& myV,
                                     ValueVector& psi,

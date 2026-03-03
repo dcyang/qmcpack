@@ -67,6 +67,8 @@ private:
 public:
   HybridRepCplx(const std::string& my_name) : SPLINEBASE(my_name) {}
 
+  auto& getMultiSpline3D() {return *SPLINEBASE::SplineInst; }
+
   bool isRotationSupported() const override { return SPLINEBASE::isRotationSupported(); }
   void storeParamsBeforeRotation() override
   {
@@ -96,10 +98,6 @@ public:
     SPLINEBASE::gather_tables(comm);
     HYBRIDBASE::gather_atomic_tables(comm, SPLINEBASE::offset);
   }
-
-  bool read_splines(hdf_archive& h5f) { return HYBRIDBASE::read_splines(h5f) && SPLINEBASE::read_splines(h5f); }
-
-  bool write_splines(hdf_archive& h5f) { return HYBRIDBASE::write_splines(h5f) && SPLINEBASE::write_splines(h5f); }
 
   void evaluateValue(const ParticleSet& P, const int iat, ValueVector& psi) override
   {

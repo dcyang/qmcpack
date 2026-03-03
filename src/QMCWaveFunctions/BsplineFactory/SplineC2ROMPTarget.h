@@ -76,8 +76,6 @@ private:
   Tensor<ST, 3> GGt;
   ///number of complex bands
   int nComplexBands;
-  ///multi bspline set
-  std::shared_ptr<MultiBsplineBase<ST>> SplineInst;
 
   std::shared_ptr<OffloadVector<ST>> mKK;
   std::shared_ptr<OffloadPosVector<ST>> myKcart;
@@ -105,6 +103,8 @@ private:
                            const RefVector<ValueVector>& d2psi_v_list) const;
 
 protected:
+  ///multi bspline set
+  std::shared_ptr<MultiBsplineBase<ST>> SplineInst;
   /// intermediate result vectors
   vContainer_type myV;
   vContainer_type myL;
@@ -220,10 +220,6 @@ public:
   }
 
   void set_spline(SingleSplineType* spline_r, SingleSplineType* spline_i, int twist, int ispline, int level);
-
-  bool read_splines(hdf_archive& h5f);
-
-  bool write_splines(hdf_archive& h5f);
 
   void assign_v(const PointType& r, const vContainer_type& myV, ValueVector& psi, int first, int last) const;
 

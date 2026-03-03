@@ -27,6 +27,7 @@
 #include "SplineC2R.h"
 #include "SplineC2ROMPTarget.h"
 #endif
+#include "SplineUtils.h"
 
 namespace qmcplusplus
 {
@@ -48,7 +49,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
     hdf_archive h5f(myComm);
     const auto splinefile = getSplineDumpFileName(bandgroup);
     h5f.open(splinefile, H5F_ACC_RDONLY);
-    foundspline = bspline->read_splines(h5f);
+    foundspline = SplineUtils<typename SA::DataType>::read(*bspline->SplineInst, h5f);
     if (foundspline)
       app_log() << "  Successfully restored 3D B-spline coefficients from " << splinefile << ". The reading time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -72,7 +73,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
       h5f.write(classname, "class_name");
       int sizeD = sizeof(typename SA::DataType);
       h5f.write(sizeD, "sizeof");
-      bspline->write_splines(h5f);
+      SplineUtils<typename SA::DataType>::write(*bspline->SplineInst, h5f);
       h5f.close();
       app_log() << "  Stored spline coefficients in " << splinefile << " for potential reuse. The writing time is "
                 << now.elapsed() << " sec." << std::endl;
