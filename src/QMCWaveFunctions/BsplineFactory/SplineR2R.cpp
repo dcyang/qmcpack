@@ -24,6 +24,7 @@
 #include "CPU/SIMD/inner_product.hpp"
 #include "OMPTarget/OMPTargetMath.hpp"
 #include <cstdint>
+#include "SplineUtils.h"
 
 namespace qmcplusplus
 {
@@ -54,9 +55,7 @@ inline void SplineR2R<ST>::set_spline(SingleSplineType* spline_r,
                                       int twist,
                                       int ispline,
                                       int level)
-{
-  copy_spline<double, ST>(*spline_r, *SplineInst->getSplinePtr(), ispline);
-}
+{ copy_spline<double, ST>(*spline_r, *SplineInst->getSplinePtr(), ispline); }
 
 template<typename ST>
 void SplineR2R<ST>::finalizeConstruction()
@@ -79,21 +78,11 @@ void SplineR2R<ST>::finalizeConstruction()
 
 template<typename ST>
 bool SplineR2R<ST>::read_splines(hdf_archive& h5f)
-{
-  std::ostringstream o;
-  o << "spline_" << MyIndex;
-  einspline_engine<SplineType> bigtable(SplineInst->getSplinePtr());
-  return h5f.readEntry(bigtable, o.str().c_str()); //"spline_0");
-}
+{ return SplineUtils<ST>::read(*SplineInst, h5f); }
 
 template<typename ST>
 bool SplineR2R<ST>::write_splines(hdf_archive& h5f)
-{
-  std::ostringstream o;
-  o << "spline_" << MyIndex;
-  einspline_engine<SplineType> bigtable(SplineInst->getSplinePtr());
-  return h5f.writeEntry(bigtable, o.str().c_str()); //"spline_0");
-}
+{ return SplineUtils<ST>::write(*SplineInst, h5f); }
 
 template<typename ST>
 void SplineR2R<ST>::storeParamsBeforeRotation()

@@ -20,6 +20,7 @@
 
 #include "mpi/mpi_datatype.h"
 #include "Message/CommOperators.h"
+#include "Host/OutputManager.h"
 #include "OhmmsData/FileUtility.h"
 #include "hdf/hdf_archive.h"
 #include "einspline/multi_bspline_copy.h"
@@ -51,9 +52,7 @@ inline void chunked_bcast(Communicate* comm, T* buffer, size_t ntot)
 
 template<typename ENGT>
 inline void chunked_bcast(Communicate* comm, ENGT* buffer)
-{
-  chunked_bcast(comm, buffer->coefs, buffer->coefs_size);
-}
+{ chunked_bcast(comm, buffer->coefs, buffer->coefs_size); }
 
 template<typename ENGT>
 inline void gatherv(Communicate* comm, ENGT* buffer, const int ncol, std::vector<int>& offset)
@@ -143,9 +142,7 @@ struct h5data_proxy<einspline_engine<ENGT>>
   }
 
   inline bool write(const data_type& ref, hid_t grp, const std::string& aname, hid_t xfer_plist = H5P_DEFAULT) const
-  {
-    return h5d_write(grp, aname.c_str(), Base::rank, dims, get_address(ref.spliner->coefs), xfer_plist);
-  }
+  { return h5d_write(grp, aname.c_str(), Base::rank, dims, get_address(ref.spliner->coefs), xfer_plist); }
 };
 
 template<typename GT>

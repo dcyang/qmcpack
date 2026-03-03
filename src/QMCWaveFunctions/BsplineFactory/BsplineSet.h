@@ -35,8 +35,6 @@ class BsplineSet : public SPOSet
 {
 protected:
   static const int D = DIM;
-  ///Index of this adoptor, when multiple adoptors are used for NUMA or distributed cases
-  size_t MyIndex;
   ///first index of the SPOs this Spline handles
   size_t first_spo;
   ///last index of the SPOs this Spline handles
@@ -56,7 +54,7 @@ protected:
   std::vector<int> offset;
 
 public:
-  BsplineSet(const std::string& my_name) : SPOSet(my_name), MyIndex(0), first_spo(0), last_spo(0) {}
+  BsplineSet(const std::string& my_name) : SPOSet(my_name), first_spo(0), last_spo(0) {}
 
   virtual bool isComplex() const         = 0;
   virtual std::string getKeyword() const = 0;

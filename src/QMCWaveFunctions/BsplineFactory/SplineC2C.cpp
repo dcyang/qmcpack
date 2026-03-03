@@ -19,6 +19,7 @@
 #include "CPU/math.hpp"
 #include "CPU/SIMD/inner_product.hpp"
 #include "CPU/BLAS.hpp"
+#include "SplineUtils.h"
 
 namespace qmcplusplus
 {
@@ -38,21 +39,11 @@ inline void SplineC2C<ST>::set_spline(SingleSplineType* spline_r,
 
 template<typename ST>
 bool SplineC2C<ST>::read_splines(hdf_archive& h5f)
-{
-  std::ostringstream o;
-  o << "spline_" << MyIndex;
-  einspline_engine<SplineType> bigtable(SplineInst->getSplinePtr());
-  return h5f.readEntry(bigtable, o.str().c_str()); //"spline_0");
-}
+{ return SplineUtils<ST>::read(*SplineInst, h5f); }
 
 template<typename ST>
 bool SplineC2C<ST>::write_splines(hdf_archive& h5f)
-{
-  std::ostringstream o;
-  o << "spline_" << MyIndex;
-  einspline_engine<SplineType> bigtable(SplineInst->getSplinePtr());
-  return h5f.writeEntry(bigtable, o.str().c_str()); //"spline_0");
-}
+{ return SplineUtils<ST>::write(*SplineInst, h5f); }
 
 template<typename ST>
 void SplineC2C<ST>::storeParamsBeforeRotation()

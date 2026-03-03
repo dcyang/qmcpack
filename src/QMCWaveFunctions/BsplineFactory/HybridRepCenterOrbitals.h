@@ -23,6 +23,7 @@
 #include "spline2/MultiBspline1D.hpp"
 #include "Numerics/SmoothFunctions.hpp"
 #include "hdf/hdf_archive.h"
+#include "SplineUtils.h"
 
 namespace qmcplusplus
 {
@@ -97,9 +98,7 @@ public:
   void bcast_tables(Communicate* comm) { chunked_bcast(comm, SplineInst->getSplinePtr()); }
 
   void gather_tables(Communicate* comm, std::vector<int>& offset)
-  {
-    gatherv(comm, SplineInst->getSplinePtr(), Npad, offset);
-  }
+  { gatherv(comm, SplineInst->getSplinePtr(), Npad, offset); }
 
   template<typename PT, typename VT>
   inline void set_info(const PT& R,
@@ -138,9 +137,7 @@ public:
   inline void flush_zero() { SplineInst->flush_zero(); }
 
   inline void set_spline(AtomicSingleSplineType* spline, int lm, int ispline)
-  {
-    SplineInst->copy_spline(spline, lm * Npad + ispline, 0, BaseN);
-  }
+  { SplineInst->copy_spline(spline, lm * Npad + ispline, 0, BaseN); }
 
   bool read_splines(hdf_archive& h5f)
   {
@@ -153,7 +150,7 @@ public:
       return false;
     if (!h5f.readEntry(spline_npoints_in, "spline_npoints") || spline_npoints_in != spline_npoints)
       return false;
-    return h5f.readEntry(bigtable, "radial_spline");
+    return SplineUtils<ST>::read(*SplineInst, h5f);
   }
 
   bool write_splines(hdf_archive& h5f)
@@ -163,9 +160,7 @@ public:
     success      = success && h5f.writeEntry(spline_npoints, "spline_npoints");
     success      = success && h5f.writeEntry(lmax, "l_max");
     success      = success && h5f.writeEntry(center_pos, "position");
-    einspline_engine<AtomicSplineType> bigtable(SplineInst->getSplinePtr());
-    success = success && h5f.writeEntry(bigtable, "radial_spline");
-    return success;
+    return success && SplineUtils<ST>::write(*SplineInst, h5f);
   }
 
   //evaluate only V
