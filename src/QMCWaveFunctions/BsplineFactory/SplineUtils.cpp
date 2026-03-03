@@ -48,6 +48,41 @@ bool SplineUtils<ST>::write(MultiBspline1D<ST>& spline, hdf_archive& h5f)
   return h5f.writeEntry(bigtable, "radial_spline");
 }
 
+template<typename ST>
+void SplineUtils<ST>::gatherv(MultiBsplineBase<ST>& spline, const std::vector<int>& offset, Communicate& comm)
+{
+  if (comm.size() == 1)
+    return;
+  qmcplusplus::gatherv(&comm, spline.getSplinePtr(), spline.getSplinePtr()->z_stride, offset);
+}
+
+template<typename ST>
+void SplineUtils<ST>::bcast(MultiBsplineBase<ST>& spline, Communicate& comm)
+{
+  if (comm.size() == 1)
+    return;
+  chunked_bcast(&comm, spline.getSplinePtr());
+}
+
+template<typename ST>
+void SplineUtils<ST>::gatherv(MultiBspline1D<ST>& spline,
+                              size_t stride,
+                              const std::vector<int>& offset,
+                              Communicate& comm)
+{
+  if (comm.size() == 1)
+    return;
+  qmcplusplus::gatherv(&comm, spline.getSplinePtr(), stride, offset);
+}
+
+template<typename ST>
+void SplineUtils<ST>::bcast(MultiBspline1D<ST>& spline, Communicate& comm)
+{
+  if (comm.size() == 1)
+    return;
+  chunked_bcast(&comm, spline.getSplinePtr());
+}
+
 template class SplineUtils<float>;
 template class SplineUtils<double>;
 } // namespace qmcplusplus

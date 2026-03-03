@@ -95,10 +95,10 @@ public:
     create_spline();
   }
 
-  void bcast_tables(Communicate* comm) { chunked_bcast(comm, SplineInst->getSplinePtr()); }
+  void bcast_tables(Communicate& comm) { SplineUtils<ST>::bcast(*SplineInst, comm); }
 
-  void gather_tables(Communicate* comm, std::vector<int>& offset)
-  { gatherv(comm, SplineInst->getSplinePtr(), Npad, offset); }
+  void gather_tables(Communicate& comm, const std::vector<int>& offset)
+  { SplineUtils<ST>::gatherv(*SplineInst, Npad, offset, comm); }
 
   template<typename PT, typename VT>
   inline void set_info(const PT& R,
@@ -571,18 +571,18 @@ public:
               << "for the atomic radial splines in hybrid orbital representation" << std::endl;
   }
 
-  void bcast_tables(Communicate* comm)
+  void bcast_atomic_tables(Communicate* comm)
   {
     for (int ic = 0; ic < AtomicCenters.size(); ic++)
-      AtomicCenters[ic].bcast_tables(comm);
+      AtomicCenters[ic].bcast_tables(*comm);
   }
 
-  void gather_atomic_tables(Communicate* comm, std::vector<int>& offset)
+  void gather_atomic_tables(Communicate* comm, const std::vector<int>& offset)
   {
     if (comm->size() == 1)
       return;
     for (int ic = 0; ic < AtomicCenters.size(); ic++)
-      AtomicCenters[ic].gather_tables(comm, offset);
+      AtomicCenters[ic].gather_tables(*comm, offset);
   }
 
   inline void flush_zero()

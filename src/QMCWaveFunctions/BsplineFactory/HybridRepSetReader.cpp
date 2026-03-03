@@ -155,7 +155,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
     hdf_archive h5f(myComm);
     const auto splinefile = getSplineDumpFileName(bandgroup);
     h5f.open(splinefile, H5F_ACC_RDONLY);
-    foundspline = SplineUtils<DataType>::read(bspline->getMultiSpline3D(), h5f) && bspline->read_atomic_splines(h5f);
+    foundspline = SplineUtils<DataType>::read(*bspline->SplineInst, h5f) && bspline->read_atomic_splines(h5f);
     if (foundspline)
       app_log() << "  Successfully restored 3D B-spline coefficients from " << splinefile << ". The reading time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -176,7 +176,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
       h5f.write(classname, "class_name");
       int sizeD = sizeof(DataType);
       h5f.write(sizeD, "sizeof");
-      SplineUtils<DataType>::write(bspline->getMultiSpline3D(), h5f);
+      SplineUtils<DataType>::write(*bspline->SplineInst, h5f);
       bspline->write_atomic_splines(h5f);
       h5f.close();
       app_log() << "  Stored spline coefficients in " << splinefile << " for potential reuse. The writing time is "
@@ -186,7 +186,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
 
   {
     Timer now;
-    bspline->bcast_tables(myComm);
+    SplineUtils<DataType>::bcast(*bspline->SplineInst, *myComm);
     app_log() << "  Time to bcast the table = " << now.elapsed() << std::endl;
   }
   return bspline;
@@ -653,7 +653,20 @@ void HybridRepSetReader<SA>::initialize_hybrid_pio_gather(const int spin,
   if (band_group_comm.isGroupLeader())
   {
     Timer now;
-    bspline.gather_tables(band_group_comm.getGroupLeaderComm());
+    if (bspline.isComplex())
+    {
+      std::vector<int> offset(band_groups.size());
+      for (int i = 0; i < offset.size(); i++)
+        offset[i] = band_groups[i] * 2;
+      SplineUtils<DataType>::gatherv(*bspline.SplineInst, offset, *band_group_comm.getGroupLeaderComm());
+      bspline.gather_atomic_tables(band_group_comm.getGroupLeaderComm(), offset);
+    }
+    else
+    {
+      SplineUtils<DataType>::gatherv(*bspline.SplineInst, band_groups, *band_group_comm.getGroupLeaderComm());
+      bspline.gather_atomic_tables(band_group_comm.getGroupLeaderComm(), band_groups);
+    }
+
     app_log() << "  Time to gather the table = " << now.elapsed() << std::endl;
   }
 }

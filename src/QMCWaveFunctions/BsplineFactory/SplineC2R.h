@@ -104,22 +104,6 @@ public:
     mygH.resize(npad);
   }
 
-  void bcast_tables(Communicate* comm) { chunked_bcast(comm, SplineInst->getSplinePtr()); }
-
-  void gather_tables(Communicate* comm)
-  {
-    if (comm->size() == 1)
-      return;
-    const int Nbands      = kPoints.size();
-    const int Nbandgroups = comm->size();
-    offset.resize(Nbandgroups + 1, 0);
-    FairDivideLow(Nbands, Nbandgroups, offset);
-
-    for (size_t ib = 0; ib < offset.size(); ib++)
-      offset[ib] = offset[ib] * 2;
-    gatherv(comm, SplineInst->getSplinePtr(), SplineInst->getSplinePtr()->z_stride, offset);
-  }
-
   template<typename BCT>
   void create_spline(const Ugrid xyz_g[3], const BCT& xyz_bc)
   {

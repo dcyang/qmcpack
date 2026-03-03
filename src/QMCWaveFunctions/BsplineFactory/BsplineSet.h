@@ -22,8 +22,6 @@
 #define QMCPLUSPLUS_BSPLINESET_H
 
 #include "QMCWaveFunctions/SPOSet.h"
-#include "spline/einspline_engine.hpp"
-#include "spline/einspline_util.hpp"
 
 namespace qmcplusplus
 {
@@ -50,8 +48,6 @@ protected:
   std::vector<SPOSet::PosType> kPoints;
   ///remap splines to orbitals
   aligned_vector<int> BandIndexMap;
-  ///band offsets used for communication
-  std::vector<int> offset;
 
 public:
   BsplineSet(const std::string& my_name) : SPOSet(my_name), first_spo(0), last_spo(0) {}
