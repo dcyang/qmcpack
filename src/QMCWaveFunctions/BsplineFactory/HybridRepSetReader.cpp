@@ -23,7 +23,7 @@
 #include "Concurrency/OpenMP.h"
 #include <Timer.h>
 #include "OneSplineOrbData.hpp"
-#include "SplineUtils.h"
+#include "spline2/SplineUtils.h"
 #include "Message/CommOperators.h"
 
 namespace qmcplusplus

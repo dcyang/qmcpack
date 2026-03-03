@@ -12,7 +12,7 @@
 
 #include "HybridRepCenterOrbitals.h"
 #include "hdf/hdf_archive.h"
-#include "SplineUtils.h"
+#include "spline2/SplineUtils.h"
 #include "Message/Communicate.h"
 
 namespace qmcplusplus
