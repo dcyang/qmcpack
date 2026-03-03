@@ -591,7 +591,7 @@ public:
       AtomicCenters[ic].flush_zero();
   }
 
-  bool read_splines(hdf_archive& h5f)
+  bool read_atomic_splines(hdf_archive& h5f)
   {
     bool success = true;
     size_t ncenter;
@@ -629,7 +629,7 @@ public:
     return success;
   }
 
-  bool write_splines(hdf_archive& h5f)
+  bool write_atomic_splines(hdf_archive& h5f)
   {
     bool success = true;
     int ncenter  = AtomicCenters.size();

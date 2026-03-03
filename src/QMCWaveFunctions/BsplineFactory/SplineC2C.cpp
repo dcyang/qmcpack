@@ -19,7 +19,6 @@
 #include "CPU/math.hpp"
 #include "CPU/SIMD/inner_product.hpp"
 #include "CPU/BLAS.hpp"
-#include "SplineUtils.h"
 
 namespace qmcplusplus
 {
@@ -36,14 +35,6 @@ inline void SplineC2C<ST>::set_spline(SingleSplineType* spline_r,
   copy_spline<double, ST>(*spline_r, *SplineInst->getSplinePtr(), 2 * ispline);
   copy_spline<double, ST>(*spline_i, *SplineInst->getSplinePtr(), 2 * ispline + 1);
 }
-
-template<typename ST>
-bool SplineC2C<ST>::read_splines(hdf_archive& h5f)
-{ return SplineUtils<ST>::read(*SplineInst, h5f); }
-
-template<typename ST>
-bool SplineC2C<ST>::write_splines(hdf_archive& h5f)
-{ return SplineUtils<ST>::write(*SplineInst, h5f); }
 
 template<typename ST>
 void SplineC2C<ST>::storeParamsBeforeRotation()

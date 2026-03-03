@@ -60,8 +60,6 @@ private:
   CrystalLattice<ST, 3> PrimLattice;
   ///\f$GGt=G^t G \f$, transformation for tensor in LatticeUnit to CartesianUnit, e.g. Hessian
   Tensor<ST, 3> GGt;
-  ///multi bspline set
-  std::shared_ptr<MultiBspline<ST>> SplineInst;
 
   ///Copy of original splines for orbital rotation
   std::shared_ptr<std::vector<ST>> coef_copy_;
@@ -73,6 +71,8 @@ private:
   Matrix<ComplexT> ratios_private;
 
 protected:
+  ///multi bspline set
+  std::shared_ptr<MultiBspline<ST>> SplineInst;
   /// intermediate result vectors
   vContainer_type myV;
   vContainer_type myL;
@@ -160,10 +160,6 @@ public:
   }
 
   void set_spline(SingleSplineType* spline_r, SingleSplineType* spline_i, int twist, int ispline, int level);
-
-  bool read_splines(hdf_archive& h5f);
-
-  bool write_splines(hdf_archive& h5f);
 
   void assign_v(const PointType& r, const vContainer_type& myV, ValueVector& psi, int first, int last) const;
 

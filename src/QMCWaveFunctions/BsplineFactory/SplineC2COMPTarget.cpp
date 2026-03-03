@@ -18,7 +18,6 @@
 #include "ApplyPhaseC2C.hpp"
 #include "Concurrency/OpenMP.h"
 #include "CPU/BLAS.hpp"
-#include "SplineUtils.h"
 
 namespace qmcplusplus
 {
@@ -35,14 +34,6 @@ inline void SplineC2COMPTarget<ST>::set_spline(SingleSplineType* spline_r,
   copy_spline<double, ST>(*spline_r, *SplineInst->getSplinePtr(), 2 * ispline);
   copy_spline<double, ST>(*spline_i, *SplineInst->getSplinePtr(), 2 * ispline + 1);
 }
-
-template<typename ST>
-bool SplineC2COMPTarget<ST>::read_splines(hdf_archive& h5f)
-{ return SplineUtils<ST>::read(*SplineInst, h5f); }
-
-template<typename ST>
-bool SplineC2COMPTarget<ST>::write_splines(hdf_archive& h5f)
-{ return SplineUtils<ST>::write(*SplineInst, h5f); }
 
 template<typename ST>
 void SplineC2COMPTarget<ST>::storeParamsBeforeRotation()

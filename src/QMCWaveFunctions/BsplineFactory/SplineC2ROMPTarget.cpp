@@ -16,7 +16,6 @@
 #include "QMCWaveFunctions/BsplineFactory/contraction_helper.hpp"
 #include "ApplyPhaseC2R.hpp"
 #include "Concurrency/OpenMP.h"
-#include "SplineUtils.h"
 
 namespace qmcplusplus
 {
@@ -33,14 +32,6 @@ inline void SplineC2ROMPTarget<ST>::set_spline(SingleSplineType* spline_r,
   copy_spline<double, ST>(*spline_r, *SplineInst->getSplinePtr(), 2 * ispline);
   copy_spline<double, ST>(*spline_i, *SplineInst->getSplinePtr(), 2 * ispline + 1);
 }
-
-template<typename ST>
-bool SplineC2ROMPTarget<ST>::read_splines(hdf_archive& h5f)
-{ return SplineUtils<ST>::read(*SplineInst, h5f); }
-
-template<typename ST>
-bool SplineC2ROMPTarget<ST>::write_splines(hdf_archive& h5f)
-{ return SplineUtils<ST>::write(*SplineInst, h5f); }
 
 template<typename ST>
 inline void SplineC2ROMPTarget<ST>::assign_v(const PointType& r,

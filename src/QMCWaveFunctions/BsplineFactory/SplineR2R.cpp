@@ -24,7 +24,6 @@
 #include "CPU/SIMD/inner_product.hpp"
 #include "OMPTarget/OMPTargetMath.hpp"
 #include <cstdint>
-#include "SplineUtils.h"
 
 namespace qmcplusplus
 {
@@ -75,14 +74,6 @@ void SplineR2R<ST>::finalizeConstruction()
     GGt_offload->updateTo();
   }
 }
-
-template<typename ST>
-bool SplineR2R<ST>::read_splines(hdf_archive& h5f)
-{ return SplineUtils<ST>::read(*SplineInst, h5f); }
-
-template<typename ST>
-bool SplineR2R<ST>::write_splines(hdf_archive& h5f)
-{ return SplineUtils<ST>::write(*SplineInst, h5f); }
 
 template<typename ST>
 void SplineR2R<ST>::storeParamsBeforeRotation()
