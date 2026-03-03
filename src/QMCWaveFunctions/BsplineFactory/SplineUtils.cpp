@@ -12,7 +12,7 @@
 #include "SplineUtils.h"
 #include <sstream>
 #include "spline/einspline_engine.hpp"
-#include "spline/einspline_util.hpp"
+#include "spline2/einspline_util.hpp"
 
 namespace qmcplusplus
 {
@@ -53,7 +53,7 @@ void SplineUtils<ST>::gatherv(MultiBsplineBase<ST>& spline, const std::vector<in
 {
   if (comm.size() == 1)
     return;
-  qmcplusplus::gatherv(&comm, spline.getSplinePtr(), spline.getSplinePtr()->z_stride, offset);
+  qmcplusplus::gatherv<ST, 3>(&comm, spline.getSplinePtr(), spline.getSplinePtr()->z_stride, offset);
 }
 
 template<typename ST>
@@ -72,7 +72,7 @@ void SplineUtils<ST>::gatherv(MultiBspline1D<ST>& spline,
 {
   if (comm.size() == 1)
     return;
-  qmcplusplus::gatherv(&comm, spline.getSplinePtr(), stride, offset);
+  qmcplusplus::gatherv<ST, 1>(&comm, spline.getSplinePtr(), stride, offset);
 }
 
 template<typename ST>

@@ -24,6 +24,7 @@
 #include <Timer.h>
 #include "OneSplineOrbData.hpp"
 #include "SplineUtils.h"
+#include "Message/CommOperators.h"
 
 namespace qmcplusplus
 {

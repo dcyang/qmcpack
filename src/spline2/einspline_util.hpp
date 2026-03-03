@@ -18,12 +18,13 @@
 #ifndef QMCPLUSPLUS_EINSPLINE_UTILITIES_H
 #define QMCPLUSPLUS_EINSPLINE_UTILITIES_H
 
-#include "mpi/mpi_datatype.h"
 #include "Message/CommOperators.h"
+#include "mpi/mpi_datatype.h"
 #include "Host/OutputManager.h"
 #include "OhmmsData/FileUtility.h"
 #include "hdf/hdf_archive.h"
 #include "einspline/multi_bspline_copy.h"
+#include "bspline_traits.hpp"
 #include <limits>
 
 namespace qmcplusplus
@@ -54,14 +55,17 @@ template<typename ENGT>
 inline void chunked_bcast(Communicate* comm, ENGT* buffer)
 { chunked_bcast(comm, buffer->coefs, buffer->coefs_size); }
 
-template<typename ENGT>
-inline void gatherv(Communicate* comm, ENGT* buffer, const int ncol, const std::vector<int>& offset)
+template<typename T, unsigned D>
+inline void gatherv(Communicate* comm,
+                    typename bspline_traits<T, D>::SplineType* buffer,
+                    const int ncol,
+                    const std::vector<int>& offset)
 {
   std::vector<int> counts(offset.size() - 1, 0);
   for (size_t ib = 0; ib < counts.size(); ib++)
     counts[ib] = offset[ib + 1] - offset[ib];
   const auto& counts_const(counts);
-  const size_t coef_type_bytes = sizeof(typename bspline_engine_traits<ENGT>::value_type);
+  const size_t coef_type_bytes = sizeof(T);
   if (buffer->coefs_size * coef_type_bytes > std::numeric_limits<int>::max())
   {
     // Some MPI libraries have problems when message sizes exceed range of integer (2^31-1)
