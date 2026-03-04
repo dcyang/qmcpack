@@ -11,8 +11,8 @@
 
 #include "SplineUtils.h"
 #include <sstream>
-#include "spline/einspline_engine.hpp"
-#include "spline/einspline_util.hpp"
+#include "spline2/einspline_engine.hpp"
+#include "spline2/einspline_util.hpp"
 
 namespace qmcplusplus
 {
@@ -21,7 +21,7 @@ bool SplineUtils<ST>::read(MultiBsplineBase<ST>& spline, hdf_archive& h5f)
 {
   std::ostringstream o;
   o << "spline_" << my_index;
-  einspline_engine bigtable(spline.getSplinePtr());
+  einspline_engine<ST, 3> bigtable(*spline.getSplinePtr());
   return h5f.readEntry(bigtable, o.str());
 }
 
@@ -30,21 +30,21 @@ bool SplineUtils<ST>::write(MultiBsplineBase<ST>& spline, hdf_archive& h5f)
 {
   std::ostringstream o;
   o << "spline_" << my_index;
-  einspline_engine bigtable(spline.getSplinePtr());
+  einspline_engine<ST, 3> bigtable(*spline.getSplinePtr());
   return h5f.writeEntry(bigtable, o.str());
 }
 
 template<typename ST>
 bool SplineUtils<ST>::read(MultiBspline1D<ST>& spline, hdf_archive& h5f)
 {
-  einspline_engine bigtable(spline.getSplinePtr());
+  einspline_engine<ST, 1> bigtable(*spline.getSplinePtr());
   return h5f.readEntry(bigtable, "radial_spline");
 }
 
 template<typename ST>
 bool SplineUtils<ST>::write(MultiBspline1D<ST>& spline, hdf_archive& h5f)
 {
-  einspline_engine bigtable(spline.getSplinePtr());
+  einspline_engine<ST, 1> bigtable(*spline.getSplinePtr());
   return h5f.writeEntry(bigtable, "radial_spline");
 }
 
@@ -53,7 +53,7 @@ void SplineUtils<ST>::gatherv(MultiBsplineBase<ST>& spline, const std::vector<in
 {
   if (comm.size() == 1)
     return;
-  qmcplusplus::gatherv(&comm, spline.getSplinePtr(), spline.getSplinePtr()->z_stride, offset);
+  qmcplusplus::gatherv<ST, 3>(&comm, spline.getSplinePtr(), spline.getSplinePtr()->z_stride, offset);
 }
 
 template<typename ST>
@@ -72,7 +72,7 @@ void SplineUtils<ST>::gatherv(MultiBspline1D<ST>& spline,
 {
   if (comm.size() == 1)
     return;
-  qmcplusplus::gatherv(&comm, spline.getSplinePtr(), stride, offset);
+  qmcplusplus::gatherv<ST, 1>(&comm, spline.getSplinePtr(), stride, offset);
 }
 
 template<typename ST>

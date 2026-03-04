@@ -12,7 +12,7 @@
 
 #include "HybridRepCenterOrbitals.h"
 #include "hdf/hdf_archive.h"
-#include "SplineUtils.h"
+#include "spline2/SplineUtils.h"
 #include "Message/Communicate.h"
 
 namespace qmcplusplus
@@ -28,7 +28,6 @@ void AtomicOrbitals<ST>::gather_tables(Communicate& comm, const std::vector<int>
 template<typename ST>
 bool AtomicOrbitals<ST>::read_splines(hdf_archive& h5f)
 {
-  einspline_engine<AtomicSplineType> bigtable(SplineInst->getSplinePtr());
   int lmax_in = 0, spline_npoints_in = 0;
   ST spline_radius_in;
   if (!h5f.readEntry(lmax_in, "l_max") || lmax_in != lmax)

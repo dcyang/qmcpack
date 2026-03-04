@@ -19,8 +19,7 @@
 
 #include "spline2/MultiBsplineEval_helper.hpp"
 #include "CPU/SIMD/aligned_allocator.hpp"
-#include "spline/einspline_engine.hpp"
-#include "spline/einspline_util.hpp"
+#include "einspline_impl.hpp"
 
 namespace qmcplusplus
 {

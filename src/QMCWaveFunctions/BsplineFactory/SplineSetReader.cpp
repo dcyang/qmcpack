@@ -27,7 +27,8 @@
 #include "SplineC2R.h"
 #include "SplineC2ROMPTarget.h"
 #endif
-#include "SplineUtils.h"
+#include "Message/CommOperators.h"
+#include "spline2/SplineUtils.h"
 
 namespace qmcplusplus
 {
