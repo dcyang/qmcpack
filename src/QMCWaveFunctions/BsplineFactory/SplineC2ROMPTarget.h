@@ -185,8 +185,6 @@ public:
     GGt_offload->updateTo();
   }
 
-  inline void flush_zero() { SplineInst->flush_zero(); }
-
   /** remap kPoints to pack the double copy */
   inline void resize_kpoints()
   {

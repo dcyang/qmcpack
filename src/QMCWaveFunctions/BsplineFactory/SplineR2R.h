@@ -164,8 +164,6 @@ public:
   /// this routine can not be called from threaded region
   void finalizeConstruction() override;
 
-  inline void flush_zero() { SplineInst->flush_zero(); }
-
   void set_spline(SingleSplineType* spline_r, SingleSplineType* spline_i, int twist, int ispline, int level);
 
   /** convert position in PrimLattice unit and return sign */

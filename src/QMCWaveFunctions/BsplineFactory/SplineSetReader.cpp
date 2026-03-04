@@ -58,7 +58,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
 
   if (!foundspline)
   {
-    bspline->flush_zero();
+    bspline->SplineInst->flush_zero();
 
     Timer now;
     initialize_spline_pio_gather(spin, bandgroup, *bspline);
