@@ -70,10 +70,6 @@ public:
 private:
   /// timer for offload portion
   NewTimer& offload_timer_;
-  ///primitive cell
-  CrystalLattice<ST, 3> PrimLattice;
-  ///\f$GGt=G^t G \f$, transformation for tensor in LatticeUnit to CartesianUnit, e.g. Hessian
-  Tensor<ST, 3> GGt;
   ///number of complex bands
   int nComplexBands;
 
@@ -113,13 +109,22 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineC2ROMPTarget(const std::string& my_name, bool use_offload = true)
-      : BsplineSet(my_name),
+  SplineC2ROMPTarget(const std::string& my_name, const Lattice& prim_lattice, bool use_offload = true)
+      : BsplineSet(my_name, prim_lattice),
         offload_timer_(createGlobalTimer("SplineC2ROMPTarget::offload", timer_level_fine)),
         nComplexBands(0),
         GGt_offload(std::make_shared<OffloadVector<ST>>(9)),
         PrimLattice_G_offload(std::make_shared<OffloadVector<ST>>(9))
-  {}
+  {
+    auto GGt(dot(transpose(prim_lattice.G), prim_lattice.G));
+    for (std::uint32_t i = 0; i < 9; i++)
+    {
+      (*PrimLattice_G_offload)[i] = PrimLattice.G[i];
+      (*GGt_offload)[i]           = GGt[i];
+    }
+    PrimLattice_G_offload->updateTo();
+    GGt_offload->updateTo();
+  }
 
   SplineC2ROMPTarget(const SplineC2ROMPTarget& in);
 
@@ -176,13 +181,6 @@ public:
     // transfer static data to GPU
     mKK->updateTo();
     myKcart->updateTo();
-    for (std::uint32_t i = 0; i < 9; i++)
-    {
-      (*GGt_offload)[i]           = GGt[i];
-      (*PrimLattice_G_offload)[i] = PrimLattice.G[i];
-    }
-    PrimLattice_G_offload->updateTo();
-    GGt_offload->updateTo();
   }
 
   /** remap kPoints to pack the double copy */

@@ -19,6 +19,7 @@
 
 namespace qmcplusplus
 {
+
 template<typename ST>
 SplineC2ROMPTarget<ST>::SplineC2ROMPTarget(const SplineC2ROMPTarget& in) = default;
 

@@ -66,7 +66,7 @@ private:
   /// if true, gamma point calculation
   bool IsGamma;
   ///\f$GGt=G^t G \f$, transformation for tensor in LatticeUnit to CartesianUnit, e.g. Hessian
-  Tensor<ST, 3> GGt;
+  const Tensor<ST, 3> GGt;
   /// const offload copy of GGt
   std::shared_ptr<OffloadVector<ST>> GGt_offload;
   /// const offload copy of GPrimLattice_G
@@ -83,8 +83,6 @@ private:
 protected:
   ///multi bspline set
   std::shared_ptr<MultiBsplineBase<ST>> SplineInst;
-  ///primitive cell
-  CrystalLattice<ST, 3> PrimLattice;
   /// intermediate result vectors
   vContainer_type myV;
   vContainer_type myL;
@@ -93,7 +91,7 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineR2R(const std::string& my_name, bool use_offload = false);
+  SplineR2R(const std::string& my_name, const Lattice& prim_lattice, bool use_offload = false);
   SplineR2R(const SplineR2R& in);
   virtual std::string getClassName() const override { return "SplineR2R"; }
   virtual std::string getKeyword() const override { return "SplineR2R"; }
@@ -154,7 +152,6 @@ public:
   template<typename BCT>
   void create_spline(const Ugrid xyz_g[3], const BCT& xyz_bc)
   {
-    GGt = dot(transpose(PrimLattice.G), PrimLattice.G);
     SplineInst->create(xyz_g, xyz_bc, myV.size());
 
     app_log() << "MEMORY " << SplineInst->sizeInByte() / (1 << 20) << " MB allocated "

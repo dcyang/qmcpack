@@ -60,10 +60,8 @@ public:
   using ghContainer_type = VectorSoaContainer<ST, 10>;
 
 private:
-  ///primitive cell
-  CrystalLattice<ST, 3> PrimLattice;
   ///\f$GGt=G^t G \f$, transformation for tensor in LatticeUnit to CartesianUnit, e.g. Hessian
-  Tensor<ST, 3> GGt;
+  const Tensor<ST, 3> GGt;
   ///number of complex bands
   int nComplexBands;
 
@@ -84,7 +82,9 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineC2R(const std::string& my_name, bool use_offload = false) : BsplineSet(my_name), nComplexBands(0) {}
+  SplineC2R(const std::string& my_name, const Lattice& prim_lattice, bool use_offload = false)
+      : BsplineSet(my_name, prim_lattice), GGt(dot(transpose(prim_lattice.G), prim_lattice.G)), nComplexBands(0)
+  {}
 
   SplineC2R(const SplineC2R& in);
   virtual std::string getClassName() const override { return "SplineC2R"; }

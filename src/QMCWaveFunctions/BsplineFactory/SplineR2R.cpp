@@ -38,12 +38,23 @@ inline static std::unique_ptr<MultiBsplineBase<T>> create_MultiBsplineDerived(co
 }
 
 template<typename ST>
-SplineR2R<ST>::SplineR2R(const std::string& my_name, bool use_offload)
-    : BsplineSet(my_name),
+SplineR2R<ST>::SplineR2R(const std::string& my_name, const Lattice& prim_lattice, bool use_offload)
+    : BsplineSet(my_name, prim_lattice),
       use_offload_(use_offload),
       offload_timer_(createGlobalTimer("SplineC2ROMPTarget::offload", timer_level_fine)),
+      GGt(dot(transpose(prim_lattice.G), prim_lattice.G)),
       SplineInst(create_MultiBsplineDerived<ST>(use_offload))
-{}
+{
+  GGt_offload           = std::make_shared<OffloadVector<ST>>(9);
+  PrimLattice_G_offload = std::make_shared<OffloadVector<ST>>(9);
+  for (std::uint32_t i = 0; i < 9; i++)
+  {
+    (*GGt_offload)[i]           = GGt[i];
+    (*PrimLattice_G_offload)[i] = PrimLattice.G[i];
+  }
+  PrimLattice_G_offload->updateTo();
+  GGt_offload->updateTo();
+}
 
 template<typename ST>
 SplineR2R<ST>::SplineR2R(const SplineR2R& in) = default;
@@ -60,19 +71,7 @@ template<typename ST>
 void SplineR2R<ST>::finalizeConstruction()
 {
   if (use_offload_)
-  {
     SplineInst->finalize();
-    // transfer static data to GPU
-    GGt_offload           = std::make_shared<OffloadVector<ST>>(9);
-    PrimLattice_G_offload = std::make_shared<OffloadVector<ST>>(9);
-    for (std::uint32_t i = 0; i < 9; i++)
-    {
-      (*GGt_offload)[i]           = GGt[i];
-      (*PrimLattice_G_offload)[i] = PrimLattice.G[i];
-    }
-    PrimLattice_G_offload->updateTo();
-    GGt_offload->updateTo();
-  }
 }
 
 template<typename ST>
