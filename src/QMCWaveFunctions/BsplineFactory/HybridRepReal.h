@@ -64,7 +64,7 @@ private:
   using SPLINEBASE::myH;
   using SPLINEBASE::myL;
   using SPLINEBASE::myV;
-  using SPLINEBASE::PrimLattice;
+  using SPLINEBASE::prim_lattice_;
 
 public:
   HybridRepReal(const std::string& my_name, const Lattice& prim_lattice) : SPLINEBASE(my_name, prim_lattice) {}
@@ -94,13 +94,13 @@ public:
       SPLINEBASE::evaluateValue(P, iat, psi);
     else if (info.region == Region::INSIDE)
     {
-      int bc_sign = HYBRIDBASE::get_bc_sign(P.activeR(iat), info.r_image, PrimLattice, HalfG);
+      int bc_sign = HYBRIDBASE::get_bc_sign(P.activeR(iat), info.r_image, prim_lattice_, HalfG);
       SPLINEBASE::assign_v(bc_sign, myV, psi, 0, myV.size());
     }
     else
     {
       psi_AO.resize(psi.size());
-      int bc_sign = HYBRIDBASE::get_bc_sign(P.activeR(iat), info.r_image, PrimLattice, HalfG);
+      int bc_sign = HYBRIDBASE::get_bc_sign(P.activeR(iat), info.r_image, prim_lattice_, HalfG);
       SPLINEBASE::assign_v(bc_sign, myV, psi_AO, 0, myV.size());
       SPLINEBASE::evaluateValue(P, iat, psi);
       HYBRIDBASE::interpolate_buffer_v(psi, psi_AO, info.f);
@@ -119,7 +119,7 @@ public:
       if (multi_myV.rows() < VP.getTotalNum())
         multi_myV.resize(VP.getTotalNum(), myV.size());
       std::vector<int> bc_signs(VP.getTotalNum());
-      HYBRIDBASE::evaluateValuesR2R(VP, PrimLattice, HalfG, multi_myV, bc_signs, info);
+      HYBRIDBASE::evaluateValuesR2R(VP, prim_lattice_, HalfG, multi_myV, bc_signs, info);
       for (int iat = 0; iat < VP.getTotalNum(); ++iat)
       {
         if (info.region == Region::INTER)
@@ -160,14 +160,14 @@ public:
     if (info.region == Region::INTER)
       SPLINEBASE::evaluateVGL(P, iat, psi, dpsi, d2psi);
     else if (info.region == Region::INSIDE)
-      SPLINEBASE::assign_vgl_from_l(HYBRIDBASE::get_bc_sign(P.activeR(iat), info.r_image, PrimLattice, HalfG), psi,
+      SPLINEBASE::assign_vgl_from_l(HYBRIDBASE::get_bc_sign(P.activeR(iat), info.r_image, prim_lattice_, HalfG), psi,
                                     dpsi, d2psi);
     else
     {
       psi_AO.resize(psi.size());
       dpsi_AO.resize(psi.size());
       d2psi_AO.resize(psi.size());
-      int bc_sign = HYBRIDBASE::get_bc_sign(P.activeR(iat), info.r_image, PrimLattice, HalfG);
+      int bc_sign = HYBRIDBASE::get_bc_sign(P.activeR(iat), info.r_image, prim_lattice_, HalfG);
       SPLINEBASE::assign_vgl_from_l(bc_sign, psi_AO, dpsi_AO, d2psi_AO);
       SPLINEBASE::evaluateVGL(P, iat, psi, dpsi, d2psi);
       HYBRIDBASE::interpolate_buffer_vgl(psi, dpsi, d2psi, psi_AO, dpsi_AO, d2psi_AO, info);
@@ -200,7 +200,7 @@ public:
     APP_ABORT("HybridRepReal::evaluateVGH not implemented!");
     HYBRIDBASE::evaluate_vgh(P, iat, myV, myG, myH, info);
     if (info.region == Region::INTER)
-      SPLINEBASE::assign_vgh(HYBRIDBASE::get_bc_sign(P.activeR(iat), info.r_image, PrimLattice, HalfG), psi, dpsi,
+      SPLINEBASE::assign_vgh(HYBRIDBASE::get_bc_sign(P.activeR(iat), info.r_image, prim_lattice_, HalfG), psi, dpsi,
                              grad_grad_psi, 0, myV.size());
     else
       SPLINEBASE::evaluateVGH(P, iat, psi, dpsi, grad_grad_psi);

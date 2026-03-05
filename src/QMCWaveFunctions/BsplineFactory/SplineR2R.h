@@ -68,9 +68,9 @@ private:
   ///\f$GGt=G^t G \f$, transformation for tensor in LatticeUnit to CartesianUnit, e.g. Hessian
   const Tensor<ST, 3> GGt;
   /// const offload copy of GGt
-  std::shared_ptr<OffloadVector<ST>> GGt_offload;
-  /// const offload copy of GPrimLattice_G
-  std::shared_ptr<OffloadVector<ST>> PrimLattice_G_offload;
+  const std::shared_ptr<OffloadVector<ST>> GGt_offload;
+  /// const offload copy of Gprim_lattice_G
+  const std::shared_ptr<OffloadVector<ST>> prim_lattice_G_offload;
   /// crowd resource
   ResourceHandle<SplineOMPTargetMultiWalkerMem<ST, TT>> mw_mem_handle_;
 
@@ -163,10 +163,10 @@ public:
 
   void set_spline(SingleSplineType* spline_r, SingleSplineType* spline_i, int twist, int ispline, int level);
 
-  /** convert position in PrimLattice unit and return sign */
+  /** convert position in prim_lattice_ unit and return sign */
   inline int convertPos(const PointType& r, PointType& ru) const
   {
-    ru          = PrimLattice.toUnit(r);
+    ru          = prim_lattice_.toUnit(r);
     int bc_sign = 0;
     for (int i = 0; i < D; i++)
       if (-std::numeric_limits<ST>::epsilon() < ru[i] && ru[i] < 0)

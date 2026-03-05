@@ -43,16 +43,16 @@ SplineR2R<ST>::SplineR2R(const std::string& my_name, const Lattice& prim_lattice
       use_offload_(use_offload),
       offload_timer_(createGlobalTimer("SplineC2ROMPTarget::offload", timer_level_fine)),
       GGt(dot(transpose(prim_lattice.G), prim_lattice.G)),
+      GGt_offload(std::make_shared<OffloadVector<ST>>(9)),
+      prim_lattice_G_offload(std::make_shared<OffloadVector<ST>>(9)),
       SplineInst(create_MultiBsplineDerived<ST>(use_offload))
 {
-  GGt_offload           = std::make_shared<OffloadVector<ST>>(9);
-  PrimLattice_G_offload = std::make_shared<OffloadVector<ST>>(9);
   for (std::uint32_t i = 0; i < 9; i++)
   {
-    (*GGt_offload)[i]           = GGt[i];
-    (*PrimLattice_G_offload)[i] = PrimLattice.G[i];
+    (*GGt_offload)[i]            = GGt[i];
+    (*prim_lattice_G_offload)[i] = prim_lattice_.G[i];
   }
-  PrimLattice_G_offload->updateTo();
+  prim_lattice_G_offload->updateTo();
   GGt_offload->updateTo();
 }
 
@@ -393,9 +393,9 @@ inline void SplineR2R<ST>::assign_vgl(int bc_sign,
   last             = last > last_real ? last_real : last;
 
   const ST signed_one = (bc_sign & 1) ? -1 : 1;
-  const ST g00 = PrimLattice.G(0), g01 = PrimLattice.G(1), g02 = PrimLattice.G(2), g10 = PrimLattice.G(3),
-           g11 = PrimLattice.G(4), g12 = PrimLattice.G(5), g20 = PrimLattice.G(6), g21 = PrimLattice.G(7),
-           g22      = PrimLattice.G(8);
+  const ST g00 = prim_lattice_.G(0), g01 = prim_lattice_.G(1), g02 = prim_lattice_.G(2), g10 = prim_lattice_.G(3),
+           g11 = prim_lattice_.G(4), g12 = prim_lattice_.G(5), g20 = prim_lattice_.G(6), g21 = prim_lattice_.G(7),
+           g22      = prim_lattice_.G(8);
   const ST symGG[6] = {GGt[0], GGt[1] + GGt[3], GGt[2] + GGt[6], GGt[4], GGt[5] + GGt[7], GGt[8]};
 
   const ST* restrict g0  = myG.data(0);
@@ -519,7 +519,7 @@ void SplineR2R<ST>::mw_evaluateVGLandDetRatioGrads(const RefVectorWithLeader<SPO
   auto* buffer_H2D_ptr           = buffer_H2D.data();
   auto* offload_scratch_ptr      = mw_offload_scratch.data();
   auto* GGt_ptr                  = GGt_offload->data();
-  auto* PrimLattice_G_ptr        = PrimLattice_G_offload->data();
+  auto* prim_lattice_G_ptr       = prim_lattice_G_offload->data();
   auto* phi_vgl_ptr              = phi_vgl_v.data();
   auto* rg_private_ptr           = rg_private.data();
   const size_t buffer_H2D_stride = buffer_H2D.cols();
@@ -566,9 +566,9 @@ void SplineR2R<ST>::mw_evaluateVGLandDetRatioGrads(const RefVectorWithLeader<SPO
         const auto* restrict pos_iw_ptr       = reinterpret_cast<ST*>(buffer_H2D_ptr + buffer_H2D_stride * iw);
         const auto* restrict invRow_iw_ptr =
             *reinterpret_cast<ValueType**>(buffer_H2D_ptr + buffer_H2D_stride * iw + sizeof(ST) * 4);
-        const ST G[9]      = {PrimLattice_G_ptr[0], PrimLattice_G_ptr[1], PrimLattice_G_ptr[2],
-                              PrimLattice_G_ptr[3], PrimLattice_G_ptr[4], PrimLattice_G_ptr[5],
-                              PrimLattice_G_ptr[6], PrimLattice_G_ptr[7], PrimLattice_G_ptr[8]};
+        const ST G[9]      = {prim_lattice_G_ptr[0], prim_lattice_G_ptr[1], prim_lattice_G_ptr[2],
+                              prim_lattice_G_ptr[3], prim_lattice_G_ptr[4], prim_lattice_G_ptr[5],
+                              prim_lattice_G_ptr[6], prim_lattice_G_ptr[7], prim_lattice_G_ptr[8]};
         const ST symGGt[6] = {GGt_ptr[0], GGt_ptr[1] + GGt_ptr[3], GGt_ptr[2] + GGt_ptr[6],
                               GGt_ptr[4], GGt_ptr[5] + GGt_ptr[7], GGt_ptr[8]};
 
@@ -650,9 +650,9 @@ void SplineR2R<ST>::assign_vgh(int bc_sign,
   last                   = last > last_real ? last_real : last;
 
   const ST signed_one = (bc_sign & 1) ? -1 : 1;
-  const ST g00 = PrimLattice.G(0), g01 = PrimLattice.G(1), g02 = PrimLattice.G(2), g10 = PrimLattice.G(3),
-           g11 = PrimLattice.G(4), g12 = PrimLattice.G(5), g20 = PrimLattice.G(6), g21 = PrimLattice.G(7),
-           g22 = PrimLattice.G(8);
+  const ST g00 = prim_lattice_.G(0), g01 = prim_lattice_.G(1), g02 = prim_lattice_.G(2), g10 = prim_lattice_.G(3),
+           g11 = prim_lattice_.G(4), g12 = prim_lattice_.G(5), g20 = prim_lattice_.G(6), g21 = prim_lattice_.G(7),
+           g22 = prim_lattice_.G(8);
 
   const ST* restrict g0  = myG.data(0);
   const ST* restrict g1  = myG.data(1);
@@ -667,7 +667,7 @@ void SplineR2R<ST>::assign_vgh(int bc_sign,
 #pragma omp simd
   for (size_t j = first; j < last; ++j)
   {
-    //dot(PrimLattice.G,myG[j])
+    //dot(prim_lattice_.G,myG[j])
     const ST dX_r = g00 * g0[j] + g01 * g1[j] + g02 * g2[j];
     const ST dY_r = g10 * g0[j] + g11 * g1[j] + g12 * g2[j];
     const ST dZ_r = g20 * g0[j] + g21 * g1[j] + g22 * g2[j];
@@ -735,9 +735,9 @@ void SplineR2R<ST>::assign_vghgh(int bc_sign,
   last                   = last < 0 ? last_real : (last > last_real ? last_real : last);
 
   const ST signed_one = (bc_sign & 1) ? -1 : 1;
-  const ST g00 = PrimLattice.G(0), g01 = PrimLattice.G(1), g02 = PrimLattice.G(2), g10 = PrimLattice.G(3),
-           g11 = PrimLattice.G(4), g12 = PrimLattice.G(5), g20 = PrimLattice.G(6), g21 = PrimLattice.G(7),
-           g22 = PrimLattice.G(8);
+  const ST g00 = prim_lattice_.G(0), g01 = prim_lattice_.G(1), g02 = prim_lattice_.G(2), g10 = prim_lattice_.G(3),
+           g11 = prim_lattice_.G(4), g12 = prim_lattice_.G(5), g20 = prim_lattice_.G(6), g21 = prim_lattice_.G(7),
+           g22 = prim_lattice_.G(8);
 
   const ST* restrict g0  = myG.data(0);
   const ST* restrict g1  = myG.data(1);
@@ -767,7 +767,7 @@ void SplineR2R<ST>::assign_vghgh(int bc_sign,
     const ST val_r = myV[j];
 
 
-    //dot(PrimLattice.G,myG[j])
+    //dot(prim_lattice_.G,myG[j])
     const ST dX_r = g00 * g0[j] + g01 * g1[j] + g02 * g2[j];
     const ST dY_r = g10 * g0[j] + g11 * g1[j] + g12 * g2[j];
     const ST dZ_r = g20 * g0[j] + g21 * g1[j] + g22 * g2[j];
