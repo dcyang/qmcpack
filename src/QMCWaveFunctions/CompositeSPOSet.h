@@ -49,14 +49,11 @@ public:
   ///store the precomputed offsets
   std::vector<int> component_offsets;
 
-  CompositeSPOSet(const std::string& my_name);
+  CompositeSPOSet(const std::string& my_name, std::vector<std::unique_ptr<SPOSet>>&& components);
   CompositeSPOSet(const CompositeSPOSet& other);
   ~CompositeSPOSet() override;
 
   std::string getClassName() const override { return "CompositeSPOSet"; }
-
-  ///add a sposet component to this composite sposet
-  void add(std::unique_ptr<SPOSet> component);
 
   ///print out component info
   void report();
