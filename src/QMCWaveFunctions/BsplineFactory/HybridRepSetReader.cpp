@@ -143,7 +143,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
                                                                   const BandInfoGroup& bandgroup)
 {
   spline_reader_.setCheckNorm(checkNorm);
-  auto bspline = std::make_unique<SA>(my_name, mybuilder->PrimCell);
+  auto bspline = std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell);
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
   // set info for Hybrid
   initialize_hybridrep_atomic_centers(*bspline);

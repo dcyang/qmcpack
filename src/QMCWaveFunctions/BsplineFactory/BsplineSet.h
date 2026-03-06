@@ -52,8 +52,8 @@ protected:
   aligned_vector<int> BandIndexMap;
 
 public:
-  BsplineSet(const std::string& my_name, const Lattice& prim_lattice)
-      : SPOSet(my_name), first_spo(0), last_spo(0), prim_lattice_(prim_lattice)
+  BsplineSet(const std::string& my_name, size_t size, const Lattice& prim_lattice)
+      : SPOSet(my_name, size), first_spo(0), last_spo(0), prim_lattice_(prim_lattice)
   {}
 
   virtual bool isComplex() const         = 0;
@@ -116,8 +116,6 @@ public:
   using SPOSet::releaseResource;
 
   std::unique_ptr<SPOSet> makeClone() const override = 0;
-
-  void setOrbitalSetSize(int norbs) override { OrbitalSetSize = norbs; }
 
   void evaluate_notranspose(const ParticleSet& P,
                             int first,

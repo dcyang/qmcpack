@@ -204,8 +204,7 @@ std::unique_ptr<SPOSet> EinsplineSpinorSetBuilder::createSPOSetFromXML(xmlNodePt
   bspline_zd_d->finalizeConstruction();
 
   //register with spin set and we're off to the races.
-  auto spinor_set = std::make_unique<SpinorSet>(spo_object_name);
-  spinor_set->set_spos(std::move(bspline_zd_u), std::move(bspline_zd_d));
+  auto spinor_set = std::make_unique<SpinorSet>(spo_object_name, std::move(bspline_zd_u), std::move(bspline_zd_d));
   return spinor_set;
 };
 } // namespace qmcplusplus

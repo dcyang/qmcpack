@@ -35,14 +35,10 @@ class TestSOECPotential
 
 public:
   static void copyGridUnrotatedForTest(SOECPotential& so_ecp)
-  {
-    so_ecp.ppset_[0]->rrotsgrid_m_ = so_ecp.ppset_[0]->sgridxyz_m_;
-  }
+  { so_ecp.ppset_[0]->rrotsgrid_m_ = so_ecp.ppset_[0]->sgridxyz_m_; }
 
   static bool didGridChange(SOECPotential& so_ecp)
-  {
-    return so_ecp.ppset_[0]->rrotsgrid_m_ != so_ecp.ppset_[0]->sgridxyz_m_;
-  }
+  { return so_ecp.ppset_[0]->rrotsgrid_m_ != so_ecp.ppset_[0]->sgridxyz_m_; }
 
   static void mw_evaluateImpl(const RefVectorWithLeader<OperatorBase>& o_list,
                               const RefVectorWithLeader<TrialWaveFunction>& twf_list,
@@ -144,8 +140,7 @@ void doSOECPotentialTest(bool use_VPs)
   auto spo_up = std::make_unique<FreeOrbital>("free_orb_up", kup);
   auto spo_dn = std::make_unique<FreeOrbital>("free_orb_dn", kdn);
 
-  auto spinor_set = std::make_unique<SpinorSet>("free_orsposetsb_spinor");
-  spinor_set->set_spos(std::move(spo_up), std::move(spo_dn));
+  auto spinor_set = std::make_unique<SpinorSet>("free_orsposetsb_spinor", std::move(spo_up), std::move(spo_dn));
   QMCTraits::IndexType norb = spinor_set->getOrbitalSetSize();
   REQUIRE(norb == 2);
 

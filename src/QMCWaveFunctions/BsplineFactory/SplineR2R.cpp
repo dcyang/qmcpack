@@ -38,8 +38,8 @@ inline static std::unique_ptr<MultiBsplineBase<T>> create_MultiBsplineDerived(co
 }
 
 template<typename ST>
-SplineR2R<ST>::SplineR2R(const std::string& my_name, const Lattice& prim_lattice, bool use_offload)
-    : BsplineSet(my_name, prim_lattice),
+SplineR2R<ST>::SplineR2R(const std::string& my_name, size_t size, const Lattice& prim_lattice, bool use_offload)
+    : BsplineSet(my_name, size, prim_lattice),
       use_offload_(use_offload),
       offload_timer_(createGlobalTimer("SplineC2ROMPTarget::offload", timer_level_fine)),
       GGt(dot(transpose(prim_lattice.G), prim_lattice.G)),

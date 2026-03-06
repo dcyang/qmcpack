@@ -742,8 +742,7 @@ TEST_CASE("RotatedSPOs read and write parameters", "[wavefunction]")
 {
   //There is an issue with the real<->complex parameter parsing to h5 in QMC_COMPLEX.
   //This needs to be fixed in a future PR.
-  auto fake_spo = std::make_unique<FakeSPO<QMCTraits::ValueType>>();
-  fake_spo->setOrbitalSetSize(4);
+  auto fake_spo = std::make_unique<FakeSPO<QMCTraits::ValueType>>(4);
   RotatedSPOs rot("fake_rot", std::move(fake_spo));
   int nel = 2;
   rot.buildOptVariables(nel);
@@ -764,8 +763,7 @@ TEST_CASE("RotatedSPOs read and write parameters", "[wavefunction]")
     rot.writeVariationalParameters(hout);
   }
 
-  auto fake_spo2 = std::make_unique<FakeSPO<QMCTraits::ValueType>>();
-  fake_spo2->setOrbitalSetSize(4);
+  auto fake_spo2 = std::make_unique<FakeSPO<QMCTraits::ValueType>>(4);
 
   RotatedSPOs rot2("fake_rot", std::move(fake_spo2));
   rot2.buildOptVariables(nel);
@@ -802,8 +800,7 @@ public:
   template<typename DT>
   using OffloadMatrix = typename SPOSet::template OffloadMatrix<DT>;
 
-  DummySPOSetWithoutMW(const std::string& my_name) : SPOSet(my_name) {}
-  void setOrbitalSetSize(int norbs) override {}
+  DummySPOSetWithoutMW(const std::string& my_name) : SPOSet(my_name, 3) {}
   void evaluateValue(const ParticleSet& P, int iat, ValueVector& psi) override
   {
     assert(psi.size() == 3);
