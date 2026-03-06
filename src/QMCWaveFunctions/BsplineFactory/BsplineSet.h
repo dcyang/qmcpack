@@ -37,6 +37,8 @@ protected:
   size_t first_spo;
   ///last index of the SPOs this Spline handles
   size_t last_spo;
+  ///primitive cell
+  const Lattice prim_lattice_;
   ///sign bits at the G/2 boundaries
   TinyVector<int, D> HalfG;
   ///flags to unpack sin/cos
@@ -50,7 +52,9 @@ protected:
   aligned_vector<int> BandIndexMap;
 
 public:
-  BsplineSet(const std::string& my_name) : SPOSet(my_name), first_spo(0), last_spo(0) {}
+  BsplineSet(const std::string& my_name, const Lattice& prim_lattice)
+      : SPOSet(my_name), first_spo(0), last_spo(0), prim_lattice_(prim_lattice)
+  {}
 
   virtual bool isComplex() const         = 0;
   virtual std::string getKeyword() const = 0;

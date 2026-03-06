@@ -41,7 +41,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
                                                                int spin,
                                                                const BandInfoGroup& bandgroup)
 {
-  auto bspline = std::make_unique<SA>(my_name, use_offload);
+  auto bspline = std::make_unique<SA>(my_name, mybuilder->PrimCell, use_offload);
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
   bool foundspline = createSplineDataSpaceLookforDumpFile(bandgroup, *bspline);
   if (foundspline && myComm->rank() == 0)
@@ -58,7 +58,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
 
   if (!foundspline)
   {
-    bspline->flush_zero();
+    bspline->SplineInst->flush_zero();
 
     Timer now;
     initialize_spline_pio_gather(spin, bandgroup, *bspline);
@@ -98,9 +98,6 @@ bool SplineSetReader<SA>::createSplineDataSpaceLookforDumpFile(const BandInfoGro
     app_log() << "  Using complex einspline table" << std::endl;
   else
     app_log() << "  Using real einspline table" << std::endl;
-
-  bspline.PrimLattice = mybuilder->PrimCell;
-  bspline.GGt         = dot(transpose(bspline.PrimLattice.G), bspline.PrimLattice.G);
 
   //baseclass handles twists
   check_twists(bspline, bandgroup);

@@ -70,17 +70,13 @@ public:
 private:
   /// timer for offload portion
   NewTimer& offload_timer_;
-  ///primitive cell
-  CrystalLattice<ST, 3> PrimLattice;
-  ///\f$GGt=G^t G \f$, transformation for tensor in LatticeUnit to CartesianUnit, e.g. Hessian
-  Tensor<ST, 3> GGt;
   ///number of complex bands
   int nComplexBands;
 
   std::shared_ptr<OffloadVector<ST>> mKK;
   std::shared_ptr<OffloadPosVector<ST>> myKcart;
-  std::shared_ptr<OffloadVector<ST>> GGt_offload;
-  std::shared_ptr<OffloadVector<ST>> PrimLattice_G_offload;
+  const std::shared_ptr<OffloadVector<ST>> GGt_offload;
+  const std::shared_ptr<OffloadVector<ST>> prim_lattice_G_offload;
 
   ResourceHandle<SplineOMPTargetMultiWalkerMem<ST, TT>> mw_mem_handle_;
 
@@ -113,13 +109,22 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineC2ROMPTarget(const std::string& my_name, bool use_offload = true)
-      : BsplineSet(my_name),
+  SplineC2ROMPTarget(const std::string& my_name, const Lattice& prim_lattice, bool use_offload = true)
+      : BsplineSet(my_name, prim_lattice),
         offload_timer_(createGlobalTimer("SplineC2ROMPTarget::offload", timer_level_fine)),
         nComplexBands(0),
         GGt_offload(std::make_shared<OffloadVector<ST>>(9)),
-        PrimLattice_G_offload(std::make_shared<OffloadVector<ST>>(9))
-  {}
+        prim_lattice_G_offload(std::make_shared<OffloadVector<ST>>(9))
+  {
+    auto GGt(dot(transpose(prim_lattice.G), prim_lattice.G));
+    for (std::uint32_t i = 0; i < 9; i++)
+    {
+      (*prim_lattice_G_offload)[i] = prim_lattice_.G[i];
+      (*GGt_offload)[i]            = GGt[i];
+    }
+    prim_lattice_G_offload->updateTo();
+    GGt_offload->updateTo();
+  }
 
   SplineC2ROMPTarget(const SplineC2ROMPTarget& in);
 
@@ -176,16 +181,7 @@ public:
     // transfer static data to GPU
     mKK->updateTo();
     myKcart->updateTo();
-    for (std::uint32_t i = 0; i < 9; i++)
-    {
-      (*GGt_offload)[i]           = GGt[i];
-      (*PrimLattice_G_offload)[i] = PrimLattice.G[i];
-    }
-    PrimLattice_G_offload->updateTo();
-    GGt_offload->updateTo();
   }
-
-  inline void flush_zero() { SplineInst->flush_zero(); }
 
   /** remap kPoints to pack the double copy */
   inline void resize_kpoints()

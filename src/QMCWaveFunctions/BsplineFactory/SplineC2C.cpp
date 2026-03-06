@@ -173,7 +173,7 @@ template<typename ST>
 void SplineC2C<ST>::evaluateValue(const ParticleSet& P, const int iat, ValueVector& psi)
 {
   const PointType& r = P.activeR(iat);
-  PointType ru(PrimLattice.toUnit_floor(r));
+  PointType ru(prim_lattice_.toUnit_floor(r));
 
 #pragma omp parallel
   {
@@ -213,7 +213,7 @@ void SplineC2C<ST>::evaluateDetRatios(const VirtualParticleSet& VP,
     for (int iat = 0; iat < VP.getTotalNum(); ++iat)
     {
       const PointType& r = VP.activeR(iat);
-      PointType ru(PrimLattice.toUnit_floor(r));
+      PointType ru(prim_lattice_.toUnit_floor(r));
 
       spline2::evaluate3d(SplineInst->getSplinePtr(), ru, myV, first, last);
       assign_v(r, myV, psi, first_cplx, last_cplx);
@@ -246,9 +246,9 @@ inline void SplineC2C<ST>::assign_vgl(const PointType& r,
 
   constexpr ST zero(0);
   constexpr ST two(2);
-  const ST g00 = PrimLattice.G(0), g01 = PrimLattice.G(1), g02 = PrimLattice.G(2), g10 = PrimLattice.G(3),
-           g11 = PrimLattice.G(4), g12 = PrimLattice.G(5), g20 = PrimLattice.G(6), g21 = PrimLattice.G(7),
-           g22 = PrimLattice.G(8);
+  const ST g00 = prim_lattice_.G(0), g01 = prim_lattice_.G(1), g02 = prim_lattice_.G(2), g10 = prim_lattice_.G(3),
+           g11 = prim_lattice_.G(4), g12 = prim_lattice_.G(5), g20 = prim_lattice_.G(6), g21 = prim_lattice_.G(7),
+           g22 = prim_lattice_.G(8);
   const ST x = r[0], y = r[1], z = r[2];
   const ST symGG[6] = {GGt[0], GGt[1] + GGt[3], GGt[2] + GGt[6], GGt[4], GGt[5] + GGt[7], GGt[8]};
 
@@ -282,7 +282,7 @@ inline void SplineC2C<ST>::assign_vgl(const PointType& r,
     ST s, c;
     qmcplusplus::sincos(-(x * kX + y * kY + z * kZ), &s, &c);
 
-    //dot(PrimLattice.G,myG[j])
+    //dot(prim_lattice_.G,myG[j])
     const ST dX_r = g00 * g0[jr] + g01 * g1[jr] + g02 * g2[jr];
     const ST dY_r = g10 * g0[jr] + g11 * g1[jr] + g12 * g2[jr];
     const ST dZ_r = g20 * g0[jr] + g21 * g1[jr] + g22 * g2[jr];
@@ -346,7 +346,7 @@ inline void SplineC2C<ST>::assign_vgl_from_l(const PointType& r, ValueVector& ps
     ST s, c;
     qmcplusplus::sincos(-(x * kX + y * kY + z * kZ), &s, &c);
 
-    //dot(PrimLattice.G,myG[j])
+    //dot(prim_lattice_.G,myG[j])
     const ST dX_r = g0[jr];
     const ST dY_r = g1[jr];
     const ST dZ_r = g2[jr];
@@ -383,7 +383,7 @@ void SplineC2C<ST>::evaluateVGL(const ParticleSet& P,
                                 ValueVector& d2psi)
 {
   const PointType& r = P.activeR(iat);
-  PointType ru(PrimLattice.toUnit_floor(r));
+  PointType ru(prim_lattice_.toUnit_floor(r));
 
 #pragma omp parallel
   {
@@ -408,9 +408,9 @@ void SplineC2C<ST>::assign_vgh(const PointType& r,
   const size_t last_cplx = std::min(kPoints.size(), psi.size());
   last                   = last > last_cplx ? last_cplx : last;
 
-  const ST g00 = PrimLattice.G(0), g01 = PrimLattice.G(1), g02 = PrimLattice.G(2), g10 = PrimLattice.G(3),
-           g11 = PrimLattice.G(4), g12 = PrimLattice.G(5), g20 = PrimLattice.G(6), g21 = PrimLattice.G(7),
-           g22 = PrimLattice.G(8);
+  const ST g00 = prim_lattice_.G(0), g01 = prim_lattice_.G(1), g02 = prim_lattice_.G(2), g10 = prim_lattice_.G(3),
+           g11 = prim_lattice_.G(4), g12 = prim_lattice_.G(5), g20 = prim_lattice_.G(6), g21 = prim_lattice_.G(7),
+           g22 = prim_lattice_.G(8);
   const ST x = r[0], y = r[1], z = r[2];
 
   const ST* restrict k0 = myKcart.data(0);
@@ -443,7 +443,7 @@ void SplineC2C<ST>::assign_vgh(const PointType& r,
     ST s, c;
     qmcplusplus::sincos(-(x * kX + y * kY + z * kZ), &s, &c);
 
-    //dot(PrimLattice.G,myG[j])
+    //dot(prim_lattice_.G,myG[j])
     const ST dX_r = g00 * g0[jr] + g01 * g1[jr] + g02 * g2[jr];
     const ST dY_r = g10 * g0[jr] + g11 * g1[jr] + g12 * g2[jr];
     const ST dZ_r = g20 * g0[jr] + g21 * g1[jr] + g22 * g2[jr];
@@ -524,7 +524,7 @@ void SplineC2C<ST>::evaluateVGH(const ParticleSet& P,
                                 HessVector& grad_grad_psi)
 {
   const PointType& r = P.activeR(iat);
-  PointType ru(PrimLattice.toUnit_floor(r));
+  PointType ru(prim_lattice_.toUnit_floor(r));
 
 #pragma omp parallel
   {
@@ -550,9 +550,9 @@ void SplineC2C<ST>::assign_vghgh(const PointType& r,
   const size_t last_cplx = std::min(kPoints.size(), psi.size());
   last                   = last < 0 ? last_cplx : (last > last_cplx ? last_cplx : last);
 
-  const ST g00 = PrimLattice.G(0), g01 = PrimLattice.G(1), g02 = PrimLattice.G(2), g10 = PrimLattice.G(3),
-           g11 = PrimLattice.G(4), g12 = PrimLattice.G(5), g20 = PrimLattice.G(6), g21 = PrimLattice.G(7),
-           g22 = PrimLattice.G(8);
+  const ST g00 = prim_lattice_.G(0), g01 = prim_lattice_.G(1), g02 = prim_lattice_.G(2), g10 = prim_lattice_.G(3),
+           g11 = prim_lattice_.G(4), g12 = prim_lattice_.G(5), g20 = prim_lattice_.G(6), g21 = prim_lattice_.G(7),
+           g22 = prim_lattice_.G(8);
   const ST x = r[0], y = r[1], z = r[2];
 
   const ST* restrict k0 = myKcart.data(0);
@@ -597,7 +597,7 @@ void SplineC2C<ST>::assign_vghgh(const PointType& r,
     ST s, c;
     qmcplusplus::sincos(-(x * kX + y * kY + z * kZ), &s, &c);
 
-    //dot(PrimLattice.G,myG[j])
+    //dot(prim_lattice_.G,myG[j])
     const ST dX_r = g00 * g0[jr] + g01 * g1[jr] + g02 * g2[jr];
     const ST dY_r = g10 * g0[jr] + g11 * g1[jr] + g12 * g2[jr];
     const ST dZ_r = g20 * g0[jr] + g21 * g1[jr] + g22 * g2[jr];
@@ -782,7 +782,7 @@ void SplineC2C<ST>::evaluateVGHGH(const ParticleSet& P,
                                   GGGVector& grad_grad_grad_psi)
 {
   const PointType& r = P.activeR(iat);
-  PointType ru(PrimLattice.toUnit_floor(r));
+  PointType ru(prim_lattice_.toUnit_floor(r));
 #pragma omp parallel
   {
     int first, last;

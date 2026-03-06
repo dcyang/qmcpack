@@ -565,11 +565,11 @@ public:
   template<typename Cell>
   inline int get_bc_sign(const PointType& r,
                          const PointType& r_image,
-                         const Cell& PrimLattice,
+                         const Cell& prim_lattice_,
                          TinyVector<int, D>& HalfG) const
   {
     int bc_sign          = 0;
-    PointType shift_unit = PrimLattice.toUnit(r - r_image);
+    PointType shift_unit = prim_lattice_.toUnit(r - r_image);
     for (int i = 0; i < D; i++)
     {
       ST img = round(shift_unit[i]);
@@ -626,7 +626,7 @@ public:
   // R2R case
   template<typename VM, typename Cell, typename SV>
   inline void evaluateValuesR2R(const VirtualParticleSet& VP,
-                                const Cell& PrimLattice,
+                                const Cell& prim_lattice_,
                                 TinyVector<int, D>& HalfG,
                                 VM& multi_myV,
                                 SV& bc_signs,
@@ -640,7 +640,7 @@ public:
     {
       const auto& displ = VP.getDistTableAB(myTableID).getDisplacements();
       for (int ivp = 0; ivp < VP.getTotalNum(); ivp++)
-        bc_signs[ivp] = get_bc_sign(VP.R[ivp], myCenter.getCenterPos() - displ[ivp][center_idx], PrimLattice, HalfG);
+        bc_signs[ivp] = get_bc_sign(VP.R[ivp], myCenter.getCenterPos() - displ[ivp][center_idx], prim_lattice_, HalfG);
       myCenter.evaluateValues(displ, center_idx, info.dist_r, multi_myV);
     }
   }

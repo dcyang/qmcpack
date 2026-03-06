@@ -65,7 +65,7 @@ private:
   using SPLINEBASE::myV;
 
 public:
-  HybridRepCplx(const std::string& my_name) : SPLINEBASE(my_name) {}
+  HybridRepCplx(const std::string& my_name, const Lattice& prim_lattice) : SPLINEBASE(my_name, prim_lattice) {}
 
   bool isRotationSupported() const override { return SPLINEBASE::isRotationSupported(); }
   void storeParamsBeforeRotation() override
