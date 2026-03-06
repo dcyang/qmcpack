@@ -585,7 +585,8 @@ public:
 protected:
   /// name of the object, unique identifier
   const std::string my_name_;
-  ///number of Single-particle orbitals
+  ///number of Single-particle orbitals.
+  /// It should be marked const. CompositeSPOSet is the last class blocking this change.
   IndexType OrbitalSetSize;
 };
 
