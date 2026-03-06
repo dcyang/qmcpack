@@ -800,7 +800,7 @@ public:
   template<typename DT>
   using OffloadMatrix = typename SPOSet::template OffloadMatrix<DT>;
 
-  DummySPOSetWithoutMW(const std::string& my_name) : SPOSet(my_name) {}
+  DummySPOSetWithoutMW(const std::string& my_name) : SPOSet(my_name, 3) {}
   void evaluateValue(const ParticleSet& P, int iat, ValueVector& psi) override
   {
     assert(psi.size() == 3);

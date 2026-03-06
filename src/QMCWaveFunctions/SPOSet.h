@@ -67,7 +67,7 @@ public:
   using OffloadMatrix = Matrix<DT, OffloadPinnedAllocator<DT>>;
 
   /** constructor */
-  SPOSetT(const std::string& my_name, size_t size = 0);
+  SPOSetT(const std::string& my_name, size_t size);
 
   /** destructor
    *
@@ -586,8 +586,7 @@ protected:
   /// name of the object, unique identifier
   const std::string my_name_;
   ///number of Single-particle orbitals.
-  /// It should be marked const. CompositeSPOSet is the last class blocking this change.
-  IndexType OrbitalSetSize;
+  const IndexType OrbitalSetSize;
 };
 
 using SPOSet    = SPOSetT<QMCTraits::QTBase::ValueType>;

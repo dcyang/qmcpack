@@ -210,8 +210,8 @@ private:
       const RefVectorWithLeader<SPOSet>& spo_list) const;
 
   //Sposet for the up and down channels of our spinors.
-  std::unique_ptr<SPOSet> spo_up;
-  std::unique_ptr<SPOSet> spo_dn;
+  const std::unique_ptr<SPOSet> spo_up;
+  const std::unique_ptr<SPOSet> spo_dn;
 
   //temporary arrays for holding the values of the up and down channels respectively.
   ValueVector psi_work_up;

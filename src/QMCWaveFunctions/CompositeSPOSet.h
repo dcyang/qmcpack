@@ -37,7 +37,7 @@ public:
   using GGGMatrix   = typename SPOSet::GGGMatrix;
 
   ///component SPOSets
-  std::vector<std::unique_ptr<SPOSet>> components;
+  const std::vector<std::unique_ptr<SPOSet>> components;
   ///temporary storage for values
   std::vector<ValueVector> component_values;
   ///temporary storage for gradients
