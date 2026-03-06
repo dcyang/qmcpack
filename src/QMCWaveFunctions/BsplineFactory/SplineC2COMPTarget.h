@@ -106,8 +106,8 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineC2COMPTarget(const std::string& my_name, const Lattice& prim_lattice, bool use_offload = true)
-      : BsplineSet(my_name, prim_lattice),
+  SplineC2COMPTarget(const std::string& my_name, size_t size, const Lattice& prim_lattice, bool use_offload = true)
+      : BsplineSet(my_name, size, prim_lattice),
         offload_timer_(createGlobalTimer("SplineC2COMPTarget::offload", timer_level_fine)),
         GGt_offload(std::make_shared<OffloadVector<ST>>(9)),
         prim_lattice_G_offload(std::make_shared<OffloadVector<ST>>(9))

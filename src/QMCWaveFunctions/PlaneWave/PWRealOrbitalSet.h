@@ -80,7 +80,6 @@ public:
    */
   void addVector(const std::vector<ComplexType>& coefs, int jorb);
 
-  void setOrbitalSetSize(int norbs) override;
 
   inline ValueType evaluate(int ib, const PosType& pos)
   {
@@ -105,9 +104,7 @@ public:
                             ValueMatrix& logdet,
                             GradMatrix& dlogdet,
                             HessMatrix& grad_grad_logdet) override
-  {
-    APP_ABORT("Need specialization of evaluate_notranspose() for grad_grad_logdet. \n");
-  }
+  { APP_ABORT("Need specialization of evaluate_notranspose() for grad_grad_logdet. \n"); }
 
 
   /** boolean

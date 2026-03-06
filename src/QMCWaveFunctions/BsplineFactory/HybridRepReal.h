@@ -67,7 +67,9 @@ private:
   using SPLINEBASE::prim_lattice_;
 
 public:
-  HybridRepReal(const std::string& my_name, const Lattice& prim_lattice) : SPLINEBASE(my_name, prim_lattice) {}
+  HybridRepReal(const std::string& my_name, size_t size, const Lattice& prim_lattice)
+      : SPLINEBASE(my_name, size, prim_lattice)
+  {}
 
   bool isRotationSupported() const override { return SPLINEBASE::isRotationSupported(); }
   void storeParamsBeforeRotation() override

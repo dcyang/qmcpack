@@ -63,7 +63,6 @@ public:
 
   //SPOSet interface methods
   ///size is determined by component sposets and nothing else
-  inline void setOrbitalSetSize(int norbs) override {}
 
   std::unique_ptr<SPOSet> makeClone() const override;
 
@@ -80,9 +79,7 @@ public:
 
   ///unimplemented functions call this to abort
   inline void not_implemented(const std::string& method)
-  {
-    APP_ABORT("CompositeSPOSet::" + method + " has not been implemented");
-  }
+  { APP_ABORT("CompositeSPOSet::" + method + " has not been implemented"); }
 
   //methods to be implemented in the future (possibly)
   void evaluate_notranspose(const ParticleSet& P,

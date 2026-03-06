@@ -18,6 +18,7 @@
 #ifndef QMCPLUSPLUS_SPLINE_C2R_OMPTARGET_H
 #define QMCPLUSPLUS_SPLINE_C2R_OMPTARGET_H
 
+#include <cstddef>
 #include <memory>
 #include "QMCWaveFunctions/BsplineFactory/BsplineSet.h"
 #include "OhmmsSoA/VectorSoaContainer.h"
@@ -109,8 +110,8 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineC2ROMPTarget(const std::string& my_name, const Lattice& prim_lattice, bool use_offload = true)
-      : BsplineSet(my_name, prim_lattice),
+  SplineC2ROMPTarget(const std::string& my_name, size_t size, const Lattice& prim_lattice, bool use_offload = true)
+      : BsplineSet(my_name, size, prim_lattice),
         offload_timer_(createGlobalTimer("SplineC2ROMPTarget::offload", timer_level_fine)),
         nComplexBands(0),
         GGt_offload(std::make_shared<OffloadVector<ST>>(9)),

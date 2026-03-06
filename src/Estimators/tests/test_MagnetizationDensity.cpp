@@ -108,9 +108,7 @@ public:
     }
   }
   int computeBinAccessor(const MagnetizationDensity& magdens, const Position& r, const int spin_index)
-  {
-    return magdens.computeBin(r, spin_index);
-  }
+  { return magdens.computeBin(r, spin_index); }
 };
 } //namespace testing
 
@@ -366,8 +364,7 @@ TEST_CASE("MagnetizationDensity::IntegrationTest", "[estimators]")
 
   spo_up->setRefVals(mup);
   spo_dn->setRefVals(mdn);
-  auto spinor_set = std::make_unique<SpinorSet>("ConstSpinorSet");
-  spinor_set->set_spos(std::move(spo_up), std::move(spo_dn));
+  auto spinor_set = std::make_unique<SpinorSet>("ConstSpinorSet", std::move(spo_up), std::move(spo_dn));
 
   auto dd = std::make_unique<DiracDeterminant<>>(*spinor_set, 0, nelec);
 

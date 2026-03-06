@@ -131,7 +131,6 @@ protected:
     const int N       = bandgroup.getNumDistinctOrbitals();
     const int numOrbs = bandgroup.getNumSPOs();
 
-    bspline.setOrbitalSetSize(numOrbs);
     bspline.resizeStorage(N);
 
     bspline.first_spo = bandgroup.getFirstSPO();

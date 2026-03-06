@@ -38,8 +38,6 @@ std::unique_ptr<SPOSet> PWRealOrbitalSet::makeClone() const
   return myclone;
 }
 
-void PWRealOrbitalSet::setOrbitalSetSize(int norbs) {}
-
 void PWRealOrbitalSet::resize(PWBasisPtr bset, int nbands, bool cleanup)
 {
   myBasisSet     = bset;

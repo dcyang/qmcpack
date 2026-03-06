@@ -40,11 +40,8 @@ inline void insert_columns(const MAT1& small, MAT2& big, int offset_c)
 } // namespace MatrixOperators
 
 template<typename T>
-CompositeSPOSet<T>::CompositeSPOSet(const std::string& my_name) : SPOSetT<T>(my_name)
-{
-  SPOSet::OrbitalSetSize = 0;
-  component_offsets.reserve(4);
-}
+CompositeSPOSet<T>::CompositeSPOSet(const std::string& my_name) : SPOSetT<T>(my_name, 0)
+{ component_offsets.reserve(4); }
 
 template<typename T>
 CompositeSPOSet<T>::CompositeSPOSet(const CompositeSPOSet& other) : SPOSet(other)
@@ -89,7 +86,8 @@ void CompositeSPOSet<T>::report()
 }
 
 template<typename T>
-std::unique_ptr<SPOSetT<T>> CompositeSPOSet<T>::makeClone() const { return std::make_unique<CompositeSPOSet>(*this); }
+std::unique_ptr<SPOSetT<T>> CompositeSPOSet<T>::makeClone() const
+{ return std::make_unique<CompositeSPOSet>(*this); }
 
 template<typename T>
 void CompositeSPOSet<T>::evaluateValue(const ParticleSet& P, int iat, ValueVector& psi)
@@ -106,7 +104,11 @@ void CompositeSPOSet<T>::evaluateValue(const ParticleSet& P, int iat, ValueVecto
 }
 
 template<typename T>
-void CompositeSPOSet<T>::evaluateVGL(const ParticleSet& P, int iat, ValueVector& psi, GradVector& dpsi, ValueVector& d2psi)
+void CompositeSPOSet<T>::evaluateVGL(const ParticleSet& P,
+                                     int iat,
+                                     ValueVector& psi,
+                                     GradVector& dpsi,
+                                     ValueVector& d2psi)
 {
   int n = 0;
   for (int c = 0; c < components.size(); ++c)
@@ -202,9 +204,7 @@ void CompositeSPOSet<T>::evaluate_notranspose(const ParticleSet& P,
                                               GradMatrix& dlogdet,
                                               HessMatrix& grad_grad_logdet,
                                               GGGMatrix& grad_grad_grad_logdet)
-{
-  not_implemented("evaluate_notranspose(P,first,last,logdet,dlogdet,ddlogdet,dddlogdet)");
-}
+{ not_implemented("evaluate_notranspose(P,first,last,logdet,dlogdet,ddlogdet,dddlogdet)"); }
 
 
 std::unique_ptr<SPOSet> CompositeSPOSetBuilder::createSPOSetFromXML(xmlNodePtr cur)
@@ -227,9 +227,7 @@ std::unique_ptr<SPOSet> CompositeSPOSetBuilder::createSPOSetFromXML(xmlNodePtr c
 }
 
 std::unique_ptr<SPOSet> CompositeSPOSetBuilder::createSPOSet(xmlNodePtr cur, SPOSetInputInfo& input)
-{
-  return createSPOSetFromXML(cur);
-}
+{ return createSPOSetFromXML(cur); }
 
 #if !defined(MIXED_PRECISION)
 template class CompositeSPOSet<double>;

@@ -82,8 +82,8 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineC2R(const std::string& my_name, const Lattice& prim_lattice, bool use_offload = false)
-      : BsplineSet(my_name, prim_lattice), GGt(dot(transpose(prim_lattice.G), prim_lattice.G)), nComplexBands(0)
+  SplineC2R(const std::string& my_name, size_t size, const Lattice& prim_lattice, bool use_offload = false)
+      : BsplineSet(my_name, size, prim_lattice), GGt(dot(transpose(prim_lattice.G), prim_lattice.G)), nComplexBands(0)
   {}
 
   SplineC2R(const SplineC2R& in);
