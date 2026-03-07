@@ -67,8 +67,6 @@ struct BandInfoGroup
 {
   ///index of the group
   int GroupID;
-  ///starting SPO
-  int FirstSPO;
   ///number of SPOs handled by this object
   int NumSPOs;
   ///starting band
@@ -83,20 +81,15 @@ struct BandInfoGroup
   BandInfoGroup();
   ///return the size of this band
   inline int getNumDistinctOrbitals() const { return myBands.size(); }
-  ///return the indext of the first SPO set
-  inline int getFirstSPO() const { return FirstSPO; }
-  ///return the indext of the last SPO set
-  inline int getLastSPO() const { return NumSPOs + FirstSPO; }
   ///return the number of SPOs
   inline int getNumSPOs() const { return NumSPOs; }
 
-  /** get the bands within [first_spo,first_spo+num_spos)
+  /** get the bands within [first_orb,first_orb+num_spos)
    * @param bigspace a set of sorted bands
    * @param first_orb index of the first uniquie orbitals
    * @param num_spos number of SPOs to be created
-   * @param relative if(relative) FirstSPO is set to any valid state index  \f$[0,\infty)\f$
    */
-  void selectBands(const std::vector<BandInfo>& bigspace, int first_orb, int num_spos, bool relative);
+  void selectBands(const std::vector<BandInfo>& bigspace, int first_orb, int num_spos);
 };
 
 } // namespace qmcplusplus

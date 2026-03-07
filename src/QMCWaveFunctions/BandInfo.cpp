@@ -17,9 +17,9 @@
 #include "QMCWaveFunctions/SPOSetInfo.h"
 namespace qmcplusplus
 {
-BandInfoGroup::BandInfoGroup() : FirstSPO(0), NumSPOs(0), FirstBand(0) {}
+BandInfoGroup::BandInfoGroup() : NumSPOs(0), FirstBand(0) {}
 
-void BandInfoGroup::selectBands(const std::vector<BandInfo>& bigspace, int first_orb, int num_spos, bool relative)
+void BandInfoGroup::selectBands(const std::vector<BandInfo>& bigspace, int first_orb, int num_spos)
 {
   app_log() << "BandInfoGroup::selectBands bigspace has " << bigspace.size() << " distinct orbitals " << std::endl;
   myBands.clear();
@@ -40,7 +40,6 @@ void BandInfoGroup::selectBands(const std::vector<BandInfo>& bigspace, int first
     APP_ABORT("BandInfoGroup::selectBands failed due to iorb>=N");
   }
 
-  FirstSPO   = (relative) ? n_lower : 0;
   FirstBand  = iorb;
   NumSPOs    = 0;
   int ns_max = num_spos - 1;
@@ -55,7 +54,6 @@ void BandInfoGroup::selectBands(const std::vector<BandInfo>& bigspace, int first
   app_log() << "BandInfoGroup::selectBands using distinct orbitals [" << first_orb << "," << iorb << ")" << std::endl;
   app_log() << "  Number of distinct bands " << myBands.size() << std::endl;
   app_log() << "  First Band index " << FirstBand << std::endl;
-  app_log() << "  First SPO index " << FirstSPO << std::endl;
   app_log() << "  Size of SPOs " << NumSPOs << std::endl;
 }
 
