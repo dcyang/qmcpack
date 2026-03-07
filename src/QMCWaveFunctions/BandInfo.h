@@ -90,14 +90,6 @@ struct BandInfoGroup
   ///return the number of SPOs
   inline int getNumSPOs() const { return NumSPOs; }
 
-  /** select the bands within an energy range [emin,emax)
-   *
-   * @param bigspace a set of sorted bands
-   * @param emin minimum energy
-   * @param emax maxmimum energy
-   */
-  void selectBands(const std::vector<BandInfo>& bigspace, double emin, double emax);
-
   /** get the bands within [first_spo,first_spo+num_spos)
    * @param bigspace a set of sorted bands
    * @param first_orb index of the first uniquie orbitals
