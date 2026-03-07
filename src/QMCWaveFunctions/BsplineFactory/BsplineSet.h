@@ -33,10 +33,6 @@ class BsplineSet : public SPOSet
 {
 protected:
   static const int D = DIM;
-  ///first index of the SPOs this Spline handles
-  size_t first_spo;
-  ///last index of the SPOs this Spline handles
-  size_t last_spo;
   ///primitive cell
   const Lattice prim_lattice_;
   ///sign bits at the G/2 boundaries
@@ -53,7 +49,7 @@ protected:
 
 public:
   BsplineSet(const std::string& my_name, size_t size, const Lattice& prim_lattice)
-      : SPOSet(my_name, size), first_spo(0), last_spo(0), prim_lattice_(prim_lattice)
+      : SPOSet(my_name, size), prim_lattice_(prim_lattice)
   {}
 
   virtual bool isComplex() const         = 0;
