@@ -52,7 +52,7 @@ inline void SplineC2R<ST>::assign_v(const PointType& r,
   const ST* restrict ky = myKcart.data(1);
   const ST* restrict kz = myKcart.data(2);
 
-  TT* restrict psi_s              = psi.data() + first_spo;
+  TT* restrict psi_s              = psi.data();
   const size_t requested_orb_size = psi.size();
 #pragma omp simd
   for (size_t j = first; j < std::min(nComplexBands, last); j++)
@@ -229,22 +229,21 @@ inline void SplineC2R<ST>::assign_vgl(const PointType& r,
     const ST lap_r   = lcart_r + mKK[j] * val_r + two * (kX * dX_i + kY * dY_i + kZ * dZ_i);
     const ST lap_i   = lcart_i + mKK[j] * val_i - two * (kX * dX_r + kY * dY_r + kZ * dZ_r);
 
-    const size_t psiIndex = first_spo + jr;
-    if (psiIndex < requested_orb_size)
+    if (jr < requested_orb_size)
     {
-      psi[psiIndex]     = c * val_r - s * val_i;
-      dpsi[psiIndex][0] = c * gX_r - s * gX_i;
-      dpsi[psiIndex][1] = c * gY_r - s * gY_i;
-      dpsi[psiIndex][2] = c * gZ_r - s * gZ_i;
-      d2psi[psiIndex]   = c * lap_r - s * lap_i;
+      psi[jr]     = c * val_r - s * val_i;
+      dpsi[jr][0] = c * gX_r - s * gX_i;
+      dpsi[jr][1] = c * gY_r - s * gY_i;
+      dpsi[jr][2] = c * gZ_r - s * gZ_i;
+      d2psi[jr]   = c * lap_r - s * lap_i;
     }
-    if (psiIndex + 1 < requested_orb_size)
+    if (ji < requested_orb_size)
     {
-      psi[psiIndex + 1]     = c * val_i + s * val_r;
-      dpsi[psiIndex + 1][0] = c * gX_i + s * gX_r;
-      dpsi[psiIndex + 1][1] = c * gY_i + s * gY_r;
-      dpsi[psiIndex + 1][2] = c * gZ_i + s * gZ_r;
-      d2psi[psiIndex + 1]   = c * lap_i + s * lap_r;
+      psi[ji]     = c * val_i + s * val_r;
+      dpsi[ji][0] = c * gX_i + s * gX_r;
+      dpsi[ji][1] = c * gY_i + s * gY_r;
+      dpsi[ji][2] = c * gZ_i + s * gZ_r;
+      d2psi[ji]   = c * lap_i + s * lap_r;
     }
   }
 
@@ -281,7 +280,7 @@ inline void SplineC2R<ST>::assign_vgl(const PointType& r,
     const ST gY_i = dY_i - val_r * kY;
     const ST gZ_i = dZ_i - val_r * kZ;
 
-    if (const size_t psiIndex = first_spo + nComplexBands + j; psiIndex < requested_orb_size)
+    if (const size_t psiIndex = nComplexBands + j; psiIndex < requested_orb_size)
     {
       psi[psiIndex]     = c * val_r - s * val_i;
       dpsi[psiIndex][0] = c * gX_r - s * gX_i;
@@ -358,22 +357,21 @@ inline void SplineC2R<ST>::assign_vgl_from_l(const PointType& r, ValueVector& ps
     const ST lap_r = myL[jr] + mKK[j] * val_r + two * (kX * dX_i + kY * dY_i + kZ * dZ_i);
     const ST lap_i = myL[ji] + mKK[j] * val_i - two * (kX * dX_r + kY * dY_r + kZ * dZ_r);
 
-    const size_t psiIndex = first_spo + jr;
-    if (psiIndex < requested_orb_size)
+    if (jr < requested_orb_size)
     {
-      psi[psiIndex]     = c * val_r - s * val_i;
-      d2psi[psiIndex]   = c * lap_r - s * lap_i;
-      dpsi[psiIndex][0] = c * gX_r - s * gX_i;
-      dpsi[psiIndex][1] = c * gY_r - s * gY_i;
-      dpsi[psiIndex][2] = c * gZ_r - s * gZ_i;
+      psi[jr]     = c * val_r - s * val_i;
+      d2psi[jr]   = c * lap_r - s * lap_i;
+      dpsi[jr][0] = c * gX_r - s * gX_i;
+      dpsi[jr][1] = c * gY_r - s * gY_i;
+      dpsi[jr][2] = c * gZ_r - s * gZ_i;
     }
-    if (psiIndex + 1 < requested_orb_size)
+    if (ji < requested_orb_size)
     {
-      psi[psiIndex + 1]     = c * val_i + s * val_r;
-      d2psi[psiIndex + 1]   = c * lap_i + s * lap_r;
-      dpsi[psiIndex + 1][0] = c * gX_i + s * gX_r;
-      dpsi[psiIndex + 1][1] = c * gY_i + s * gY_r;
-      dpsi[psiIndex + 1][2] = c * gZ_i + s * gZ_r;
+      psi[ji]     = c * val_i + s * val_r;
+      d2psi[ji]   = c * lap_i + s * lap_r;
+      dpsi[ji][0] = c * gX_i + s * gX_r;
+      dpsi[ji][1] = c * gY_i + s * gY_r;
+      dpsi[ji][2] = c * gZ_i + s * gZ_r;
     }
   }
 
@@ -409,7 +407,7 @@ inline void SplineC2R<ST>::assign_vgl_from_l(const PointType& r, ValueVector& ps
     const ST gX_i = dX_i - val_r * kX;
     const ST gY_i = dY_i - val_r * kY;
     const ST gZ_i = dZ_i - val_r * kZ;
-    if (const size_t psiIndex = first_spo + nComplexBands + j; psiIndex < requested_orb_size)
+    if (const size_t psiIndex = nComplexBands + j; psiIndex < requested_orb_size)
     {
       psi[psiIndex]     = c * val_r - s * val_i;
       dpsi[psiIndex][0] = c * gX_r - s * gX_i;
@@ -507,20 +505,19 @@ void SplineC2R<ST>::assign_vgh(const PointType& r,
     const ST gY_i = dY_i - val_r * kY;
     const ST gZ_i = dZ_i - val_r * kZ;
 
-    const size_t psiIndex = first_spo + jr;
-    if (psiIndex < requested_orb_size)
+    if (jr < requested_orb_size)
     {
-      psi[psiIndex]     = c * val_r - s * val_i;
-      dpsi[psiIndex][0] = c * gX_r - s * gX_i;
-      dpsi[psiIndex][1] = c * gY_r - s * gY_i;
-      dpsi[psiIndex][2] = c * gZ_r - s * gZ_i;
+      psi[jr]     = c * val_r - s * val_i;
+      dpsi[jr][0] = c * gX_r - s * gX_i;
+      dpsi[jr][1] = c * gY_r - s * gY_i;
+      dpsi[jr][2] = c * gZ_r - s * gZ_i;
     }
-    if (psiIndex + 1 < requested_orb_size)
+    if (ji < requested_orb_size)
     {
-      psi[psiIndex + 1]     = c * val_i + s * val_r;
-      dpsi[psiIndex + 1][0] = c * gX_i + s * gX_r;
-      dpsi[psiIndex + 1][1] = c * gY_i + s * gY_r;
-      dpsi[psiIndex + 1][2] = c * gZ_i + s * gZ_r;
+      psi[ji]     = c * val_i + s * val_r;
+      dpsi[ji][0] = c * gX_i + s * gX_r;
+      dpsi[ji][1] = c * gY_i + s * gY_r;
+      dpsi[ji][2] = c * gZ_i + s * gZ_r;
     }
 
     const ST h_xx_r =
@@ -561,29 +558,29 @@ void SplineC2R<ST>::assign_vgh(const PointType& r,
     const ST h_zz_i =
         v_m_v(h00[ji], h01[ji], h02[ji], h11[ji], h12[ji], h22[ji], g20, g21, g22, g20, g21, g22) - kZ * (gZ_r + dZ_r);
 
-    if (psiIndex < requested_orb_size)
+    if (jr < requested_orb_size)
     {
-      grad_grad_psi[psiIndex][0] = c * h_xx_r - s * h_xx_i;
-      grad_grad_psi[psiIndex][1] = c * h_xy_r - s * h_xy_i;
-      grad_grad_psi[psiIndex][2] = c * h_xz_r - s * h_xz_i;
-      grad_grad_psi[psiIndex][3] = c * h_yx_r - s * h_yx_i;
-      grad_grad_psi[psiIndex][4] = c * h_yy_r - s * h_yy_i;
-      grad_grad_psi[psiIndex][5] = c * h_yz_r - s * h_yz_i;
-      grad_grad_psi[psiIndex][6] = c * h_zx_r - s * h_zx_i;
-      grad_grad_psi[psiIndex][7] = c * h_zy_r - s * h_zy_i;
-      grad_grad_psi[psiIndex][8] = c * h_zz_r - s * h_zz_i;
+      grad_grad_psi[jr][0] = c * h_xx_r - s * h_xx_i;
+      grad_grad_psi[jr][1] = c * h_xy_r - s * h_xy_i;
+      grad_grad_psi[jr][2] = c * h_xz_r - s * h_xz_i;
+      grad_grad_psi[jr][3] = c * h_yx_r - s * h_yx_i;
+      grad_grad_psi[jr][4] = c * h_yy_r - s * h_yy_i;
+      grad_grad_psi[jr][5] = c * h_yz_r - s * h_yz_i;
+      grad_grad_psi[jr][6] = c * h_zx_r - s * h_zx_i;
+      grad_grad_psi[jr][7] = c * h_zy_r - s * h_zy_i;
+      grad_grad_psi[jr][8] = c * h_zz_r - s * h_zz_i;
     }
-    if (psiIndex + 1 < requested_orb_size)
+    if (ji < requested_orb_size)
     {
-      grad_grad_psi[psiIndex + 1][0] = c * h_xx_i + s * h_xx_r;
-      grad_grad_psi[psiIndex + 1][1] = c * h_xy_i + s * h_xy_r;
-      grad_grad_psi[psiIndex + 1][2] = c * h_xz_i + s * h_xz_r;
-      grad_grad_psi[psiIndex + 1][3] = c * h_yx_i + s * h_yx_r;
-      grad_grad_psi[psiIndex + 1][4] = c * h_yy_i + s * h_yy_r;
-      grad_grad_psi[psiIndex + 1][5] = c * h_yz_i + s * h_yz_r;
-      grad_grad_psi[psiIndex + 1][6] = c * h_zx_i + s * h_zx_r;
-      grad_grad_psi[psiIndex + 1][7] = c * h_zy_i + s * h_zy_r;
-      grad_grad_psi[psiIndex + 1][8] = c * h_zz_i + s * h_zz_r;
+      grad_grad_psi[ji][0] = c * h_xx_i + s * h_xx_r;
+      grad_grad_psi[ji][1] = c * h_xy_i + s * h_xy_r;
+      grad_grad_psi[ji][2] = c * h_xz_i + s * h_xz_r;
+      grad_grad_psi[ji][3] = c * h_yx_i + s * h_yx_r;
+      grad_grad_psi[ji][4] = c * h_yy_i + s * h_yy_r;
+      grad_grad_psi[ji][5] = c * h_yz_i + s * h_yz_r;
+      grad_grad_psi[ji][6] = c * h_zx_i + s * h_zx_r;
+      grad_grad_psi[ji][7] = c * h_zy_i + s * h_zy_r;
+      grad_grad_psi[ji][8] = c * h_zz_i + s * h_zz_r;
     }
   }
 
@@ -620,7 +617,7 @@ void SplineC2R<ST>::assign_vgh(const PointType& r,
     const ST gY_i = dY_i - val_r * kY;
     const ST gZ_i = dZ_i - val_r * kZ;
 
-    if (const size_t psiIndex = first_spo + nComplexBands + j; psiIndex < requested_orb_size)
+    if (const size_t psiIndex = nComplexBands + j; psiIndex < requested_orb_size)
     {
       psi[psiIndex]     = c * val_r - s * val_i;
       dpsi[psiIndex][0] = c * gX_r - s * gX_i;
@@ -774,20 +771,19 @@ void SplineC2R<ST>::assign_vghgh(const PointType& r,
     const ST gY_i = dY_i - val_r * kY;
     const ST gZ_i = dZ_i - val_r * kZ;
 
-    const size_t psiIndex = first_spo + jr;
-    if (psiIndex < requested_orb_size)
+    if (jr < requested_orb_size)
     {
-      psi[psiIndex]     = c * val_r - s * val_i;
-      dpsi[psiIndex][0] = c * gX_r - s * gX_i;
-      dpsi[psiIndex][1] = c * gY_r - s * gY_i;
-      dpsi[psiIndex][2] = c * gZ_r - s * gZ_i;
+      psi[jr]     = c * val_r - s * val_i;
+      dpsi[jr][0] = c * gX_r - s * gX_i;
+      dpsi[jr][1] = c * gY_r - s * gY_i;
+      dpsi[jr][2] = c * gZ_r - s * gZ_i;
     }
-    if (psiIndex + 1 < requested_orb_size)
+    if (ji < requested_orb_size)
     {
-      psi[psiIndex + 1]     = c * val_i + s * val_r;
-      dpsi[psiIndex + 1][0] = c * gX_i + s * gX_r;
-      dpsi[psiIndex + 1][1] = c * gY_i + s * gY_r;
-      dpsi[psiIndex + 1][2] = c * gZ_i + s * gZ_r;
+      psi[ji]     = c * val_i + s * val_r;
+      dpsi[ji][0] = c * gX_i + s * gX_r;
+      dpsi[ji][1] = c * gY_i + s * gY_r;
+      dpsi[ji][2] = c * gZ_i + s * gZ_r;
     }
 
     //intermediates for computation of hessian. \partial_i \partial_j phi in cartesian coordinates.
@@ -819,30 +815,30 @@ void SplineC2R<ST>::assign_vghgh(const PointType& r,
     const ST h_yz_i = f_yz_i - (kZ * dY_r + kY * dZ_r) - kZ * kY * val_i;
     const ST h_zz_i = f_zz_i - 2 * kZ * dZ_r - kZ * kZ * val_i;
 
-    if (psiIndex < requested_orb_size)
+    if (jr < requested_orb_size)
     {
-      grad_grad_psi[psiIndex][0] = c * h_xx_r - s * h_xx_i;
-      grad_grad_psi[psiIndex][1] = c * h_xy_r - s * h_xy_i;
-      grad_grad_psi[psiIndex][2] = c * h_xz_r - s * h_xz_i;
-      grad_grad_psi[psiIndex][3] = c * h_xy_r - s * h_xy_i;
-      grad_grad_psi[psiIndex][4] = c * h_yy_r - s * h_yy_i;
-      grad_grad_psi[psiIndex][5] = c * h_yz_r - s * h_yz_i;
-      grad_grad_psi[psiIndex][6] = c * h_xz_r - s * h_xz_i;
-      grad_grad_psi[psiIndex][7] = c * h_yz_r - s * h_yz_i;
-      grad_grad_psi[psiIndex][8] = c * h_zz_r - s * h_zz_i;
+      grad_grad_psi[jr][0] = c * h_xx_r - s * h_xx_i;
+      grad_grad_psi[jr][1] = c * h_xy_r - s * h_xy_i;
+      grad_grad_psi[jr][2] = c * h_xz_r - s * h_xz_i;
+      grad_grad_psi[jr][3] = c * h_xy_r - s * h_xy_i;
+      grad_grad_psi[jr][4] = c * h_yy_r - s * h_yy_i;
+      grad_grad_psi[jr][5] = c * h_yz_r - s * h_yz_i;
+      grad_grad_psi[jr][6] = c * h_xz_r - s * h_xz_i;
+      grad_grad_psi[jr][7] = c * h_yz_r - s * h_yz_i;
+      grad_grad_psi[jr][8] = c * h_zz_r - s * h_zz_i;
     }
 
-    if (psiIndex + 1 < requested_orb_size)
+    if (ji < requested_orb_size)
     {
-      grad_grad_psi[psiIndex + 1][0] = c * h_xx_i + s * h_xx_r;
-      grad_grad_psi[psiIndex + 1][1] = c * h_xy_i + s * h_xy_r;
-      grad_grad_psi[psiIndex + 1][2] = c * h_xz_i + s * h_xz_r;
-      grad_grad_psi[psiIndex + 1][3] = c * h_xy_i + s * h_xy_r;
-      grad_grad_psi[psiIndex + 1][4] = c * h_yy_i + s * h_yy_r;
-      grad_grad_psi[psiIndex + 1][5] = c * h_yz_i + s * h_yz_r;
-      grad_grad_psi[psiIndex + 1][6] = c * h_xz_i + s * h_xz_r;
-      grad_grad_psi[psiIndex + 1][7] = c * h_yz_i + s * h_yz_r;
-      grad_grad_psi[psiIndex + 1][8] = c * h_zz_i + s * h_zz_r;
+      grad_grad_psi[ji][0] = c * h_xx_i + s * h_xx_r;
+      grad_grad_psi[ji][1] = c * h_xy_i + s * h_xy_r;
+      grad_grad_psi[ji][2] = c * h_xz_i + s * h_xz_r;
+      grad_grad_psi[ji][3] = c * h_xy_i + s * h_xy_r;
+      grad_grad_psi[ji][4] = c * h_yy_i + s * h_yy_r;
+      grad_grad_psi[ji][5] = c * h_yz_i + s * h_yz_r;
+      grad_grad_psi[ji][6] = c * h_xz_i + s * h_xz_r;
+      grad_grad_psi[ji][7] = c * h_yz_i + s * h_yz_r;
+      grad_grad_psi[ji][8] = c * h_zz_i + s * h_zz_r;
     }
 
     //These are the real and imaginary components of the third SPO derivative.  _xxx denotes
@@ -926,70 +922,70 @@ void SplineC2R<ST>::assign_vghgh(const PointType& r,
     const ST gh_zzz_r = f3_zzz_r + 3 * kZ * f_zz_i - 3 * kZ * kZ * dZ_r - kZ * kZ * kZ * val_i;
     const ST gh_zzz_i = f3_zzz_i - 3 * kZ * f_zz_r - 3 * kZ * kZ * dZ_i + kZ * kZ * kZ * val_r;
 
-    if (psiIndex < requested_orb_size)
+    if (jr < requested_orb_size)
     {
-      grad_grad_grad_psi[psiIndex][0][0] = c * gh_xxx_r - s * gh_xxx_i;
-      grad_grad_grad_psi[psiIndex][0][1] = c * gh_xxy_r - s * gh_xxy_i;
-      grad_grad_grad_psi[psiIndex][0][2] = c * gh_xxz_r - s * gh_xxz_i;
-      grad_grad_grad_psi[psiIndex][0][3] = c * gh_xxy_r - s * gh_xxy_i;
-      grad_grad_grad_psi[psiIndex][0][4] = c * gh_xyy_r - s * gh_xyy_i;
-      grad_grad_grad_psi[psiIndex][0][5] = c * gh_xyz_r - s * gh_xyz_i;
-      grad_grad_grad_psi[psiIndex][0][6] = c * gh_xxz_r - s * gh_xxz_i;
-      grad_grad_grad_psi[psiIndex][0][7] = c * gh_xyz_r - s * gh_xyz_i;
-      grad_grad_grad_psi[psiIndex][0][8] = c * gh_xzz_r - s * gh_xzz_i;
+      grad_grad_grad_psi[jr][0][0] = c * gh_xxx_r - s * gh_xxx_i;
+      grad_grad_grad_psi[jr][0][1] = c * gh_xxy_r - s * gh_xxy_i;
+      grad_grad_grad_psi[jr][0][2] = c * gh_xxz_r - s * gh_xxz_i;
+      grad_grad_grad_psi[jr][0][3] = c * gh_xxy_r - s * gh_xxy_i;
+      grad_grad_grad_psi[jr][0][4] = c * gh_xyy_r - s * gh_xyy_i;
+      grad_grad_grad_psi[jr][0][5] = c * gh_xyz_r - s * gh_xyz_i;
+      grad_grad_grad_psi[jr][0][6] = c * gh_xxz_r - s * gh_xxz_i;
+      grad_grad_grad_psi[jr][0][7] = c * gh_xyz_r - s * gh_xyz_i;
+      grad_grad_grad_psi[jr][0][8] = c * gh_xzz_r - s * gh_xzz_i;
 
-      grad_grad_grad_psi[psiIndex][1][0] = c * gh_xxy_r - s * gh_xxy_i;
-      grad_grad_grad_psi[psiIndex][1][1] = c * gh_xyy_r - s * gh_xyy_i;
-      grad_grad_grad_psi[psiIndex][1][2] = c * gh_xyz_r - s * gh_xyz_i;
-      grad_grad_grad_psi[psiIndex][1][3] = c * gh_xyy_r - s * gh_xyy_i;
-      grad_grad_grad_psi[psiIndex][1][4] = c * gh_yyy_r - s * gh_yyy_i;
-      grad_grad_grad_psi[psiIndex][1][5] = c * gh_yyz_r - s * gh_yyz_i;
-      grad_grad_grad_psi[psiIndex][1][6] = c * gh_xyz_r - s * gh_xyz_i;
-      grad_grad_grad_psi[psiIndex][1][7] = c * gh_yyz_r - s * gh_yyz_i;
-      grad_grad_grad_psi[psiIndex][1][8] = c * gh_yzz_r - s * gh_yzz_i;
+      grad_grad_grad_psi[jr][1][0] = c * gh_xxy_r - s * gh_xxy_i;
+      grad_grad_grad_psi[jr][1][1] = c * gh_xyy_r - s * gh_xyy_i;
+      grad_grad_grad_psi[jr][1][2] = c * gh_xyz_r - s * gh_xyz_i;
+      grad_grad_grad_psi[jr][1][3] = c * gh_xyy_r - s * gh_xyy_i;
+      grad_grad_grad_psi[jr][1][4] = c * gh_yyy_r - s * gh_yyy_i;
+      grad_grad_grad_psi[jr][1][5] = c * gh_yyz_r - s * gh_yyz_i;
+      grad_grad_grad_psi[jr][1][6] = c * gh_xyz_r - s * gh_xyz_i;
+      grad_grad_grad_psi[jr][1][7] = c * gh_yyz_r - s * gh_yyz_i;
+      grad_grad_grad_psi[jr][1][8] = c * gh_yzz_r - s * gh_yzz_i;
 
-      grad_grad_grad_psi[psiIndex][2][0] = c * gh_xxz_r - s * gh_xxz_i;
-      grad_grad_grad_psi[psiIndex][2][1] = c * gh_xyz_r - s * gh_xyz_i;
-      grad_grad_grad_psi[psiIndex][2][2] = c * gh_xzz_r - s * gh_xzz_i;
-      grad_grad_grad_psi[psiIndex][2][3] = c * gh_xyz_r - s * gh_xyz_i;
-      grad_grad_grad_psi[psiIndex][2][4] = c * gh_yyz_r - s * gh_yyz_i;
-      grad_grad_grad_psi[psiIndex][2][5] = c * gh_yzz_r - s * gh_yzz_i;
-      grad_grad_grad_psi[psiIndex][2][6] = c * gh_xzz_r - s * gh_xzz_i;
-      grad_grad_grad_psi[psiIndex][2][7] = c * gh_yzz_r - s * gh_yzz_i;
-      grad_grad_grad_psi[psiIndex][2][8] = c * gh_zzz_r - s * gh_zzz_i;
+      grad_grad_grad_psi[jr][2][0] = c * gh_xxz_r - s * gh_xxz_i;
+      grad_grad_grad_psi[jr][2][1] = c * gh_xyz_r - s * gh_xyz_i;
+      grad_grad_grad_psi[jr][2][2] = c * gh_xzz_r - s * gh_xzz_i;
+      grad_grad_grad_psi[jr][2][3] = c * gh_xyz_r - s * gh_xyz_i;
+      grad_grad_grad_psi[jr][2][4] = c * gh_yyz_r - s * gh_yyz_i;
+      grad_grad_grad_psi[jr][2][5] = c * gh_yzz_r - s * gh_yzz_i;
+      grad_grad_grad_psi[jr][2][6] = c * gh_xzz_r - s * gh_xzz_i;
+      grad_grad_grad_psi[jr][2][7] = c * gh_yzz_r - s * gh_yzz_i;
+      grad_grad_grad_psi[jr][2][8] = c * gh_zzz_r - s * gh_zzz_i;
     }
 
-    if (psiIndex + 1 < requested_orb_size)
+    if (ji < requested_orb_size)
     {
-      grad_grad_grad_psi[psiIndex + 1][0][0] = c * gh_xxx_i + s * gh_xxx_r;
-      grad_grad_grad_psi[psiIndex + 1][0][1] = c * gh_xxy_i + s * gh_xxy_r;
-      grad_grad_grad_psi[psiIndex + 1][0][2] = c * gh_xxz_i + s * gh_xxz_r;
-      grad_grad_grad_psi[psiIndex + 1][0][3] = c * gh_xxy_i + s * gh_xxy_r;
-      grad_grad_grad_psi[psiIndex + 1][0][4] = c * gh_xyy_i + s * gh_xyy_r;
-      grad_grad_grad_psi[psiIndex + 1][0][5] = c * gh_xyz_i + s * gh_xyz_r;
-      grad_grad_grad_psi[psiIndex + 1][0][6] = c * gh_xxz_i + s * gh_xxz_r;
-      grad_grad_grad_psi[psiIndex + 1][0][7] = c * gh_xyz_i + s * gh_xyz_r;
-      grad_grad_grad_psi[psiIndex + 1][0][8] = c * gh_xzz_i + s * gh_xzz_r;
+      grad_grad_grad_psi[ji][0][0] = c * gh_xxx_i + s * gh_xxx_r;
+      grad_grad_grad_psi[ji][0][1] = c * gh_xxy_i + s * gh_xxy_r;
+      grad_grad_grad_psi[ji][0][2] = c * gh_xxz_i + s * gh_xxz_r;
+      grad_grad_grad_psi[ji][0][3] = c * gh_xxy_i + s * gh_xxy_r;
+      grad_grad_grad_psi[ji][0][4] = c * gh_xyy_i + s * gh_xyy_r;
+      grad_grad_grad_psi[ji][0][5] = c * gh_xyz_i + s * gh_xyz_r;
+      grad_grad_grad_psi[ji][0][6] = c * gh_xxz_i + s * gh_xxz_r;
+      grad_grad_grad_psi[ji][0][7] = c * gh_xyz_i + s * gh_xyz_r;
+      grad_grad_grad_psi[ji][0][8] = c * gh_xzz_i + s * gh_xzz_r;
 
-      grad_grad_grad_psi[psiIndex + 1][1][0] = c * gh_xxy_i + s * gh_xxy_r;
-      grad_grad_grad_psi[psiIndex + 1][1][1] = c * gh_xyy_i + s * gh_xyy_r;
-      grad_grad_grad_psi[psiIndex + 1][1][2] = c * gh_xyz_i + s * gh_xyz_r;
-      grad_grad_grad_psi[psiIndex + 1][1][3] = c * gh_xyy_i + s * gh_xyy_r;
-      grad_grad_grad_psi[psiIndex + 1][1][4] = c * gh_yyy_i + s * gh_yyy_r;
-      grad_grad_grad_psi[psiIndex + 1][1][5] = c * gh_yyz_i + s * gh_yyz_r;
-      grad_grad_grad_psi[psiIndex + 1][1][6] = c * gh_xyz_i + s * gh_xyz_r;
-      grad_grad_grad_psi[psiIndex + 1][1][7] = c * gh_yyz_i + s * gh_yyz_r;
-      grad_grad_grad_psi[psiIndex + 1][1][8] = c * gh_yzz_i + s * gh_yzz_r;
+      grad_grad_grad_psi[ji][1][0] = c * gh_xxy_i + s * gh_xxy_r;
+      grad_grad_grad_psi[ji][1][1] = c * gh_xyy_i + s * gh_xyy_r;
+      grad_grad_grad_psi[ji][1][2] = c * gh_xyz_i + s * gh_xyz_r;
+      grad_grad_grad_psi[ji][1][3] = c * gh_xyy_i + s * gh_xyy_r;
+      grad_grad_grad_psi[ji][1][4] = c * gh_yyy_i + s * gh_yyy_r;
+      grad_grad_grad_psi[ji][1][5] = c * gh_yyz_i + s * gh_yyz_r;
+      grad_grad_grad_psi[ji][1][6] = c * gh_xyz_i + s * gh_xyz_r;
+      grad_grad_grad_psi[ji][1][7] = c * gh_yyz_i + s * gh_yyz_r;
+      grad_grad_grad_psi[ji][1][8] = c * gh_yzz_i + s * gh_yzz_r;
 
-      grad_grad_grad_psi[psiIndex + 1][2][0] = c * gh_xxz_i + s * gh_xxz_r;
-      grad_grad_grad_psi[psiIndex + 1][2][1] = c * gh_xyz_i + s * gh_xyz_r;
-      grad_grad_grad_psi[psiIndex + 1][2][2] = c * gh_xzz_i + s * gh_xzz_r;
-      grad_grad_grad_psi[psiIndex + 1][2][3] = c * gh_xyz_i + s * gh_xyz_r;
-      grad_grad_grad_psi[psiIndex + 1][2][4] = c * gh_yyz_i + s * gh_yyz_r;
-      grad_grad_grad_psi[psiIndex + 1][2][5] = c * gh_yzz_i + s * gh_yzz_r;
-      grad_grad_grad_psi[psiIndex + 1][2][6] = c * gh_xzz_i + s * gh_xzz_r;
-      grad_grad_grad_psi[psiIndex + 1][2][7] = c * gh_yzz_i + s * gh_yzz_r;
-      grad_grad_grad_psi[psiIndex + 1][2][8] = c * gh_zzz_i + s * gh_zzz_r;
+      grad_grad_grad_psi[ji][2][0] = c * gh_xxz_i + s * gh_xxz_r;
+      grad_grad_grad_psi[ji][2][1] = c * gh_xyz_i + s * gh_xyz_r;
+      grad_grad_grad_psi[ji][2][2] = c * gh_xzz_i + s * gh_xzz_r;
+      grad_grad_grad_psi[ji][2][3] = c * gh_xyz_i + s * gh_xyz_r;
+      grad_grad_grad_psi[ji][2][4] = c * gh_yyz_i + s * gh_yyz_r;
+      grad_grad_grad_psi[ji][2][5] = c * gh_yzz_i + s * gh_yzz_r;
+      grad_grad_grad_psi[ji][2][6] = c * gh_xzz_i + s * gh_xzz_r;
+      grad_grad_grad_psi[ji][2][7] = c * gh_yzz_i + s * gh_yzz_r;
+      grad_grad_grad_psi[ji][2][8] = c * gh_zzz_i + s * gh_zzz_r;
     }
   }
 #pragma omp simd
@@ -1025,7 +1021,7 @@ void SplineC2R<ST>::assign_vghgh(const PointType& r,
     const ST gY_i = dY_i - val_r * kY;
     const ST gZ_i = dZ_i - val_r * kZ;
 
-    if (const size_t psiIndex = first_spo + nComplexBands + j; psiIndex < requested_orb_size)
+    if (const size_t psiIndex = nComplexBands + j; psiIndex < requested_orb_size)
     {
       psi[psiIndex]     = c * val_r - s * val_i;
       dpsi[psiIndex][0] = c * gX_r - s * gX_i;

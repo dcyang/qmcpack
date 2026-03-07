@@ -124,7 +124,7 @@ inline void SplineC2COMPTarget<ST>::assign_v(const PointType& r,
     const ST val_r = myV[2 * j];
     const ST val_i = myV[2 * j + 1];
     omptarget::sincos(-(x * kx[j] + y * ky[j] + z * kz[j]), &s, &c);
-    psi[j + first_spo] = ComplexT(val_r * c - val_i * s, val_i * c + val_r * s);
+    psi[j] = ComplexT(val_r * c - val_i * s, val_i * c + val_r * s);
   }
 }
 
@@ -187,7 +187,6 @@ void SplineC2COMPTarget<ST>::evaluateDetRatios(const VirtualParticleSet& VP,
   auto* myKcart_ptr              = myKcart->data();
   auto* psiinv_ptr               = psiinv_pos_copy.data();
   auto* ratios_private_ptr       = ratios_private.data();
-  const size_t first_spo_local   = first_spo;
   const auto orb_size            = psiinv.size();
 
   {
@@ -219,7 +218,7 @@ void SplineC2COMPTarget<ST>::evaluateDetRatios(const VirtualParticleSet& VP,
         PRAGMA_OFFLOAD("omp parallel for")
         for (int index = first_cplx; index < last_cplx; index++)
           C2C::assign_v(ST(pos_scratch[iat * 6]), ST(pos_scratch[iat * 6 + 1]), ST(pos_scratch[iat * 6 + 2]),
-                        psi_iat_ptr, offload_scratch_iat_ptr, myKcart_ptr, myKcart_padded_size, first_spo_local, index);
+                        psi_iat_ptr, offload_scratch_iat_ptr, myKcart_ptr, myKcart_padded_size, index);
 
         ComplexT sum(0);
         PRAGMA_OFFLOAD("omp parallel for simd reduction(+:sum)")
@@ -307,7 +306,6 @@ void SplineC2COMPTarget<ST>::mw_evaluateDetRatios(const RefVectorWithLeader<SPOS
   auto* myKcart_ptr              = myKcart->data();
   auto* buffer_H2D_ptr           = det_ratios_buffer_H2D.data();
   auto* ratios_private_ptr       = mw_ratios_private.data();
-  const size_t first_spo_local   = first_spo;
 
   {
     ScopedTimer offload(offload_timer_);
@@ -340,7 +338,7 @@ void SplineC2COMPTarget<ST>::mw_evaluateDetRatios(const RefVectorWithLeader<SPOS
         PRAGMA_OFFLOAD("omp parallel for")
         for (int index = first_cplx; index < last_cplx; index++)
           C2C::assign_v(pos_scratch[iat * 6], pos_scratch[iat * 6 + 1], pos_scratch[iat * 6 + 2], psi_iat_ptr,
-                        offload_scratch_iat_ptr, myKcart_ptr, myKcart_padded_size, first_spo_local, index);
+                        offload_scratch_iat_ptr, myKcart_ptr, myKcart_padded_size, index);
 
         ComplexT sum(0);
         PRAGMA_OFFLOAD("omp parallel for simd reduction(+:sum)")
@@ -384,9 +382,8 @@ inline void SplineC2COMPTarget<ST>::assign_vgl_from_l(const PointType& r,
   const ST* restrict g2 = myG.data(2);
 
   const size_t last_cplx = OrbitalSetSize > psi.size() ? psi.size() : OrbitalSetSize;
-  const size_t N         = last_cplx - first_spo;
 #pragma omp simd
-  for (size_t j = 0; j < N; ++j)
+  for (size_t j = 0; j < last_cplx; ++j)
   {
     const size_t jr = j << 1;
     const size_t ji = jr + 1;
@@ -421,12 +418,11 @@ inline void SplineC2COMPTarget<ST>::assign_vgl_from_l(const PointType& r,
     const ST lap_r = myL[jr] + (*mKK)[j] * val_r + two * (kX * dX_i + kY * dY_i + kZ * dZ_i);
     const ST lap_i = myL[ji] + (*mKK)[j] * val_i - two * (kX * dX_r + kY * dY_r + kZ * dZ_r);
 
-    const size_t psiIndex = j + first_spo;
-    psi[psiIndex]         = ComplexT(c * val_r - s * val_i, c * val_i + s * val_r);
-    dpsi[psiIndex][0]     = ComplexT(c * gX_r - s * gX_i, c * gX_i + s * gX_r);
-    dpsi[psiIndex][1]     = ComplexT(c * gY_r - s * gY_i, c * gY_i + s * gY_r);
-    dpsi[psiIndex][2]     = ComplexT(c * gZ_r - s * gZ_i, c * gZ_i + s * gZ_r);
-    d2psi[psiIndex]       = ComplexT(c * lap_r - s * lap_i, c * lap_i + s * lap_r);
+    psi[j]     = ComplexT(c * val_r - s * val_i, c * val_i + s * val_r);
+    dpsi[j][0] = ComplexT(c * gX_r - s * gX_i, c * gX_i + s * gX_r);
+    dpsi[j][1] = ComplexT(c * gY_r - s * gY_i, c * gY_i + s * gY_r);
+    dpsi[j][2] = ComplexT(c * gZ_r - s * gZ_i, c * gZ_i + s * gZ_r);
+    d2psi[j]   = ComplexT(c * lap_r - s * lap_i, c * lap_i + s * lap_r);
   }
 }
 
@@ -460,7 +456,6 @@ void SplineC2COMPTarget<ST>::evaluateVGL(const ParticleSet& P,
   auto* GGt_ptr                  = GGt_offload->data();
   auto* prim_lattice_G_ptr       = prim_lattice_G_offload->data();
   auto* myKcart_ptr              = myKcart->data();
-  const size_t first_spo_local   = first_spo;
   const auto orb_size            = psi.size();
 
   {
@@ -502,7 +497,7 @@ void SplineC2COMPTarget<ST>::evaluateVGL(const ParticleSet& P,
       PRAGMA_OFFLOAD("omp parallel for")
       for (int index = first_cplx; index < last_cplx; index++)
         C2C::assign_vgl(x, y, z, results_scratch_ptr, sposet_padded_size, mKK_ptr, offload_scratch_ptr,
-                        spline_padded_size, G, myKcart_ptr, myKcart_padded_size, first_spo_local, index);
+                        spline_padded_size, G, myKcart_ptr, myKcart_padded_size, index);
     }
   }
 
@@ -544,7 +539,6 @@ void SplineC2COMPTarget<ST>::evaluateVGLMultiPos(const Vector<ST, OffloadPinnedA
   auto* GGt_ptr                  = GGt_offload->data();
   auto* prim_lattice_G_ptr       = prim_lattice_G_offload->data();
   auto* myKcart_ptr              = myKcart->data();
-  const size_t first_spo_local   = first_spo;
 
   {
     ScopedTimer offload(offload_timer_);
@@ -592,7 +586,7 @@ void SplineC2COMPTarget<ST>::evaluateVGLMultiPos(const Vector<ST, OffloadPinnedA
         for (int index = first_cplx; index < last_cplx; index++)
           C2C::assign_vgl(pos_copy_ptr[iw * 6], pos_copy_ptr[iw * 6 + 1], pos_copy_ptr[iw * 6 + 2], psi_iw_ptr,
                           sposet_padded_size, mKK_ptr, offload_scratch_iw_ptr, spline_padded_size, G, myKcart_ptr,
-                          myKcart_padded_size, first_spo_local, index);
+                          myKcart_padded_size, index);
       }
   }
 
@@ -709,7 +703,6 @@ void SplineC2COMPTarget<ST>::mw_evaluateVGLandDetRatioGrads(const RefVectorWithL
   auto* phi_vgl_ptr              = phi_vgl_v.data();
   auto* rg_private_ptr           = rg_private.data();
   const size_t buffer_H2D_stride = buffer_H2D.cols();
-  const size_t first_spo_local   = first_spo;
   const size_t phi_vgl_stride    = num_pos * orb_size;
 
   {
@@ -760,8 +753,7 @@ void SplineC2COMPTarget<ST>::mw_evaluateVGLandDetRatioGrads(const RefVectorWithL
         PRAGMA_OFFLOAD("omp parallel for")
         for (int index = first_cplx; index < last_cplx; index++)
           C2C::assign_vgl(pos_iw_ptr[0], pos_iw_ptr[1], pos_iw_ptr[2], psi_iw_ptr, sposet_padded_size, mKK_ptr,
-                          offload_scratch_iw_ptr, spline_padded_size, G, myKcart_ptr, myKcart_padded_size,
-                          first_spo_local, index);
+                          offload_scratch_iw_ptr, spline_padded_size, G, myKcart_ptr, myKcart_padded_size, index);
 
         ValueType* restrict psi    = psi_iw_ptr;
         ValueType* restrict dpsi_x = psi_iw_ptr + sposet_padded_size;
@@ -779,18 +771,16 @@ void SplineC2COMPTarget<ST>::mw_evaluateVGLandDetRatioGrads(const RefVectorWithL
         PRAGMA_OFFLOAD("omp parallel for reduction(+: ratio, grad_x, grad_y, grad_z)")
         for (int j = first_cplx; j < last_cplx; j++)
         {
-          const size_t psiIndex = first_spo_local + j;
+          out_phi[j]    = psi[j];
+          out_dphi_x[j] = dpsi_x[j];
+          out_dphi_y[j] = dpsi_y[j];
+          out_dphi_z[j] = dpsi_z[j];
+          out_d2phi[j]  = d2psi[j];
 
-          out_phi[psiIndex]    = psi[psiIndex];
-          out_dphi_x[psiIndex] = dpsi_x[psiIndex];
-          out_dphi_y[psiIndex] = dpsi_y[psiIndex];
-          out_dphi_z[psiIndex] = dpsi_z[psiIndex];
-          out_d2phi[psiIndex]  = d2psi[psiIndex];
-
-          ratio += psi[psiIndex] * invRow_iw_ptr[psiIndex];
-          grad_x += dpsi_x[psiIndex] * invRow_iw_ptr[psiIndex];
-          grad_y += dpsi_y[psiIndex] * invRow_iw_ptr[psiIndex];
-          grad_z += dpsi_z[psiIndex] * invRow_iw_ptr[psiIndex];
+          ratio += psi[j] * invRow_iw_ptr[j];
+          grad_x += dpsi_x[j] * invRow_iw_ptr[j];
+          grad_y += dpsi_y[j] * invRow_iw_ptr[j];
+          grad_z += dpsi_z[j] * invRow_iw_ptr[j];
         }
 
         rg_private_ptr[(iw * NumTeams + team_id) * 4]     = ratio;
@@ -881,11 +871,10 @@ void SplineC2COMPTarget<ST>::assign_vgh(const PointType& r,
     const ST gY_i = dY_i - val_r * kY;
     const ST gZ_i = dZ_i - val_r * kZ;
 
-    const size_t psiIndex = j + first_spo;
-    psi[psiIndex]         = ComplexT(c * val_r - s * val_i, c * val_i + s * val_r);
-    dpsi[psiIndex][0]     = ComplexT(c * gX_r - s * gX_i, c * gX_i + s * gX_r);
-    dpsi[psiIndex][1]     = ComplexT(c * gY_r - s * gY_i, c * gY_i + s * gY_r);
-    dpsi[psiIndex][2]     = ComplexT(c * gZ_r - s * gZ_i, c * gZ_i + s * gZ_r);
+    psi[j]     = ComplexT(c * val_r - s * val_i, c * val_i + s * val_r);
+    dpsi[j][0] = ComplexT(c * gX_r - s * gX_i, c * gX_i + s * gX_r);
+    dpsi[j][1] = ComplexT(c * gY_r - s * gY_i, c * gY_i + s * gY_r);
+    dpsi[j][2] = ComplexT(c * gZ_r - s * gZ_i, c * gZ_i + s * gZ_r);
 
     const ST h_xx_r =
         v_m_v(h00[jr], h01[jr], h02[jr], h11[jr], h12[jr], h22[jr], g00, g01, g02, g00, g01, g02) + kX * (gX_i + dX_i);
@@ -925,15 +914,15 @@ void SplineC2COMPTarget<ST>::assign_vgh(const PointType& r,
     const ST h_zz_i =
         v_m_v(h00[ji], h01[ji], h02[ji], h11[ji], h12[ji], h22[ji], g20, g21, g22, g20, g21, g22) - kZ * (gZ_r + dZ_r);
 
-    grad_grad_psi[psiIndex][0] = ComplexT(c * h_xx_r - s * h_xx_i, c * h_xx_i + s * h_xx_r);
-    grad_grad_psi[psiIndex][1] = ComplexT(c * h_xy_r - s * h_xy_i, c * h_xy_i + s * h_xy_r);
-    grad_grad_psi[psiIndex][2] = ComplexT(c * h_xz_r - s * h_xz_i, c * h_xz_i + s * h_xz_r);
-    grad_grad_psi[psiIndex][3] = ComplexT(c * h_yx_r - s * h_yx_i, c * h_yx_i + s * h_yx_r);
-    grad_grad_psi[psiIndex][4] = ComplexT(c * h_yy_r - s * h_yy_i, c * h_yy_i + s * h_yy_r);
-    grad_grad_psi[psiIndex][5] = ComplexT(c * h_yz_r - s * h_yz_i, c * h_yz_i + s * h_yz_r);
-    grad_grad_psi[psiIndex][6] = ComplexT(c * h_zx_r - s * h_zx_i, c * h_zx_i + s * h_zx_r);
-    grad_grad_psi[psiIndex][7] = ComplexT(c * h_zy_r - s * h_zy_i, c * h_zy_i + s * h_zy_r);
-    grad_grad_psi[psiIndex][8] = ComplexT(c * h_zz_r - s * h_zz_i, c * h_zz_i + s * h_zz_r);
+    grad_grad_psi[j][0] = ComplexT(c * h_xx_r - s * h_xx_i, c * h_xx_i + s * h_xx_r);
+    grad_grad_psi[j][1] = ComplexT(c * h_xy_r - s * h_xy_i, c * h_xy_i + s * h_xy_r);
+    grad_grad_psi[j][2] = ComplexT(c * h_xz_r - s * h_xz_i, c * h_xz_i + s * h_xz_r);
+    grad_grad_psi[j][3] = ComplexT(c * h_yx_r - s * h_yx_i, c * h_yx_i + s * h_yx_r);
+    grad_grad_psi[j][4] = ComplexT(c * h_yy_r - s * h_yy_i, c * h_yy_i + s * h_yy_r);
+    grad_grad_psi[j][5] = ComplexT(c * h_yz_r - s * h_yz_i, c * h_yz_i + s * h_yz_r);
+    grad_grad_psi[j][6] = ComplexT(c * h_zx_r - s * h_zx_i, c * h_zx_i + s * h_zx_r);
+    grad_grad_psi[j][7] = ComplexT(c * h_zy_r - s * h_zy_i, c * h_zy_i + s * h_zy_r);
+    grad_grad_psi[j][8] = ComplexT(c * h_zz_r - s * h_zz_i, c * h_zz_i + s * h_zz_r);
   }
 }
 
@@ -1035,11 +1024,10 @@ void SplineC2COMPTarget<ST>::assign_vghgh(const PointType& r,
     const ST gY_i = dY_i - val_r * kY;
     const ST gZ_i = dZ_i - val_r * kZ;
 
-    const size_t psiIndex = j + first_spo;
-    psi[psiIndex]         = ComplexT(c * val_r - s * val_i, c * val_i + s * val_r);
-    dpsi[psiIndex][0]     = ComplexT(c * gX_r - s * gX_i, c * gX_i + s * gX_r);
-    dpsi[psiIndex][1]     = ComplexT(c * gY_r - s * gY_i, c * gY_i + s * gY_r);
-    dpsi[psiIndex][2]     = ComplexT(c * gZ_r - s * gZ_i, c * gZ_i + s * gZ_r);
+    psi[j]     = ComplexT(c * val_r - s * val_i, c * val_i + s * val_r);
+    dpsi[j][0] = ComplexT(c * gX_r - s * gX_i, c * gX_i + s * gX_r);
+    dpsi[j][1] = ComplexT(c * gY_r - s * gY_i, c * gY_i + s * gY_r);
+    dpsi[j][2] = ComplexT(c * gZ_r - s * gZ_i, c * gZ_i + s * gZ_r);
 
     //intermediates for computation of hessian. \partial_i \partial_j phi in cartesian coordinates.
     const ST f_xx_r = v_m_v(h00[jr], h01[jr], h02[jr], h11[jr], h12[jr], h22[jr], g00, g01, g02, g00, g01, g02);
@@ -1070,15 +1058,15 @@ void SplineC2COMPTarget<ST>::assign_vghgh(const PointType& r,
     const ST h_yz_i = f_yz_i - (kZ * dY_r + kY * dZ_r) - kZ * kY * val_i;
     const ST h_zz_i = f_zz_i - 2 * kZ * dZ_r - kZ * kZ * val_i;
 
-    grad_grad_psi[psiIndex][0] = ComplexT(c * h_xx_r - s * h_xx_i, c * h_xx_i + s * h_xx_r);
-    grad_grad_psi[psiIndex][1] = ComplexT(c * h_xy_r - s * h_xy_i, c * h_xy_i + s * h_xy_r);
-    grad_grad_psi[psiIndex][2] = ComplexT(c * h_xz_r - s * h_xz_i, c * h_xz_i + s * h_xz_r);
-    grad_grad_psi[psiIndex][3] = ComplexT(c * h_xy_r - s * h_xy_i, c * h_xy_i + s * h_xy_r);
-    grad_grad_psi[psiIndex][4] = ComplexT(c * h_yy_r - s * h_yy_i, c * h_yy_i + s * h_yy_r);
-    grad_grad_psi[psiIndex][5] = ComplexT(c * h_yz_r - s * h_yz_i, c * h_yz_i + s * h_yz_r);
-    grad_grad_psi[psiIndex][6] = ComplexT(c * h_xz_r - s * h_xz_i, c * h_xz_i + s * h_xz_r);
-    grad_grad_psi[psiIndex][7] = ComplexT(c * h_yz_r - s * h_yz_i, c * h_yz_i + s * h_yz_r);
-    grad_grad_psi[psiIndex][8] = ComplexT(c * h_zz_r - s * h_zz_i, c * h_zz_i + s * h_zz_r);
+    grad_grad_psi[j][0] = ComplexT(c * h_xx_r - s * h_xx_i, c * h_xx_i + s * h_xx_r);
+    grad_grad_psi[j][1] = ComplexT(c * h_xy_r - s * h_xy_i, c * h_xy_i + s * h_xy_r);
+    grad_grad_psi[j][2] = ComplexT(c * h_xz_r - s * h_xz_i, c * h_xz_i + s * h_xz_r);
+    grad_grad_psi[j][3] = ComplexT(c * h_xy_r - s * h_xy_i, c * h_xy_i + s * h_xy_r);
+    grad_grad_psi[j][4] = ComplexT(c * h_yy_r - s * h_yy_i, c * h_yy_i + s * h_yy_r);
+    grad_grad_psi[j][5] = ComplexT(c * h_yz_r - s * h_yz_i, c * h_yz_i + s * h_yz_r);
+    grad_grad_psi[j][6] = ComplexT(c * h_xz_r - s * h_xz_i, c * h_xz_i + s * h_xz_r);
+    grad_grad_psi[j][7] = ComplexT(c * h_yz_r - s * h_yz_i, c * h_yz_i + s * h_yz_r);
+    grad_grad_psi[j][8] = ComplexT(c * h_zz_r - s * h_zz_i, c * h_zz_i + s * h_zz_r);
 
     //These are the real and imaginary components of the third SPO derivative.  _xxx denotes
     // third derivative w.r.t. x, _xyz, a derivative with resepect to x,y, and z, and so on.
@@ -1161,36 +1149,36 @@ void SplineC2COMPTarget<ST>::assign_vghgh(const PointType& r,
     const ST gh_zzz_r = f3_zzz_r + 3 * kZ * f_zz_i - 3 * kZ * kZ * dZ_r - kZ * kZ * kZ * val_i;
     const ST gh_zzz_i = f3_zzz_i - 3 * kZ * f_zz_r - 3 * kZ * kZ * dZ_i + kZ * kZ * kZ * val_r;
 
-    grad_grad_grad_psi[psiIndex][0][0] = ComplexT(c * gh_xxx_r - s * gh_xxx_i, c * gh_xxx_i + s * gh_xxx_r);
-    grad_grad_grad_psi[psiIndex][0][1] = ComplexT(c * gh_xxy_r - s * gh_xxy_i, c * gh_xxy_i + s * gh_xxy_r);
-    grad_grad_grad_psi[psiIndex][0][2] = ComplexT(c * gh_xxz_r - s * gh_xxz_i, c * gh_xxz_i + s * gh_xxz_r);
-    grad_grad_grad_psi[psiIndex][0][3] = ComplexT(c * gh_xxy_r - s * gh_xxy_i, c * gh_xxy_i + s * gh_xxy_r);
-    grad_grad_grad_psi[psiIndex][0][4] = ComplexT(c * gh_xyy_r - s * gh_xyy_i, c * gh_xyy_i + s * gh_xyy_r);
-    grad_grad_grad_psi[psiIndex][0][5] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
-    grad_grad_grad_psi[psiIndex][0][6] = ComplexT(c * gh_xxz_r - s * gh_xxz_i, c * gh_xxz_i + s * gh_xxz_r);
-    grad_grad_grad_psi[psiIndex][0][7] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
-    grad_grad_grad_psi[psiIndex][0][8] = ComplexT(c * gh_xzz_r - s * gh_xzz_i, c * gh_xzz_i + s * gh_xzz_r);
+    grad_grad_grad_psi[j][0][0] = ComplexT(c * gh_xxx_r - s * gh_xxx_i, c * gh_xxx_i + s * gh_xxx_r);
+    grad_grad_grad_psi[j][0][1] = ComplexT(c * gh_xxy_r - s * gh_xxy_i, c * gh_xxy_i + s * gh_xxy_r);
+    grad_grad_grad_psi[j][0][2] = ComplexT(c * gh_xxz_r - s * gh_xxz_i, c * gh_xxz_i + s * gh_xxz_r);
+    grad_grad_grad_psi[j][0][3] = ComplexT(c * gh_xxy_r - s * gh_xxy_i, c * gh_xxy_i + s * gh_xxy_r);
+    grad_grad_grad_psi[j][0][4] = ComplexT(c * gh_xyy_r - s * gh_xyy_i, c * gh_xyy_i + s * gh_xyy_r);
+    grad_grad_grad_psi[j][0][5] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
+    grad_grad_grad_psi[j][0][6] = ComplexT(c * gh_xxz_r - s * gh_xxz_i, c * gh_xxz_i + s * gh_xxz_r);
+    grad_grad_grad_psi[j][0][7] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
+    grad_grad_grad_psi[j][0][8] = ComplexT(c * gh_xzz_r - s * gh_xzz_i, c * gh_xzz_i + s * gh_xzz_r);
 
-    grad_grad_grad_psi[psiIndex][1][0] = ComplexT(c * gh_xxy_r - s * gh_xxy_i, c * gh_xxy_i + s * gh_xxy_r);
-    grad_grad_grad_psi[psiIndex][1][1] = ComplexT(c * gh_xyy_r - s * gh_xyy_i, c * gh_xyy_i + s * gh_xyy_r);
-    grad_grad_grad_psi[psiIndex][1][2] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
-    grad_grad_grad_psi[psiIndex][1][3] = ComplexT(c * gh_xyy_r - s * gh_xyy_i, c * gh_xyy_i + s * gh_xyy_r);
-    grad_grad_grad_psi[psiIndex][1][4] = ComplexT(c * gh_yyy_r - s * gh_yyy_i, c * gh_yyy_i + s * gh_yyy_r);
-    grad_grad_grad_psi[psiIndex][1][5] = ComplexT(c * gh_yyz_r - s * gh_yyz_i, c * gh_yyz_i + s * gh_yyz_r);
-    grad_grad_grad_psi[psiIndex][1][6] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
-    grad_grad_grad_psi[psiIndex][1][7] = ComplexT(c * gh_yyz_r - s * gh_yyz_i, c * gh_yyz_i + s * gh_yyz_r);
-    grad_grad_grad_psi[psiIndex][1][8] = ComplexT(c * gh_yzz_r - s * gh_yzz_i, c * gh_yzz_i + s * gh_yzz_r);
+    grad_grad_grad_psi[j][1][0] = ComplexT(c * gh_xxy_r - s * gh_xxy_i, c * gh_xxy_i + s * gh_xxy_r);
+    grad_grad_grad_psi[j][1][1] = ComplexT(c * gh_xyy_r - s * gh_xyy_i, c * gh_xyy_i + s * gh_xyy_r);
+    grad_grad_grad_psi[j][1][2] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
+    grad_grad_grad_psi[j][1][3] = ComplexT(c * gh_xyy_r - s * gh_xyy_i, c * gh_xyy_i + s * gh_xyy_r);
+    grad_grad_grad_psi[j][1][4] = ComplexT(c * gh_yyy_r - s * gh_yyy_i, c * gh_yyy_i + s * gh_yyy_r);
+    grad_grad_grad_psi[j][1][5] = ComplexT(c * gh_yyz_r - s * gh_yyz_i, c * gh_yyz_i + s * gh_yyz_r);
+    grad_grad_grad_psi[j][1][6] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
+    grad_grad_grad_psi[j][1][7] = ComplexT(c * gh_yyz_r - s * gh_yyz_i, c * gh_yyz_i + s * gh_yyz_r);
+    grad_grad_grad_psi[j][1][8] = ComplexT(c * gh_yzz_r - s * gh_yzz_i, c * gh_yzz_i + s * gh_yzz_r);
 
 
-    grad_grad_grad_psi[psiIndex][2][0] = ComplexT(c * gh_xxz_r - s * gh_xxz_i, c * gh_xxz_i + s * gh_xxz_r);
-    grad_grad_grad_psi[psiIndex][2][1] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
-    grad_grad_grad_psi[psiIndex][2][2] = ComplexT(c * gh_xzz_r - s * gh_xzz_i, c * gh_xzz_i + s * gh_xzz_r);
-    grad_grad_grad_psi[psiIndex][2][3] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
-    grad_grad_grad_psi[psiIndex][2][4] = ComplexT(c * gh_yyz_r - s * gh_yyz_i, c * gh_yyz_i + s * gh_yyz_r);
-    grad_grad_grad_psi[psiIndex][2][5] = ComplexT(c * gh_yzz_r - s * gh_yzz_i, c * gh_yzz_i + s * gh_yzz_r);
-    grad_grad_grad_psi[psiIndex][2][6] = ComplexT(c * gh_xzz_r - s * gh_xzz_i, c * gh_xzz_i + s * gh_xzz_r);
-    grad_grad_grad_psi[psiIndex][2][7] = ComplexT(c * gh_yzz_r - s * gh_yzz_i, c * gh_yzz_i + s * gh_yzz_r);
-    grad_grad_grad_psi[psiIndex][2][8] = ComplexT(c * gh_zzz_r - s * gh_zzz_i, c * gh_zzz_i + s * gh_zzz_r);
+    grad_grad_grad_psi[j][2][0] = ComplexT(c * gh_xxz_r - s * gh_xxz_i, c * gh_xxz_i + s * gh_xxz_r);
+    grad_grad_grad_psi[j][2][1] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
+    grad_grad_grad_psi[j][2][2] = ComplexT(c * gh_xzz_r - s * gh_xzz_i, c * gh_xzz_i + s * gh_xzz_r);
+    grad_grad_grad_psi[j][2][3] = ComplexT(c * gh_xyz_r - s * gh_xyz_i, c * gh_xyz_i + s * gh_xyz_r);
+    grad_grad_grad_psi[j][2][4] = ComplexT(c * gh_yyz_r - s * gh_yyz_i, c * gh_yyz_i + s * gh_yyz_r);
+    grad_grad_grad_psi[j][2][5] = ComplexT(c * gh_yzz_r - s * gh_yzz_i, c * gh_yzz_i + s * gh_yzz_r);
+    grad_grad_grad_psi[j][2][6] = ComplexT(c * gh_xzz_r - s * gh_xzz_i, c * gh_xzz_i + s * gh_xzz_r);
+    grad_grad_grad_psi[j][2][7] = ComplexT(c * gh_yzz_r - s * gh_yzz_i, c * gh_yzz_i + s * gh_yzz_r);
+    grad_grad_grad_psi[j][2][8] = ComplexT(c * gh_zzz_r - s * gh_zzz_i, c * gh_zzz_i + s * gh_zzz_r);
   }
 }
 
