@@ -107,7 +107,6 @@ std::unique_ptr<SPOSet> BsplineReader::create_spline_set(const std::string& spo_
   }
 
   BandInfoGroup vals;
-  vals.TwistIndex = fullband[0].TwistIndex;
   vals.GroupID    = 0;
   vals.myName     = make_bandgroup_name(spo_name, spin, mybuilder->twist_num_, mybuilder->TileMatrix, 0, size);
   vals.selectBands(fullband, 0, size);
@@ -134,7 +133,6 @@ std::unique_ptr<SPOSet> BsplineReader::create_spline_set(const std::string& spo_
   }
 
   BandInfoGroup vals;
-  vals.TwistIndex = fullband[0].TwistIndex;
   vals.GroupID    = 0;
   vals.myName     = make_bandgroup_name(spo_name, spin, mybuilder->twist_num_, mybuilder->TileMatrix,
                                         input_info.min_index(), input_info.max_index());

@@ -149,7 +149,7 @@ protected:
     if (!bspline.isComplex())
     {
       //no k-point folding, single special k point (G, L ...)
-      TinyVector<double, 3> twist0 = mybuilder->primcell_kpoints[bandgroup.TwistIndex];
+      TinyVector<double, 3> twist0 = mybuilder->primcell_kpoints[cur_bands[0].TwistIndex];
       for (int i = 0; i < 3; i++)
         if (bconds[i] && ((std::abs(std::abs(twist0[i]) - 0.5) < 1.0e-8)))
           bspline.HalfG[i] = 1;
