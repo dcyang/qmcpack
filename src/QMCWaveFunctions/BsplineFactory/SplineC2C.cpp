@@ -328,7 +328,7 @@ inline void SplineC2C<ST>::assign_vgl_from_l(const PointType& r, ValueVector& ps
   const ST* restrict g1 = myG.data(1);
   const ST* restrict g2 = myG.data(2);
 
-  const size_t last_cplx = last_spo > psi.size() ? psi.size() : last_spo;
+  const size_t last_cplx = OrbitalSetSize > psi.size() ? psi.size() : OrbitalSetSize;
   const size_t N         = last_cplx - first_spo;
 #pragma omp simd
   for (size_t j = 0; j < N; ++j)

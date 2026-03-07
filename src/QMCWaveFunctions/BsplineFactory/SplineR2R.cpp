@@ -430,7 +430,7 @@ inline void SplineR2R<ST>::assign_vgl_from_l(int bc_sign, ValueVector& psi, Grad
   const ST* restrict g1 = myG.data(1);
   const ST* restrict g2 = myG.data(2);
 
-  const size_t last_real = last_spo > psi.size() ? psi.size() : last_spo;
+  const size_t last_real = OrbitalSetSize > psi.size() ? psi.size() : OrbitalSetSize;
 #pragma omp simd
   for (int psiIndex = first_spo; psiIndex < last_real; ++psiIndex)
   {

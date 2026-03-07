@@ -133,9 +133,6 @@ protected:
 
     bspline.resizeStorage(N);
 
-    bspline.first_spo = bandgroup.getFirstSPO();
-    bspline.last_spo  = bandgroup.getLastSPO();
-
     const std::vector<BandInfo>& cur_bands = bandgroup.myBands;
     for (int iorb = 0, num = 0; iorb < N; iorb++)
     {
