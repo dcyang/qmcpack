@@ -144,21 +144,30 @@ protected:
 
     app_log() << "NumDistinctOrbitals " << N << " numOrbs = " << numOrbs << std::endl;
 
-    bspline.HalfG             = 0;
-    TinyVector<int, 3> bconds = mybuilder->TargetPtcl.getLattice().BoxBConds;
-    if (!bspline.isComplex())
-    {
-      //no k-point folding, single special k point (G, L ...)
-      TinyVector<double, 3> twist0 = mybuilder->primcell_kpoints[cur_bands[0].TwistIndex];
-      for (int i = 0; i < 3; i++)
-        if (bconds[i] && ((std::abs(std::abs(twist0[i]) - 0.5) < 1.0e-8)))
-          bspline.HalfG[i] = 1;
-        else
-          bspline.HalfG[i] = 0;
-      app_log() << "  TwistIndex = " << cur_bands[0].TwistIndex << " TwistAngle " << twist0 << std::endl;
-      app_log() << "   HalfG = " << bspline.HalfG << std::endl;
-    }
-    app_log().flush();
+    if (bspline.isComplex())
+      bspline.HalfG = 0;
+    else
+      bspline.HalfG = computeHalfG(mybuilder->TargetPtcl.getLattice().BoxBConds, mybuilder->primcell_kpoints,
+                                   cur_bands[0].TwistIndex);
+  }
+
+  /** compute sign bits at the G/2 boundaries
+   * no supercell, no k-point folding, single special k point (G, L ...)
+   */
+  static TinyVector<int, 3> computeHalfG(const TinyVector<int, OHMMS_DIM>& bconds,
+                                         const std::vector<TinyVector<double, OHMMS_DIM>>& primcell_kpoints,
+                                         size_t twist0_index)
+  {
+    TinyVector<int, 3> halfG;
+    const auto& twist0 = primcell_kpoints[twist0_index];
+    app_log() << "  TwistIndex = " << twist0_index << " TwistAngle " << twist0 << std::endl;
+    for (int i = 0; i < 3; i++)
+      if (bconds[i] && ((std::abs(std::abs(twist0[i]) - 0.5) < 1.0e-8)))
+        halfG[i] = 1;
+      else
+        halfG[i] = 0;
+    app_log() << "   HalfG = " << halfG << std::endl;
+    return halfG;
   }
 
   /** return the path name in hdf5
