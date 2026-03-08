@@ -99,13 +99,19 @@ bool SplineSetReader<SA>::createSplineDataSpaceLookforDumpFile(const BandInfoGro
   else
     app_log() << "  Using real einspline table" << std::endl;
 
+
+  if (bspline.isComplex())
+    bspline.HalfG = 0;
+  else
+    bspline.HalfG = computeHalfG(mybuilder->TargetPtcl.getLattice().BoxBConds, mybuilder->primcell_kpoints,
+                                 bandgroup.myBands[0].TwistIndex);
   //baseclass handles twists
   check_twists(bspline, bandgroup);
 
   Ugrid xyz_grid[3];
 
   typename SA::BCType xyz_bc[3];
-  set_grid(bspline.HalfG, xyz_grid, xyz_bc);
+  set_grid(mybuilder->MeshSize, bspline.HalfG, xyz_grid, xyz_bc);
   bspline.create_spline(xyz_grid, xyz_bc);
 
   int foundspline = 0;

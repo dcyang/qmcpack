@@ -100,13 +100,13 @@ protected:
   /** read gvectors and set the mesh, and prepare for einspline
    */
   template<typename GT, typename BCT>
-  inline void set_grid(const TinyVector<int, 3>& halfg, GT* xyz_grid, BCT* xyz_bc) const
+  static void set_grid(const TinyVector<int, 3>& mesh_sizes, const TinyVector<int, 3>& halfg, GT* xyz_grid, BCT* xyz_bc)
   {
     for (int j = 0; j < 3; ++j)
     {
       xyz_grid[j].start = 0.0;
       xyz_grid[j].end   = 1.0;
-      xyz_grid[j].num   = mybuilder->MeshSize[j];
+      xyz_grid[j].num   = mesh_sizes[j];
 
       if (halfg[j])
       {
@@ -143,12 +143,6 @@ protected:
     }
 
     app_log() << "NumDistinctOrbitals " << N << " numOrbs = " << numOrbs << std::endl;
-
-    if (bspline.isComplex())
-      bspline.HalfG = 0;
-    else
-      bspline.HalfG = computeHalfG(mybuilder->TargetPtcl.getLattice().BoxBConds, mybuilder->primcell_kpoints,
-                                   cur_bands[0].TwistIndex);
   }
 
   /** compute sign bits at the G/2 boundaries
