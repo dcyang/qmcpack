@@ -111,7 +111,7 @@ void VMCBatched::advanceWalkers(const StateForThread& sft,
       // up and down electrons are "species" within qmpack
       for (int ig = 0; ig < walker_leader.groups(); ++ig) //loop over species
       {
-        TauParams<RealType, CT> taus(sft.qmcdrv_input.get_tau(), sft.population.get_ptclgrp_inv_mass()[ig],
+        TauParams<RealType, CT> taus(sft.qmcdrv_input.get_tau(), 1.0 / walker_leader.get_mass_by_group()[ig],
                                      sft.qmcdrv_input.get_spin_mass());
 
         twf_dispatcher.flex_prepareGroup(walker_twfs, walker_elecs, ig);
@@ -494,7 +494,7 @@ void VMCBatched::enable_sample_collection()
   assert(steps_per_block_ > 0 && "VMCBatched::enable_sample_collection steps_per_block_ must be positive!");
   auto samples = compute_samples_per_rank(qmcdriver_input_.get_max_blocks(), steps_per_block_,
                                           population_.get_num_local_walkers());
-  samples_.setMaxSamples(samples, population_.get_num_ranks());
+  samples_.setMaxSamples(samples);
   collect_samples_ = true;
 
   auto total_samples = samples * population_.get_num_ranks();

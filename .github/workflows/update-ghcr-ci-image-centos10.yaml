@@ -3,7 +3,7 @@ name: Build and Push CentOS CI Image to GHCR
 on:
   push:
     paths:
-      - 'config/docker/dependencies/centos-stream/**'
+      - 'config/docker/dependencies/centos10/**'
     branches:
       - develop
 
@@ -13,6 +13,7 @@ env:
 
 jobs:
   build-and-push-image:
+    if: github.repository == 'qmcpack/qmcpack'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -36,9 +37,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: config/docker/dependencies/centos-stream/Dockerfile
+          file: config/docker/dependencies/centos10/Dockerfile
           push: true
           tags: | 
-            ghcr.io/qmcpack/centos-stream-gcc11:latest
+            ghcr.io/qmcpack/centos10:latest
           platforms: linux/amd64
-  
+

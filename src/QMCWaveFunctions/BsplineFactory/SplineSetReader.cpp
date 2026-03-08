@@ -27,6 +27,8 @@
 #include "SplineC2R.h"
 #include "SplineC2ROMPTarget.h"
 #endif
+#include "Message/CommOperators.h"
+#include "spline2/SplineUtils.h"
 
 namespace qmcplusplus
 {
@@ -39,7 +41,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
                                                                int spin,
                                                                const BandInfoGroup& bandgroup)
 {
-  auto bspline = std::make_unique<SA>(my_name, use_offload);
+  auto bspline = std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, use_offload);
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
   bool foundspline = createSplineDataSpaceLookforDumpFile(bandgroup, *bspline);
   if (foundspline && myComm->rank() == 0)
@@ -48,7 +50,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
     hdf_archive h5f(myComm);
     const auto splinefile = getSplineDumpFileName(bandgroup);
     h5f.open(splinefile, H5F_ACC_RDONLY);
-    foundspline = bspline->read_splines(h5f);
+    foundspline = SplineUtils<typename SA::DataType>::read(*bspline->SplineInst, h5f);
     if (foundspline)
       app_log() << "  Successfully restored 3D B-spline coefficients from " << splinefile << ". The reading time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -56,7 +58,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
 
   if (!foundspline)
   {
-    bspline->flush_zero();
+    bspline->SplineInst->flush_zero();
 
     Timer now;
     initialize_spline_pio_gather(spin, bandgroup, *bspline);
@@ -72,7 +74,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
       h5f.write(classname, "class_name");
       int sizeD = sizeof(typename SA::DataType);
       h5f.write(sizeD, "sizeof");
-      bspline->write_splines(h5f);
+      SplineUtils<typename SA::DataType>::write(*bspline->SplineInst, h5f);
       h5f.close();
       app_log() << "  Stored spline coefficients in " << splinefile << " for potential reuse. The writing time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -82,7 +84,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
   {
     myComm->barrier();
     Timer now;
-    bspline->bcast_tables(myComm);
+    SplineUtils<typename SA::DataType>::bcast(*bspline->SplineInst, *myComm);
     app_log() << "  Time to bcast the table = " << now.elapsed() << std::endl;
   }
 
@@ -96,9 +98,6 @@ bool SplineSetReader<SA>::createSplineDataSpaceLookforDumpFile(const BandInfoGro
     app_log() << "  Using complex einspline table" << std::endl;
   else
     app_log() << "  Using real einspline table" << std::endl;
-
-  bspline.PrimLattice = mybuilder->PrimCell;
-  bspline.GGt         = dot(transpose(bspline.PrimLattice.G), bspline.PrimLattice.G);
 
   //baseclass handles twists
   check_twists(bspline, bandgroup);
@@ -193,7 +192,16 @@ void SplineSetReader<SA>::initialize_spline_pio_gather(const int spin,
     {
       band_group_comm.getGroupLeaderComm()->barrier();
       Timer now;
-      bspline.gather_tables(band_group_comm.getGroupLeaderComm());
+      if (bspline.isComplex())
+      {
+        std::vector<int> offset(band_groups.size());
+        for (int i = 0; i < offset.size(); i++)
+          offset[i] = band_groups[i] * 2;
+        SplineUtils<typename SA::DataType>::gatherv(*bspline.SplineInst, offset, *band_group_comm.getGroupLeaderComm());
+      }
+      else
+        SplineUtils<typename SA::DataType>::gatherv(*bspline.SplineInst, band_groups,
+                                                    *band_group_comm.getGroupLeaderComm());
       app_log() << "  Time to gather the table = " << now.elapsed() << std::endl;
     }
   }

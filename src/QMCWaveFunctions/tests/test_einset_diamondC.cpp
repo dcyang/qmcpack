@@ -78,8 +78,7 @@ void test_einset_diamond_1x1x1(bool use_offload)
     spo_xml = std::regex_replace(spo_xml, std::regex("omptarget"), "no");
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(spo_xml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(spo_xml));
 
   xmlNodePtr root = doc.getRoot();
 
@@ -349,8 +348,7 @@ TEST_CASE("Einspline SPO from HDF diamond_2x1x1 5 electrons", "[wavefunction]")
 )";
 
   Libxml2Document doc;
-  bool okay = doc.parseFromString(spo_xml);
-  REQUIRE(okay);
+  REQUIRE(doc.parseFromString(spo_xml));
 
   xmlNodePtr root = doc.getRoot();
 
