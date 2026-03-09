@@ -109,12 +109,14 @@ bool SplineSetReader<SA>::createSplineDataSpaceLookforDumpFile(const BandInfoGro
 
 
   if (bspline.isComplex())
+  {
     bspline.HalfG = 0;
+    //baseclass handles twists
+    check_twists(bspline, bandgroup);
+  }
   else
     bspline.HalfG = computeHalfG(mybuilder->TargetPtcl.getLattice().BoxBConds, mybuilder->primcell_kpoints,
                                  bandgroup.myBands[0].TwistIndex);
-  //baseclass handles twists
-  check_twists(bspline, bandgroup);
 
   Ugrid xyz_grid[3];
 
