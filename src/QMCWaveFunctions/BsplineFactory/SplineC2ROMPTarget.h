@@ -172,7 +172,6 @@ public:
   template<typename BCT>
   void create_spline(const Ugrid xyz_g[3], const BCT& xyz_bc)
   {
-    resize_kpoints();
     SplineInst->create(xyz_g, xyz_bc, myV.size());
 
     app_log() << "MEMORY " << SplineInst->sizeInByte() / (1 << 20) << " MB allocated "
@@ -189,7 +188,7 @@ public:
   }
 
   /** remap kPoints to pack the double copy */
-  inline void resize_kpoints()
+  inline void resize_kpoints() override
   {
     nComplexBands = this->remap_kpoints();
     const int nk  = kPoints.size();

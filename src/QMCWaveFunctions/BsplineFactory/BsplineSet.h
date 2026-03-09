@@ -69,6 +69,9 @@ public:
   /// resize vectors related to spline evaluaton results.
   virtual void resizeStorage(size_t n) = 0;
 
+  /** remap kPoints to pack the double copy */
+  virtual void resize_kpoints() { }
+
   ///remap kpoints to group general kpoints & special kpoints
   int remap_kpoints()
   {

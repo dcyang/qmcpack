@@ -140,6 +140,7 @@ protected:
       num += bspline.MakeTwoCopies[iorb] ? 2 : 1;
     }
 
+    bspline.resize_kpoints();
     app_log() << "NumDistinctOrbitals " << N << " numOrbs = " << numOrbs << std::endl;
   }
 
