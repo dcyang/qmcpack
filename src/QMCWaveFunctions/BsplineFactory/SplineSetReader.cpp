@@ -41,7 +41,11 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
                                                                int spin,
                                                                const BandInfoGroup& bandgroup)
 {
-  auto bspline = std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, use_offload);
+  using ST     = typename SA::DataType;
+  auto bspline = use_offload ? std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                                    std::make_unique<MultiBsplineOffload<ST>>(), use_offload)
+                             : std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                                    std::make_unique<MultiBspline<ST>>(), use_offload);
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
   bool foundspline = createSplineDataSpaceLookforDumpFile(bandgroup, *bspline);
   if (foundspline && myComm->rank() == 0)

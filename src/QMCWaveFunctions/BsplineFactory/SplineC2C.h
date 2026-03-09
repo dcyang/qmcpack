@@ -78,8 +78,14 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineC2C(const std::string& my_name, size_t size, const Lattice& prim_lattice, bool use_offload = false)
-      : BsplineSet(my_name, size, prim_lattice), GGt(dot(transpose(prim_lattice.G), prim_lattice.G))
+  SplineC2C(const std::string& my_name,
+            size_t size,
+            const Lattice& prim_lattice,
+            std::unique_ptr<MultiBsplineBase<ST>>&& multi_spline,
+            bool use_offload = false)
+      : BsplineSet(my_name, size, prim_lattice),
+        GGt(dot(transpose(prim_lattice.G), prim_lattice.G)),
+        SplineInst(dynamic_cast<MultiBspline<ST>*>(multi_spline.release()))
   {}
 
   SplineC2C(const SplineC2C& in);
@@ -122,7 +128,6 @@ public:
   void create_spline(const Ugrid xyz_g[3], const BCT& xyz_bc)
   {
     resize_kpoints();
-    SplineInst = std::make_shared<MultiBspline<ST>>();
     SplineInst->create(xyz_g, xyz_bc, myV.size());
     app_log() << "MEMORY " << SplineInst->sizeInByte() / (1 << 20) << " MB allocated "
               << "for the coefficients in 3D spline orbital representation" << std::endl;

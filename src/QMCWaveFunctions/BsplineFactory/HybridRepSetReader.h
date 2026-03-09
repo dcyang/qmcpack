@@ -20,6 +20,7 @@
 
 #include "BsplineReader.h"
 #include "SplineSetReader.h"
+#include "spline2/MultiBsplineBase.hpp"
 
 #if !defined(QMC_COMPLEX)
 #include "HybridRepReal.h"

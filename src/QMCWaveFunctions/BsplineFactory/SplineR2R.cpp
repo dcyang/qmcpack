@@ -28,24 +28,19 @@
 namespace qmcplusplus
 {
 
-template<typename T>
-inline static std::unique_ptr<MultiBsplineBase<T>> create_MultiBsplineDerived(const bool use_offload)
-{
-  if (use_offload)
-    return std::make_unique<MultiBsplineOffload<T>>();
-  else
-    return std::make_unique<MultiBspline<T>>();
-}
-
 template<typename ST>
-SplineR2R<ST>::SplineR2R(const std::string& my_name, size_t size, const Lattice& prim_lattice, bool use_offload)
+SplineR2R<ST>::SplineR2R(const std::string& my_name,
+                         size_t size,
+                         const Lattice& prim_lattice,
+                         std::unique_ptr<MultiBsplineBase<ST>>&& multi_spline,
+                         bool use_offload)
     : BsplineSet(my_name, size, prim_lattice),
       use_offload_(use_offload),
       offload_timer_(createGlobalTimer("SplineC2ROMPTarget::offload", timer_level_fine)),
       GGt(dot(transpose(prim_lattice.G), prim_lattice.G)),
       GGt_offload(std::make_shared<OffloadVector<ST>>(9)),
       prim_lattice_G_offload(std::make_shared<OffloadVector<ST>>(9)),
-      SplineInst(create_MultiBsplineDerived<ST>(use_offload))
+      SplineInst(std::move(multi_spline))
 {
   for (std::uint32_t i = 0; i < 9; i++)
   {

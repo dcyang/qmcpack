@@ -65,8 +65,11 @@ private:
   using SPLINEBASE::myV;
 
 public:
-  HybridRepCplx(const std::string& my_name, size_t size, const Lattice& prim_lattice)
-      : SPLINEBASE(my_name, size, prim_lattice)
+  HybridRepCplx(const std::string& my_name,
+                size_t size,
+                const Lattice& prim_lattice,
+                std::unique_ptr<MultiBsplineBase<ST>>&& multi_spline)
+      : SPLINEBASE(my_name, size, prim_lattice, std::move(multi_spline))
   {}
 
   bool isRotationSupported() const override { return SPLINEBASE::isRotationSupported(); }

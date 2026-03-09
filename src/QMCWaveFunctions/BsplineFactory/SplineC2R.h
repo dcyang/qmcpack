@@ -73,7 +73,7 @@ private:
 
 protected:
   ///multi bspline set
-  std::shared_ptr<MultiBspline<ST>> SplineInst;
+  const std::shared_ptr<MultiBspline<ST>> SplineInst;
   /// intermediate result vectors
   vContainer_type myV;
   vContainer_type myL;
@@ -82,8 +82,15 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineC2R(const std::string& my_name, size_t size, const Lattice& prim_lattice, bool use_offload = false)
-      : BsplineSet(my_name, size, prim_lattice), GGt(dot(transpose(prim_lattice.G), prim_lattice.G)), nComplexBands(0)
+  SplineC2R(const std::string& my_name,
+            size_t size,
+            const Lattice& prim_lattice,
+            std::unique_ptr<MultiBsplineBase<ST>>&& multi_spline,
+            bool use_offload = false)
+      : BsplineSet(my_name, size, prim_lattice),
+        GGt(dot(transpose(prim_lattice.G), prim_lattice.G)),
+        nComplexBands(0),
+        SplineInst(dynamic_cast<MultiBspline<ST>*>(multi_spline.release()))
   {}
 
   SplineC2R(const SplineC2R& in);
@@ -108,7 +115,6 @@ public:
   void create_spline(const Ugrid xyz_g[3], const BCT& xyz_bc)
   {
     resize_kpoints();
-    SplineInst = std::make_shared<MultiBspline<ST>>();
     SplineInst->create(xyz_g, xyz_bc, myV.size());
 
     app_log() << "MEMORY " << SplineInst->sizeInByte() / (1 << 20) << " MB allocated "

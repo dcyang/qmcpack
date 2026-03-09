@@ -101,7 +101,7 @@ private:
 
 protected:
   ///multi bspline set
-  std::shared_ptr<MultiBsplineBase<ST>> SplineInst;
+  const std::shared_ptr<MultiBsplineBase<ST>> SplineInst;
   /// intermediate result vectors
   vContainer_type myV;
   vContainer_type myL;
@@ -110,12 +110,17 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineC2ROMPTarget(const std::string& my_name, size_t size, const Lattice& prim_lattice, bool use_offload = true)
+  SplineC2ROMPTarget(const std::string& my_name,
+                     size_t size,
+                     const Lattice& prim_lattice,
+                     std::unique_ptr<MultiBsplineBase<ST>>&& multi_spline,
+                     bool use_offload = true)
       : BsplineSet(my_name, size, prim_lattice),
         offload_timer_(createGlobalTimer("SplineC2ROMPTarget::offload", timer_level_fine)),
         nComplexBands(0),
         GGt_offload(std::make_shared<OffloadVector<ST>>(9)),
-        prim_lattice_G_offload(std::make_shared<OffloadVector<ST>>(9))
+        prim_lattice_G_offload(std::make_shared<OffloadVector<ST>>(9)),
+        SplineInst(std::move(multi_spline))
   {
     auto GGt(dot(transpose(prim_lattice.G), prim_lattice.G));
     for (std::uint32_t i = 0; i < 9; i++)
@@ -168,7 +173,6 @@ public:
   void create_spline(const Ugrid xyz_g[3], const BCT& xyz_bc)
   {
     resize_kpoints();
-    SplineInst = std::make_shared<MultiBsplineOffload<ST>>();
     SplineInst->create(xyz_g, xyz_bc, myV.size());
 
     app_log() << "MEMORY " << SplineInst->sizeInByte() / (1 << 20) << " MB allocated "

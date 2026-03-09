@@ -82,7 +82,7 @@ private:
 
 protected:
   ///multi bspline set
-  std::shared_ptr<MultiBsplineBase<ST>> SplineInst;
+  const std::shared_ptr<MultiBsplineBase<ST>> SplineInst;
   /// intermediate result vectors
   vContainer_type myV;
   vContainer_type myL;
@@ -91,7 +91,11 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineR2R(const std::string& my_name, size_t size, const Lattice& prim_lattice, bool use_offload = false);
+  SplineR2R(const std::string& my_name,
+            size_t size,
+            const Lattice& prim_lattice,
+            std::unique_ptr<MultiBsplineBase<ST>>&& multi_spline,
+            bool use_offload = false);
   SplineR2R(const SplineR2R& in);
   virtual std::string getClassName() const override { return "SplineR2R"; }
   virtual std::string getKeyword() const override { return "SplineR2R"; }
