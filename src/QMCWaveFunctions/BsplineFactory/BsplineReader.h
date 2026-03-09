@@ -131,8 +131,6 @@ protected:
     const int N       = bandgroup.getNumDistinctOrbitals();
     const int numOrbs = bandgroup.getNumSPOs();
 
-    bspline.resizeStorage(N);
-
     const std::vector<BandInfo>& cur_bands = bandgroup.myBands;
     for (int iorb = 0, num = 0; iorb < N; iorb++)
     {

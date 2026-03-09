@@ -46,6 +46,10 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
                                                     std::make_unique<MultiBsplineOffload<ST>>(), use_offload)
                              : std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
                                                     std::make_unique<MultiBspline<ST>>(), use_offload);
+
+  const int N = bandgroup.getNumDistinctOrbitals();
+  bspline->resizeStorage(N);
+
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
   bool foundspline = createSplineDataSpaceLookforDumpFile(bandgroup, *bspline);
   if (foundspline && myComm->rank() == 0)
