@@ -146,13 +146,35 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
   using ST = typename SA::DataType;
   auto bspline =
       std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, std::make_unique<MultiBspline<ST>>());
+
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
+  if (bspline->isComplex())
+    app_log() << "  Using complex einspline table" << std::endl;
+  else
+    app_log() << "  Using real einspline table" << std::endl;
+
   const int N = bandgroup.getNumDistinctOrbitals();
   bspline->SplineBase::resizeStorage(N);
 
+  if (bspline->isComplex())
+  {
+    bspline->HalfG = 0;
+    //baseclass handles twists
+    check_twists(*bspline, bandgroup);
+  }
+  else
+    bspline->HalfG = computeHalfG(mybuilder->TargetPtcl.getLattice().BoxBConds, mybuilder->primcell_kpoints,
+                                 bandgroup.myBands[0].TwistIndex);
+
+  Ugrid xyz_grid[3];
+
+  typename SA::BCType xyz_bc[3];
+  set_grid(mybuilder->MeshSize, bspline->HalfG, xyz_grid, xyz_bc);
+  bspline->create_spline(xyz_grid, xyz_bc);
+
   // set info for Hybrid
   initialize_hybridrep_atomic_centers(*bspline);
-  bool foundspline = spline_reader_.createSplineDataSpaceLookforDumpFile(bandgroup, *bspline);
+  bool foundspline = spline_reader_.lookforSplineDataDumpFile(bandgroup, *bspline);
   typename SA::HYBRIDBASE& hybrid_center_orbs = *bspline;
   hybrid_center_orbs.resizeStorage(bspline->myV.size());
   if (foundspline && myComm->rank() == 0)

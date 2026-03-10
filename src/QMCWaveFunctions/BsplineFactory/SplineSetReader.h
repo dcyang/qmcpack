@@ -63,7 +63,7 @@ public:
    * @param bspline the spline object being worked on
    * @return true if dumpfile pass class name and data type size check
    */
-  bool createSplineDataSpaceLookforDumpFile(const BandInfoGroup& bandgroup, SA& bspline) const;
+  bool lookforSplineDataDumpFile(const BandInfoGroup& bandgroup, SA& bspline) const;
 
   /** read planewave coefficients from h5 file
    * @param s data set full path in h5
