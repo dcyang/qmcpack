@@ -628,7 +628,7 @@ void HybridRepSetReader<SA>::create_atomic_centers_Gspace(const Vector<std::comp
           splineData_r[ip] = all_vals[idx][ip][lm];
         atomic_spline_r = einspline::create(atomic_spline_r, 0.0, spline_radius, spline_npoints, splineData_r.data(),
                                             ((lm == 0) || (lm > 3)));
-        if (!bspline.isComplex())
+        if (!use_duplex_splines_)
         {
           mycenter.set_spline(atomic_spline_r, lm, iorb);
           einspline::destroy(atomic_spline_r);
@@ -668,7 +668,7 @@ void HybridRepSetReader<SA>::initialize_hybrid_pio_gather(const int spin,
   int iorb_last  = band_groups[band_group_comm.getGroupID() + 1];
 
   app_log() << "Start transforming plane waves to 3D B-splines and atomic radial orbital 1D B-splines." << std::endl;
-  OneSplineOrbData oneband(mybuilder->MeshSize, bspline.HalfG, bspline.isComplex());
+  OneSplineOrbData oneband(mybuilder->MeshSize, bspline.HalfG, use_duplex_splines_);
   hdf_archive h5f(&band_group_comm, false);
   Vector<std::complex<double>> cG(mybuilder->Gvecs[0].size());
   const std::vector<BandInfo>& cur_bands = bandgroup.myBands;
@@ -692,7 +692,7 @@ void HybridRepSetReader<SA>::initialize_hybrid_pio_gather(const int spin,
   if (band_group_comm.isGroupLeader())
   {
     Timer now;
-    if (bspline.isComplex())
+    if (use_duplex_splines_)
     {
       std::vector<int> offset(band_groups.size());
       for (int i = 0; i < offset.size(); i++)

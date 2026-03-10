@@ -199,7 +199,7 @@ void SplineSetReader<SA>::initialize_spline_pio_gather(const int spin,
   int iorb_last  = band_groups[band_group_comm.getGroupID() + 1];
 
   app_log() << "Start transforming plane waves to 3D B-Splines." << std::endl;
-  OneSplineOrbData oneband(mybuilder->MeshSize, bspline.HalfG, bspline.isComplex());
+  OneSplineOrbData oneband(mybuilder->MeshSize, bspline.HalfG, use_duplex_splines_);
   hdf_archive h5f(&band_group_comm, false);
   Vector<std::complex<double>> cG(mybuilder->Gvecs[0].size());
   const std::vector<BandInfo>& cur_bands = bandgroup.myBands;
@@ -218,7 +218,7 @@ void SplineSetReader<SA>::initialize_spline_pio_gather(const int spin,
     {
       band_group_comm.getGroupLeaderComm()->barrier();
       Timer now;
-      if (bspline.isComplex())
+      if (use_duplex_splines_)
       {
         std::vector<int> offset(band_groups.size());
         for (int i = 0; i < offset.size(); i++)
