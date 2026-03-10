@@ -99,7 +99,6 @@ public:
   SplineR2R(const SplineR2R& in);
   virtual std::string getClassName() const override { return "SplineR2R"; }
   virtual std::string getKeyword() const override { return "SplineR2R"; }
-  bool isComplex() const override { return false; };
   bool isRotationSupported() const override { return true; }
   virtual bool isOMPoffload() const override { return use_offload_; }
 

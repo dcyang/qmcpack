@@ -91,7 +91,6 @@ public:
   SplineC2C(const SplineC2C& in);
   virtual std::string getClassName() const override { return "SplineC2C"; }
   virtual std::string getKeyword() const override { return "SplineC2C"; }
-  bool isComplex() const override { return true; };
 
 
   std::unique_ptr<SPOSet> makeClone() const override { return std::make_unique<SplineC2C>(*this); }

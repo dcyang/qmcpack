@@ -52,7 +52,6 @@ public:
       : SPOSet(my_name, size), prim_lattice_(prim_lattice)
   {}
 
-  virtual bool isComplex() const         = 0;
   virtual std::string getKeyword() const = 0;
 
   auto& getHalfG() const { return HalfG; }

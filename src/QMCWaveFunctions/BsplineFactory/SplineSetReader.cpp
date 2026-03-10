@@ -77,7 +77,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
 
   bspline->HalfG = half_g;
 
-  if (bspline->isComplex())
+  if (use_duplex_splines_)
   {
     //baseclass handles twists
     check_twists(*bspline, bandgroup);

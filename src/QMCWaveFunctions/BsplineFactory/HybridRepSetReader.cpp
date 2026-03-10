@@ -177,7 +177,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
   bspline->SplineBase::resizeStorage(N);
 
   bspline->HalfG = half_g;
-  if (bspline->isComplex())
+  if (use_duplex_splines_)
   {
     //baseclass handles twists
     check_twists(*bspline, bandgroup);
