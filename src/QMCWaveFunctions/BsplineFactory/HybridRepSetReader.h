@@ -53,7 +53,7 @@ class HybridRepSetReader : public BsplineReader
                                             const BandInfoGroup& bandgroup) override;
 
 public:
-  HybridRepSetReader(EinsplineSetBuilder* e);
+  HybridRepSetReader(EinsplineSetBuilder* e, bool use_duplex_splines);
 
   /** initialize basic parameters of atomic orbitals */
   void initialize_hybridrep_atomic_centers(typename SA::HYBRIDBASE& bspline) const;

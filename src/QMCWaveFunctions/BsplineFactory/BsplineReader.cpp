@@ -28,8 +28,8 @@
 
 namespace qmcplusplus
 {
-BsplineReader::BsplineReader(EinsplineSetBuilder* e)
-    : mybuilder(e), checkNorm(true), saveSplineCoefs(false), rotate(true)
+BsplineReader::BsplineReader(EinsplineSetBuilder* e, bool use_duplex_splines)
+    : mybuilder(e), checkNorm(true), saveSplineCoefs(false), rotate(true), use_duplex_splines_(use_duplex_splines)
 { myComm = mybuilder->getCommunicator(); }
 
 BsplineReader::~BsplineReader() = default;
@@ -107,8 +107,8 @@ std::unique_ptr<SPOSet> BsplineReader::create_spline_set(const std::string& spo_
   }
 
   BandInfoGroup vals;
-  vals.GroupID    = 0;
-  vals.myName     = make_bandgroup_name(spo_name, spin, mybuilder->twist_num_, mybuilder->TileMatrix, 0, size);
+  vals.GroupID = 0;
+  vals.myName  = make_bandgroup_name(spo_name, spin, mybuilder->twist_num_, mybuilder->TileMatrix, 0, size);
   vals.selectBands(fullband, 0, size);
 
   return create_spline_set(spo_name, spin, vals);
@@ -133,9 +133,9 @@ std::unique_ptr<SPOSet> BsplineReader::create_spline_set(const std::string& spo_
   }
 
   BandInfoGroup vals;
-  vals.GroupID    = 0;
-  vals.myName     = make_bandgroup_name(spo_name, spin, mybuilder->twist_num_, mybuilder->TileMatrix,
-                                        input_info.min_index(), input_info.max_index());
+  vals.GroupID = 0;
+  vals.myName  = make_bandgroup_name(spo_name, spin, mybuilder->twist_num_, mybuilder->TileMatrix,
+                                     input_info.min_index(), input_info.max_index());
   vals.selectBands(fullband, spo2band[spin][input_info.min_index()], input_info.max_index() - input_info.min_index());
 
   return create_spline_set(spo_name, spin, vals);

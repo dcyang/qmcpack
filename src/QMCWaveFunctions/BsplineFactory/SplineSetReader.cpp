@@ -33,7 +33,8 @@
 namespace qmcplusplus
 {
 template<typename SA>
-SplineSetReader<SA>::SplineSetReader(EinsplineSetBuilder* e) : BsplineReader(e)
+SplineSetReader<SA>::SplineSetReader(EinsplineSetBuilder* e, bool use_duplex_splines)
+    : BsplineReader(e, use_duplex_splines)
 {}
 
 template<typename SA>

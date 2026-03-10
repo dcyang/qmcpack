@@ -134,7 +134,8 @@ struct Gvectors
 };
 
 template<typename SA>
-HybridRepSetReader<SA>::HybridRepSetReader(EinsplineSetBuilder* e) : BsplineReader(e), spline_reader_(e)
+HybridRepSetReader<SA>::HybridRepSetReader(EinsplineSetBuilder* e, bool use_duplex_splines)
+    : BsplineReader(e, use_duplex_splines), spline_reader_(e, use_duplex_splines)
 {}
 
 template<typename SA>

@@ -52,7 +52,7 @@ class BsplineReader
                            std::vector<int>& band2spo);
 
 public:
-  BsplineReader(EinsplineSetBuilder* e);
+  BsplineReader(EinsplineSetBuilder* e, bool use_duplex_splines);
 
   virtual ~BsplineReader();
 
@@ -86,6 +86,8 @@ protected:
   bool rotate;
   ///map from spo index to band index
   std::vector<std::vector<int>> spo2band;
+  /// if true, use two real-valued splines for one complex-valued DFT orbital.
+  const bool use_duplex_splines_;
   /// if true, use offload
   bool use_offload;
 

@@ -56,7 +56,7 @@ class SplineSetReader : public BsplineReader
                                             const BandInfoGroup& bandgroup) override;
 
 public:
-  SplineSetReader(EinsplineSetBuilder* e);
+  SplineSetReader(EinsplineSetBuilder* e, bool use_duplex_splines);
 
   /** create data space in the spline object and try open spline dump files.
    * @param bandgroup band info
