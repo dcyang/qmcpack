@@ -143,9 +143,16 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
                                                                   const BandInfoGroup& bandgroup)
 {
   spline_reader_.setCheckNorm(checkNorm);
-  using ST = typename SA::DataType;
-  auto bspline =
-      std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, std::make_unique<MultiBspline<ST>>());
+  using ST    = typename SA::DataType;
+  const int N = bandgroup.getNumDistinctOrbitals();
+
+  std::unique_ptr<MultiBsplineBase<ST>> multi_splines;
+  if (use_offload)
+    multi_splines = std::make_unique<MultiBsplineOffload<ST>>();
+  else
+    multi_splines = std::make_unique<MultiBspline<ST>>();
+
+  auto bspline = std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, std::move(multi_splines));
 
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
   if (bspline->isComplex())
@@ -153,7 +160,6 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
   else
     app_log() << "  Using real einspline table" << std::endl;
 
-  const int N = bandgroup.getNumDistinctOrbitals();
   bspline->SplineBase::resizeStorage(N);
 
   if (bspline->isComplex())
@@ -164,7 +170,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
   }
   else
     bspline->HalfG = computeHalfG(mybuilder->TargetPtcl.getLattice().BoxBConds, mybuilder->primcell_kpoints,
-                                 bandgroup.myBands[0].TwistIndex);
+                                  bandgroup.myBands[0].TwistIndex);
 
   Ugrid xyz_grid[3];
 
@@ -173,9 +179,9 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
   bspline->create_spline(xyz_grid, xyz_bc);
 
   // set info for Hybrid
-  initialize_hybridrep_atomic_centers(*bspline);
-  bool foundspline = spline_reader_.lookforSplineDataDumpFile(bandgroup, *bspline);
   typename SA::HYBRIDBASE& hybrid_center_orbs = *bspline;
+  initialize_hybridrep_atomic_centers(hybrid_center_orbs);
+  bool foundspline = spline_reader_.lookforSplineDataDumpFile(bandgroup, *bspline);
   hybrid_center_orbs.resizeStorage(bspline->myV.size());
   if (foundspline && myComm->rank() == 0)
   {
@@ -221,7 +227,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
 }
 
 template<typename SA>
-void HybridRepSetReader<SA>::initialize_hybridrep_atomic_centers(SA& bspline) const
+void HybridRepSetReader<SA>::initialize_hybridrep_atomic_centers(typename SA::HYBRIDBASE& bspline) const
 {
   auto& mybuilder = spline_reader_.mybuilder;
 

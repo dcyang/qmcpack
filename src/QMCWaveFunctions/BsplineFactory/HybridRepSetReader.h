@@ -56,7 +56,7 @@ public:
   HybridRepSetReader(EinsplineSetBuilder* e);
 
   /** initialize basic parameters of atomic orbitals */
-  void initialize_hybridrep_atomic_centers(SA& bspline) const;
+  void initialize_hybridrep_atomic_centers(typename SA::HYBRIDBASE& bspline) const;
 
   /** initialize construct atomic orbital radial functions from plane waves */
   inline void create_atomic_centers_Gspace(const Vector<std::complex<double>>& cG,

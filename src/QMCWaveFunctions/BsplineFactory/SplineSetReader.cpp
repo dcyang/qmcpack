@@ -41,11 +41,17 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
                                                                int spin,
                                                                const BandInfoGroup& bandgroup)
 {
-  using ST     = typename SA::DataType;
-  auto bspline = use_offload ? std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
-                                                    std::make_unique<MultiBsplineOffload<ST>>(), use_offload)
-                             : std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
-                                                    std::make_unique<MultiBspline<ST>>(), use_offload);
+  using ST    = typename SA::DataType;
+  const int N = bandgroup.getNumDistinctOrbitals();
+
+  std::unique_ptr<MultiBsplineBase<ST>> multi_splines;
+  if (use_offload)
+    multi_splines = std::make_unique<MultiBsplineOffload<ST>>();
+  else
+    multi_splines = std::make_unique<MultiBspline<ST>>();
+
+  auto bspline =
+      std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, std::move(multi_splines), use_offload);
 
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
   if (bspline->isComplex())
@@ -53,7 +59,6 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
   else
     app_log() << "  Using real einspline table" << std::endl;
 
-  const int N = bandgroup.getNumDistinctOrbitals();
   bspline->resizeStorage(N);
 
   if (bspline->isComplex())
@@ -64,7 +69,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
   }
   else
     bspline->HalfG = computeHalfG(mybuilder->TargetPtcl.getLattice().BoxBConds, mybuilder->primcell_kpoints,
-                                 bandgroup.myBands[0].TwistIndex);
+                                  bandgroup.myBands[0].TwistIndex);
 
   Ugrid xyz_grid[3];
 
