@@ -157,9 +157,7 @@ struct test_splines : public test_splines_base<T, GRID_SIZE, NUM_SPLINES>
 
   void test()
   {
-    MultiBspline<T> bs;
-
-    bs.create(grid, bc, npad);
+    MultiBspline<T> bs(grid, bc, npad);
 
     REQUIRE(bs.num_splines() == npad);
 
@@ -214,9 +212,7 @@ struct test_splines<T, 5, 1> : public test_splines_base<T, 5, 1>
 
   void test()
   {
-    MultiBspline<T> bs;
-
-    bs.create(grid, bc, npad);
+    MultiBspline<T> bs(grid, bc, npad);
 
     REQUIRE(bs.num_splines() == npad);
 

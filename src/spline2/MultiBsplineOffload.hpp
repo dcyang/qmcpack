@@ -40,8 +40,14 @@ private:
                                         int num_splines) override;
 
 public:
-  MultiBsplineOffload();
+  template<typename BCT>
+  MultiBsplineOffload(const Ugrid grid[3], const BCT& bc, size_t num_splines)
+  {
+    Base::spline_m = createImpl(grid, Base::createBoundaryCondition(bc).data(), num_splines);
+  }
+
   ~MultiBsplineOffload() override;
+
   void finalize() override;
 };
 

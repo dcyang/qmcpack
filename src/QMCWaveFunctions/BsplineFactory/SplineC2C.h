@@ -124,14 +124,6 @@ public:
     mygH.resize(npad);
   }
 
-  template<typename BCT>
-  void create_spline(const Ugrid xyz_g[3], const BCT& xyz_bc)
-  {
-    SplineInst->create(xyz_g, xyz_bc, myV.size());
-    app_log() << "MEMORY " << SplineInst->sizeInByte() / (1 << 20) << " MB allocated "
-              << "for the coefficients in 3D spline orbital representation" << std::endl;
-  }
-
   /** remap kPoints to pack the double copy */
   inline void resize_kpoints() override
   {

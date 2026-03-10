@@ -45,38 +45,43 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
   using ST    = typename SA::DataType;
   const int N = bandgroup.getNumDistinctOrbitals();
 
+  if (use_duplex_splines_)
+    app_log() << "  Using complex einspline table" << std::endl;
+  else
+    app_log() << "  Using real einspline table" << std::endl;
+  const TinyVector<int, 3> half_g = use_duplex_splines_
+      ? TinyVector<int, 3>(0, 0, 0)
+      : computeHalfG(mybuilder->TargetPtcl.getLattice().BoxBConds, mybuilder->primcell_kpoints,
+                     bandgroup.myBands[0].TwistIndex);
+
+  Ugrid xyz_grid[3];
+  typename SA::BCType xyz_bc[3];
+  set_grid(mybuilder->MeshSize, half_g, xyz_grid, xyz_bc);
+
+  const size_t num_splines = getAlignedSize<ST>(use_duplex_splines_ ? N * 2 : N);
   std::unique_ptr<MultiBsplineBase<ST>> multi_splines;
   if (use_offload)
-    multi_splines = std::make_unique<MultiBsplineOffload<ST>>();
+    multi_splines = std::make_unique<MultiBsplineOffload<ST>>(xyz_grid, xyz_bc, num_splines);
   else
-    multi_splines = std::make_unique<MultiBspline<ST>>();
+    multi_splines = std::make_unique<MultiBspline<ST>>(xyz_grid, xyz_bc, num_splines);
+
+  app_log() << "MEMORY " << multi_splines->sizeInByte() / (1 << 20) << " MB allocated "
+            << "for the coefficients in 3D spline orbital representation" << std::endl;
 
   auto bspline =
       std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, std::move(multi_splines), use_offload);
 
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
-  if (bspline->isComplex())
-    app_log() << "  Using complex einspline table" << std::endl;
-  else
-    app_log() << "  Using real einspline table" << std::endl;
 
   bspline->resizeStorage(N);
 
+  bspline->HalfG = half_g;
+
   if (bspline->isComplex())
   {
-    bspline->HalfG = 0;
     //baseclass handles twists
     check_twists(*bspline, bandgroup);
   }
-  else
-    bspline->HalfG = computeHalfG(mybuilder->TargetPtcl.getLattice().BoxBConds, mybuilder->primcell_kpoints,
-                                  bandgroup.myBands[0].TwistIndex);
-
-  Ugrid xyz_grid[3];
-
-  typename SA::BCType xyz_bc[3];
-  set_grid(mybuilder->MeshSize, bspline->HalfG, xyz_grid, xyz_bc);
-  bspline->create_spline(xyz_grid, xyz_bc);
 
   bool foundspline = lookforSplineDataDumpFile(bandgroup, *bspline);
   if (foundspline && myComm->rank() == 0)

@@ -153,15 +153,6 @@ public:
     IsGamma = ((HalfG[0] == 0) && (HalfG[1] == 0) && (HalfG[2] == 0));
   }
 
-  template<typename BCT>
-  void create_spline(const Ugrid xyz_g[3], const BCT& xyz_bc)
-  {
-    SplineInst->create(xyz_g, xyz_bc, myV.size());
-
-    app_log() << "MEMORY " << SplineInst->sizeInByte() / (1 << 20) << " MB allocated "
-              << "for the coefficients in 3D spline orbital representation" << std::endl;
-  }
-
   /// this routine can not be called from threaded region
   void finalizeConstruction() override;
 

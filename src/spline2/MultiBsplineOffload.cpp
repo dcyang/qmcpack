@@ -28,9 +28,6 @@ typename MultiBsplineBase<T>::SplineType* MultiBsplineOffload<T>::createImpl(
 }
 
 template<typename T>
-MultiBsplineOffload<T>::MultiBsplineOffload() = default;
-
-template<typename T>
 MultiBsplineOffload<T>::~MultiBsplineOffload()
 {
   if (Base::spline_m != nullptr)
