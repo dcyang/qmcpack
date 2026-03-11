@@ -3,13 +3,13 @@
 Nexus Installation
 ==================
 
-Nexus is very flexible in installation method, including via a package manager or through manual cloning of the QMCPACK repository
-and setting of an environment variable. Package manager-based installation eases installation of dependencies, including Python
-itself, as well as interoperability with other Python-based software. The environment variable route is particularly suited to
-development or (currently) if any scripts/"binaries" are needed. Administrative privileges are not in general required.
+Nexus aims to be very flexible in installation method. Options include use of a package manager and through manual cloning of the
+repository and setting of an environment variable. Package manager-based installation eases installation of dependencies, including
+Python itself, as well as interoperability with other Python-based software. The environment variable route is particularly suited
+to development or (currently) if any scripts/"binaries" are needed. Administrative privileges are not required.
 
 Note that while many supercomputer systems have an outdated system Python, a recent Python version is usually provided via a
-loadable module: check the local documentation or discuss with your system administrators for their preferred route.
+loadable module: check the local documentation or discuss with your system administrators to find the simplest installation route.
 
 .. important::
     Currently, Nexus is not packaged with any scripts (``qmca``, ``nxs-test``, etc.), so users who wish to use those will need to proceed
@@ -34,7 +34,7 @@ The following will result in a system-wide installation: (prepending ``python3 -
 
 .. caution::
     This method of installation is not recommended for those who wish to customize Nexus for a specific project, or need to keep different
-    versions of Nexus available, because all Nexus projects will potentially see this system-wide version. 
+    versions of Nexus available, because all Nexus will potentially see this system-wide version. 
 
 .. code-block:: bash
 
@@ -78,7 +78,7 @@ Installation using the ``uv`` package manager
 ---------------------------------------------
 
 ``uv`` is a recently developed Python package and project manager. Under nearly all circumstances it can install Nexus and all of
-its dependencies, with no other requirement. Importantly, besides being significantly faster than ``pip``, it can be installed by a
+its dependencies, with no other requirements. Importantly, besides being significantly faster than ``pip``, it can be installed by a
 standard user without any administrative privileges. Unlike ``pip``, it is also able to install specific versions of Python itself,
 making it a solution for systems with outdated Python installations. If you are not familiar with ``uv``, see the latest getting
 started and installation guide at https://docs.astral.sh/uv/ . ``uv`` can in general be installed with a single line. 
@@ -105,7 +105,7 @@ Note that when using ``uv`` as a package manager, your Python scripts can option
 
     #! /usr/bin/env -S uv run --script
 
-Additionally, you can use ``uv`` to automatically set the dependencies of a script with the following command
+Additionally, you can optionally use ``uv`` to set the dependencies of a script with the following command
 
 .. code-block:: bash
 
@@ -180,10 +180,10 @@ If you want the Nexus binaries to reside a location different than ``/your_downl
 Installing Python dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When manually installing Nexus, must also install the Python dependencies. The ``numpy`` module must be installed for Nexus to
+When manually installing Nexus, you must also install the Python dependencies. The ``numpy`` module must be installed for Nexus to
 function at a basic level. To realize the full range of functionality available, it is recommended that the ``scipy``,
 ``matplotlib``, ``h5py``, ``pydot``, ``spglib``, ``pycifrw``, ``cif2cell`` and ``seekpath`` modules be installed as well. In
-supercomputing environments, most of these packages will _not_ be available via system modules due to their specialized nature; you
+supercomputing environments, most of these packages will *not* be available via system modules due to their specialized nature; you
 will need to install them via ``pip``, ``uv``, or individual manual installation.
 
 On a Linux systems, such as Ubuntu or Fedora, installation of these Python modules is easily accomplished by using your
