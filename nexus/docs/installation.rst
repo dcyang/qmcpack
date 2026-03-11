@@ -11,10 +11,6 @@ to development or (currently) if any scripts/"binaries" are needed. Administrati
 Note that while many supercomputer systems have an outdated system Python, a recent Python version is usually provided via a
 loadable module: check the local documentation or discuss with your system administrators to find the simplest installation route.
 
-.. important::
-    Currently, Nexus is not packaged with any scripts (``qmca``, ``nxs-test``, etc.), so users who wish to use those will need to proceed
-    via the instructions in the section on :ref:`manual_install`. An updated version will soon address this.
-
 .. contents::
 
 Installation using ``pip``
