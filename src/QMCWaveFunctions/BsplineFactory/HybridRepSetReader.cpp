@@ -156,7 +156,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
     hdf_archive h5f(myComm);
     const auto splinefile = getSplineDumpFileName(bandgroup);
     h5f.open(splinefile, H5F_ACC_RDONLY);
-    foundspline = SplineUtils<DataType>::read(*bspline->SplineInst, h5f) && bspline->read_atomic_splines(h5f);
+    foundspline = SplineUtils<DataType>::read(*bspline->SplineInst, h5f) && hybrid_center_orbs.read_atomic_splines(h5f);
     if (foundspline)
       app_log() << "  Successfully restored 3D B-spline coefficients from " << splinefile << ". The reading time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -178,7 +178,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
       int sizeD = sizeof(DataType);
       h5f.write(sizeD, "sizeof");
       SplineUtils<DataType>::write(*bspline->SplineInst, h5f);
-      bspline->write_atomic_splines(h5f);
+      hybrid_center_orbs.write_atomic_splines(h5f);
       h5f.close();
       app_log() << "  Stored spline coefficients in " << splinefile << " for potential reuse. The writing time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -188,6 +188,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
   {
     Timer now;
     SplineUtils<DataType>::bcast(*bspline->SplineInst, *myComm);
+    hybrid_center_orbs.bcast_atomic_tables(myComm);
     app_log() << "  Time to bcast the table = " << now.elapsed() << std::endl;
   }
   return bspline;
