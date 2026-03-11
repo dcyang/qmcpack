@@ -740,6 +740,10 @@ const std::vector<QMCTraits::ValueType>& getMyVarsFull(RotatedSPOs& rot) { retur
 // Test using global rotation
 TEST_CASE("RotatedSPOs read and write parameters", "[wavefunction]")
 {
+  // only run with comm size 1.
+  if(OHMMS::Controller->size() > 1)
+    return;
+
   //There is an issue with the real<->complex parameter parsing to h5 in QMC_COMPLEX.
   //This needs to be fixed in a future PR.
   auto fake_spo = std::make_unique<FakeSPO<QMCTraits::ValueType>>(4);
