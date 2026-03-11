@@ -3,64 +3,103 @@
 Nexus Installation
 ==================
 
-Installation of Nexus can be accomplished in two ways, either through a package manager or through manual cloning of the QMCPACK repository and setting of an environment variable.
+Nexus is very flexible in installation method, including via a package manager or through manual cloning of the QMCPACK repository
+and setting of an environment variable. Package manager-based installation eases installation of dependencies, including Python
+itself, as well as interoperability with other Python-based software. The environment variable route is particularly suited to
+development or (currently) if any scripts/"binaries" are needed. Administrative privileges are not in general required.
 
-Each section below talks about the related upsides and downsides, however for those who are not actively developing Nexus or QMCPACK, it is recommended to use a package manager.
+Note that while many supercomputer systems have an outdated system Python, a recent Python version is usually provided via a
+loadable module: check the local documentation or discuss with your system administrators for their preferred route.
 
 .. important::
-    Currently Nexus is not packaged with any scripts (``qmca``, ``nxs-test``, etc.), so users who wish to use those will need to proceed via the instructions in the section on :ref:`manual_install`. This feature will potentially be included in future versions of the package.
+    Currently, Nexus is not packaged with any scripts (``qmca``, ``nxs-test``, etc.), so users who wish to use those will need to proceed
+    via the instructions in the section on :ref:`manual_install`. An updated version will soon address this.
 
 .. contents::
 
-.. _ via a single download from ``qmcpack.org``
+Installation using ``pip``
+--------------------------
 
-Installation with ``pip`` or ``uv``
------------------------------------
+This simple installation method can install Nexus and all of its dependencies provided that the underlying Python version is new
+enough.  With sufficient privileges you can perform a system-wide installation. Alternatively, a user-level only installation does
+not require any elevated privileges.
 
-1) ``pip``
-^^^^^^^^^^
+System-wide installation: If you are working on a system where you have privileges (e.g. a personal laptop), installing Nexus
+globally via ``pip`` may be the preferred route. This route can also be appropriate within a container. (Use the virtual environment
+route described below if you do not have privileges or if you wish to create a user-level or project-specific installation). Note
+that installing via ``pip`` requires at least ``pip`` version 10.0.0 or above. Older versions can be upgraded with the command
+``python3 -m pip install -U pip``.
 
-.. note::
-    Installing via ``pip`` requires at least ``pip`` version 10.0.0 or above. Older versions can be upgraded with the command ``python3 -m pip install -U pip``.
-
-If you are working in a system where you can manage your own Python environment (e.g. a workstation or personal laptop), installing Nexus via ``pip`` is simple. Running the command (prepending ``python3 -m`` if necessary)
-
-.. code-block:: bash
-
-    > pip install "nexus@git+https://github.com/QMCPACK/qmcpack.git@main#subdirectory=nexus"
-
-will install Nexus with ``numpy`` as the only dependency. This is required for Nexus to function, however should the user want to take full advantage of Nexus's capabilities, we offer a set of optional dependencies. These include ``scipy``, ``h5py``, ``matplotlib``, ``spglib``, ``cif2cell``, ``pydot``, and ``seekpath``. A complete install command would look like this
-
-.. code-block:: bash
-
-    > pip install "nexus[full]@git+https://github.com/QMCPACK/qmcpack.git@main#subdirectory=nexus"
-
-If you do not want to install all of the dependencies, you can do so with ``pip``, in the same manner as shown in :ref:`manual_install`.
+The following will result in a system-wide installation: (prepending ``python3 -m`` if necessary)
 
 .. caution::
-    This method of installation is not recommended for those who wish to customize Nexus for a specific project as ``pip`` will default to installing Nexus to your main Python environment and thus any changes made to the source code there will affect all projects that use it. 
-    
-    Additionally, if you have an existing Nexus installation that has modified your ``$PYTHONPATH`` environment variable then that existing installation will override a version installed by ``pip``.
-
-1) ``uv``
-^^^^^^^^^
-
-.. note::
-    If you are not able to install software on the machine you are working in, please skip to :ref:`manual_install`.
-
-If you are working in a system where you can not modify the global Python installation, the standard practice is to use a virtual environment. A common choice is ``uv``, which can be installed by following the instructions `here <https://docs.astral.sh/uv/getting-started/installation/>`__. With ``uv`` installed, you can create a virtual environment with the command
+    This method of installation is not recommended for those who wish to customize Nexus for a specific project, or need to keep different
+    versions of Nexus available, because all Nexus projects will potentially see this system-wide version. 
 
 .. code-block:: bash
 
-    > uv venv .venv
+    pip install "nexus@git+https://github.com/QMCPACK/qmcpack.git@main#subdirectory=nexus"
 
-which will create a virtual environment in the current directory inside a directory called ``.venv``. Following this, you can simply prepend ``uv`` to the installation command,
+will install Nexus with ``numpy`` as the only dependency. This is the only required dependency. To take full advantage of Nexus's
+capabilities, optional dependencies include ``scipy``, ``h5py``, ``matplotlib``, ``spglib``, ``cif2cell``,
+``pydot``, and ``seekpath``. A complete install command would look like this
 
 .. code-block:: bash
 
-    > uv pip install "nexus@git+https://github.com/QMCPACK/qmcpack.git@main#subdirectory=nexus"
+    pip install "nexus[full]@git+https://github.com/QMCPACK/qmcpack.git@main#subdirectory=nexus"
 
-which will install Nexus to your current virtual environment. Note that when using ``uv`` as a package manager, your Python scripts should use a modified `shebang <https://en.wikipedia.org/wiki/Shebang_(Unix)>`__ that tells it to use ``uv`` to run it. For example, on a local machine, the shebang would look like
+If you wish to install a subset of the optional dependencies, you can do so with ``pip`` in the same manner as shown in
+:ref:`manual_install`.
+
+Note that any versions of Nexus found via the ``$PYTHONPATH`` environment variable will take precedence over a ``pip`` installed
+version.
+
+To install Nexus only for yourself ("user level installation") we recommend creating a virtual environment. Packages installed via
+this route do not affect the global/system Python installation and can also be varied on a per-project basis. No privileges are
+needed for this route.
+
+.. code-block:: bash
+
+    cd $HOME/somewhere # Choose a memorable directory to create the environment
+    python3 -m venv nexusenv
+    source nexusenv/bin/activate
+    pip install --upgrade pip # Optional unless pip is outdated
+    pip install "nexus@git+https://github.com/QMCPACK/qmcpack.git@main#subdirectory=nexus"
+
+To subsequently use the environment:
+
+.. code-block:: bash
+
+    cd $HOME/somewhere # Wherever you created the environment
+    source nexusenv/bin/activate
+
+
+Installation using the ``uv`` package manager
+---------------------------------------------
+
+``uv`` is a recently developed Python package and project manager. Under nearly all circumstances it can install Nexus and all of
+its dependencies, with no other requirement. Importantly, besides being significantly faster than ``pip``, it can be installed by a
+standard user without any administrative privileges. Unlike ``pip``, it is also able to install specific versions of Python itself,
+making it a solution for systems with outdated Python installations. If you are not familiar with ``uv``, see the latest getting
+started and installation guide at https://docs.astral.sh/uv/ . ``uv`` can in general be installed with a single line. 
+
+Standard practice is to use a virtual environment.  Once ``uv`` is installed, you can create a virtual environment with the command
+
+.. code-block:: bash
+
+    uv venv .venv
+
+which will create a virtual environment in the current directory inside a directory called ``.venv``. Following this, you can simply
+prepend ``uv`` to the installation command,
+
+.. code-block:: bash
+
+    uv pip install "nexus@git+https://github.com/QMCPACK/qmcpack.git@main#subdirectory=nexus"
+
+which will install Nexus to your current virtual environment. 
+
+Note that when using ``uv`` as a package manager, your Python scripts can optionally use a modified `shebang
+<https://en.wikipedia.org/wiki/Shebang_(Unix)>`__ that tells it to use ``uv`` to run it. For example
 
 .. code-block:: rest
 
@@ -72,7 +111,9 @@ Additionally, you can use ``uv`` to automatically set the dependencies of a scri
 
     uv add --script <script_name>.py "nexus@git+https://github.com/QMCPACK/qmcpack.git@main#subdirectory=nexus"
 
-This adds a piece of `Inline Script Metadata <https://packaging.python.org/en/latest/specifications/inline-script-metadata/>`__ to the top of your file that specifies two main things, first the Python version, and second the dependencies of the script. For Nexus this looks something like:
+This adds a piece of `Inline Script Metadata <https://packaging.python.org/en/latest/specifications/inline-script-metadata/>`__ to
+the top of your file that specifies two main things, first the Python version, and second the dependencies of the script. For Nexus
+this looks something like:
 
 .. code-block:: python
 
@@ -86,13 +127,13 @@ This adds a piece of `Inline Script Metadata <https://packaging.python.org/en/la
     # nexus = { git = "https://github.com/QMCPACK/qmcpack.git", subdirectory = "nexus", rev "main" }
     # ///
 
-This metadata ensures that ``uv`` can find the required dependencies for your project and will ensure that they are loaded at runtime. This inline metadata will not exclude the script from being run directly with Python (e.g. ``python <script_name>.py``), and so can be thought of simply as extra documentation for your scripts if you so choose.
+This metadata ensures that ``uv`` can find the required dependencies for your project and will ensure that they are loaded at
+runtime. This inline metadata will not exclude the script from being run directly with Python (e.g. ``python <script_name>.py``),
+and so can be thought of simply as extra documentation for your scripts. This can help when exchanging scripts with other users but
+is completely optional.
 
 .. tip::
-    You can use ``uv`` to add any additional dependencies you desire, however any dependencies installed with Nexus (e.g. ``numpy``) will already be installed if you have Nexus added to the script, so there is no need to add them again.
-
-.. note::
-    If you want to customize Nexus for a specific project but do not want to continually download QMCPACK, this option will create a version of Nexus that is local to each virtual environment, so you can modify it without fear of altering other virtual environments. Importantly however, this has two caveats, the first being that this installation method does indeed create duplicates of Nexus in each virtual environment (though this is a minimal side effect, as the entirety of Nexus is only a handful of megabytes in size), and secondly that there is no version tracking in a ``uv`` installation, so any changes made will not be tracked via ``git``.
+    As with ``pip``, you can use ``uv`` to add any additional dependencies or packages you desire.
 
 .. _manual_install:
 
@@ -100,26 +141,25 @@ Manual Installation of Nexus
 ----------------------------
 
 .. warning::
-    This method of installing Nexus can lead to undefined behavior! For example, if you wish to update your Nexus installation, then you must make sure that your ``.bashrc`` file is updated to point at the correct path, otherwise you will still be using the previous version of Nexus. Installation via this route will also supersede existing installations of Nexus via ``pip`` or ``uv``.
+    Although very simple, this method requires you maintain a consistent Python environment and environment variables. Be sure to
+    consistently point Python at the version of Nexus that you intend.
     
-    Additionally, due to the method `by which Python searches for modules <https://docs.python.org/3/library/sys_path_init.html>`__, you can get situations where another Python script in the same directory as your current script will override Nexus's modules. This problem is largely mitigated by `PR #5700 <https://github.com/QMCPACK/qmcpack/pull/5700>`__ which changed Nexus's import method to behave more like a Python package, however not all edge cases have been tested. 
-    
-    If you encounter unusual behavior, please open an issue at `the QMCPACK GitHub page <https://github.com/QMCPACK/qmcpack>`__.
+Installing Nexus via this method requires downloading a QMCPACK release or cloning the `QMCPACK repository <https://github.com/QMCPACK/qmcpack>`__.
 
-Installing Nexus via this method requires downloading/cloning the `QMCPACK repository <https://github.com/QMCPACK/qmcpack>`__.
-
-To make your Python installation (must be Python 3.x, 2.x is no longer supported) aware of Nexus, simply set the ``PYTHONPATH`` environment variable.  For example, in bash this would look like:
+To make your Python installation aware of Nexus, simply set the ``PYTHONPATH`` environment variable to include the topmost nexus
+directory.  For example, in bash this would look like:
 
 .. code-block:: bash
 
     export PYTHONPATH=/your_download_path/nexus:$PYTHONPATH
 
-Add this to, *e.g.*, your ``.bashrc`` file to make Nexus available in future sessions.
+Optionally add this to, *e.g.*, your ``.bashrc`` file to make Nexus available in future sessions. Be sure to specify the topmost
+nexus directory, not the lower nexus directory ``/your_download_path/nexus/nexus``.
 
 .. note::
     If your shell does not use ``export`` for environment variables, you will need to adapt the provided command for use with your shell. For example, the ``fish`` shell would need a command that looks like ``set -gx PYTHONPATH /your_download_path/nexus``.
 
-If you want to use Nexus's command line tools, add them to your path:
+If you want to use Nexus's command line tools, add them to your PATH:
 
 .. code-block:: bash
 
@@ -138,11 +178,17 @@ If you want the Nexus binaries to reside a location different than ``/your_downl
     /your_download_path/nexus/install /some/other/location
 
 Installing Python dependencies
-------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In addition to the standard Python installation, the ``numpy`` module must be installed for Nexus to function at a basic level. To realize the full range of functionality available, it is recommended that the ``scipy``, ``matplotlib``, ``h5py``, ``pydot``, ``spglib``, ``pycifrw``, ``cif2cell`` and ``seekpath`` modules be installed as well. Many of these packages are already available in various supercomputing environments.
+When manually installing Nexus, must also install the Python dependencies. The ``numpy`` module must be installed for Nexus to
+function at a basic level. To realize the full range of functionality available, it is recommended that the ``scipy``,
+``matplotlib``, ``h5py``, ``pydot``, ``spglib``, ``pycifrw``, ``cif2cell`` and ``seekpath`` modules be installed as well. In
+supercomputing environments, most of these packages will _not_ be available via system modules due to their specialized nature; you
+will need to install them via ``pip``, ``uv``, or individual manual installation.
 
-On a Linux systems, such as Ubuntu or Fedora, installation of these Python modules is easily accomplished by using your distribution's package manager (e.g. ``apt`` for Debian-based systems like Ubuntu). For example, here is how one may install some of the packages with ``apt``:
+On a Linux systems, such as Ubuntu or Fedora, installation of these Python modules is easily accomplished by using your
+distribution's package manager (e.g. ``apt`` for Debian-based systems like Ubuntu). For example, here is how one may install some of
+the packages with ``apt``:
 
 .. code-block:: bash
 
@@ -151,9 +197,9 @@ On a Linux systems, such as Ubuntu or Fedora, installation of these Python modul
     sudo apt install python3-pydot
     sudo apt install python3-pip
 
-Other Linux systems often come with their own package managers (such as ``dnf`` for Fedora), and can often be used as drop-in replacements for ``apt``.
+Simple substitutions will be needed on distributions with different package managers (e.g. ``dnf``).
 
-To install the Python modules on other platforms (as well as those not available via your package manager), try ``pip`` or ``pip3``:
+If you do not have privileges, you can perform a user level installation via ``pip``
 
 .. code-block:: bash
 
@@ -170,7 +216,8 @@ To install the Python modules on other platforms (as well as those not available
 .. note::
     ``PyCifRW`` is a dependency of ``cif2cell``, thus if you install ``cif2cell`` you will already have ``PyCifRW`` installed as well.
 
-While Nexus does not have strict version requirements, most recent dependency versions that have been tested and are known to work can be found at ``qmcpack/nexus/requirements.txt``. These specific library versions can be installed using the following command:
+While Nexus does not have strict version requirements, most recent dependency versions that have been tested and are known to work
+can be found at ``qmcpack/nexus/requirements.txt``. These specific library versions can be installed using the following command:
 
 .. code-block:: bash
 
@@ -207,13 +254,10 @@ The purpose of each library is described below:
 ``seekpath`` 
     Used to find high symmetry lines in reciprocal space for excited state calculations with QMCPACK.
 
-Of course, to run full calculations, the simulation codes and converters
-involved must be installed as well. These include a modified version of
-Quantum ESPRESSO (``pw.x``, ``pw2qmcpack.x``, optionally
-``pw2casino.x``), QMCPACK (``qmcpack``, ``qmcpack_complex``,
-``convert4qmc``, ``wfconvert``, ``ppconvert``), SQD (``sqd``, packaged
-with QMCPACK), VASP, and/or GAMESS. Complete coverage of this task is
-beyond the scope of the current document, but please see :ref:`install-code`.
+Of course, to run full calculations, the simulation codes and converters involved must be installed as well. These include a patched
+version of Quantum ESPRESSO (``pw.x``, ``pw2qmcpack.x``, optionally ``pw2casino.x``), QMCPACK (``qmcpack``, ``qmcpack_complex``,
+``convert4qmc``, ``wfconvert``, ``ppconvert``), SQD (``sqd``, packaged with QMCPACK), VASP, and/or GAMESS. Complete coverage of this
+task is beyond the scope of the current document, but please see :ref:`install-code`.
 
 Testing your Nexus installation
 -------------------------------
