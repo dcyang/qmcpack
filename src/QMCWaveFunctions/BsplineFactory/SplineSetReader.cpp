@@ -59,17 +59,18 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
   set_grid(mybuilder->MeshSize, half_g, xyz_grid, xyz_bc);
 
   const size_t num_splines = getAlignedSize<ST>(use_duplex_splines_ ? N * 2 : N);
-  std::unique_ptr<MultiBsplineBase<ST>> multi_splines;
+  std::unique_ptr<MultiBsplineBase<ST>> multi_splines_ptr;
   if (use_offload)
-    multi_splines = std::make_unique<MultiBsplineOffload<ST>>(xyz_grid, xyz_bc, num_splines);
+    multi_splines_ptr = std::make_unique<MultiBsplineOffload<ST>>(xyz_grid, xyz_bc, num_splines);
   else
-    multi_splines = std::make_unique<MultiBspline<ST>>(xyz_grid, xyz_bc, num_splines);
+    multi_splines_ptr = std::make_unique<MultiBspline<ST>>(xyz_grid, xyz_bc, num_splines);
 
-  app_log() << "MEMORY " << multi_splines->sizeInByte() / (1 << 20) << " MB allocated "
+  auto& multi_splines(*multi_splines_ptr);
+  app_log() << "MEMORY " << multi_splines.sizeInByte() / (1 << 20) << " MB allocated "
             << "for the coefficients in 3D spline orbital representation" << std::endl;
 
   auto bspline =
-      std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, std::move(multi_splines), use_offload);
+      std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, std::move(multi_splines_ptr), use_offload);
 
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
 
@@ -83,14 +84,14 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
     check_twists(*bspline, bandgroup);
   }
 
-  bool foundspline = lookforSplineDataDumpFile(bandgroup, *bspline);
+  bool foundspline = lookforSplineDataDumpFile(bandgroup, bspline->getKeyword(), sizeof(ST));
   if (foundspline && myComm->rank() == 0)
   {
     Timer now;
     hdf_archive h5f(myComm);
     const auto splinefile = getSplineDumpFileName(bandgroup);
     h5f.open(splinefile, H5F_ACC_RDONLY);
-    foundspline = SplineUtils<typename SA::DataType>::read(*bspline->SplineInst, h5f);
+    foundspline = SplineUtils<typename SA::DataType>::read(multi_splines, h5f);
     if (foundspline)
       app_log() << "  Successfully restored 3D B-spline coefficients from " << splinefile << ". The reading time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -98,7 +99,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
 
   if (!foundspline)
   {
-    bspline->SplineInst->flush_zero();
+    multi_splines.flush_zero();
 
     Timer now;
     initialize_spline_pio_gather(spin, bandgroup, *bspline);
@@ -114,7 +115,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
       h5f.write(classname, "class_name");
       int sizeD = sizeof(typename SA::DataType);
       h5f.write(sizeD, "sizeof");
-      SplineUtils<typename SA::DataType>::write(*bspline->SplineInst, h5f);
+      SplineUtils<typename SA::DataType>::write(multi_splines, h5f);
       h5f.close();
       app_log() << "  Stored spline coefficients in " << splinefile << " for potential reuse. The writing time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -124,7 +125,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
   {
     myComm->barrier();
     Timer now;
-    SplineUtils<typename SA::DataType>::bcast(*bspline->SplineInst, *myComm);
+    SplineUtils<typename SA::DataType>::bcast(multi_splines, *myComm);
     app_log() << "  Time to bcast the table = " << now.elapsed() << std::endl;
   }
 
@@ -132,7 +133,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
 }
 
 template<typename SA>
-bool SplineSetReader<SA>::lookforSplineDataDumpFile(const BandInfoGroup& bandgroup, SA& bspline) const
+bool SplineSetReader<SA>::lookforSplineDataDumpFile(const BandInfoGroup& bandgroup, const std::string& keyword, size_t datatype_size) const
 {
   int foundspline = 0;
   Timer now;
@@ -145,13 +146,13 @@ bool SplineSetReader<SA>::lookforSplineDataDumpFile(const BandInfoGroup& bandgro
     {
       std::string aname("none");
       foundspline = h5f.readEntry(aname, "class_name");
-      foundspline = (aname.find(bspline.getKeyword()) != std::string::npos);
+      foundspline = (aname.find(keyword) != std::string::npos);
     }
     if (foundspline)
     {
       int sizeD   = 0;
       foundspline = h5f.readEntry(sizeD, "sizeof");
-      foundspline = (sizeD == sizeof(typename SA::DataType));
+      foundspline = (sizeD == datatype_size);
     }
     h5f.close();
   }

@@ -161,16 +161,17 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
   set_grid(mybuilder->MeshSize, half_g, xyz_grid, xyz_bc);
 
   const size_t num_splines = getAlignedSize<ST>(use_duplex_splines_ ? N * 2 : N);
-  std::unique_ptr<MultiBsplineBase<ST>> multi_splines;
+  std::unique_ptr<MultiBsplineBase<ST>> multi_splines_ptr;
   if (use_offload)
-    multi_splines = std::make_unique<MultiBsplineOffload<ST>>(xyz_grid, xyz_bc, num_splines);
+    multi_splines_ptr = std::make_unique<MultiBsplineOffload<ST>>(xyz_grid, xyz_bc, num_splines);
   else
-    multi_splines = std::make_unique<MultiBspline<ST>>(xyz_grid, xyz_bc, num_splines);
+    multi_splines_ptr = std::make_unique<MultiBspline<ST>>(xyz_grid, xyz_bc, num_splines);
 
-  app_log() << "MEMORY " << multi_splines->sizeInByte() / (1 << 20) << " MB allocated "
+  auto& multi_splines(*multi_splines_ptr);
+  app_log() << "MEMORY " << multi_splines.sizeInByte() / (1 << 20) << " MB allocated "
             << "for the coefficients in 3D spline orbital representation" << std::endl;
 
-  auto bspline = std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, std::move(multi_splines));
+  auto bspline = std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, std::move(multi_splines_ptr));
 
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
 
@@ -186,7 +187,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
   // set info for Hybrid
   typename SA::HYBRIDBASE& hybrid_center_orbs = *bspline;
   initialize_hybridrep_atomic_centers(hybrid_center_orbs);
-  bool foundspline = spline_reader_.lookforSplineDataDumpFile(bandgroup, *bspline);
+  bool foundspline = spline_reader_.lookforSplineDataDumpFile(bandgroup, bspline->getKeyword(), sizeof(ST));
   hybrid_center_orbs.resizeStorage(bspline->myV.size());
   if (foundspline && myComm->rank() == 0)
   {
@@ -194,7 +195,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
     hdf_archive h5f(myComm);
     const auto splinefile = getSplineDumpFileName(bandgroup);
     h5f.open(splinefile, H5F_ACC_RDONLY);
-    foundspline = SplineUtils<DataType>::read(*bspline->SplineInst, h5f) && hybrid_center_orbs.read_atomic_splines(h5f);
+    foundspline = SplineUtils<DataType>::read(multi_splines, h5f) && hybrid_center_orbs.read_atomic_splines(h5f);
     if (foundspline)
       app_log() << "  Successfully restored 3D B-spline coefficients from " << splinefile << ". The reading time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -202,6 +203,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
 
   if (!foundspline)
   {
+    multi_splines.flush_zero();
     hybrid_center_orbs.flush_zero();
     initialize_hybrid_pio_gather(spin, bandgroup, *bspline);
 
@@ -215,7 +217,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
       h5f.write(classname, "class_name");
       int sizeD = sizeof(DataType);
       h5f.write(sizeD, "sizeof");
-      SplineUtils<DataType>::write(*bspline->SplineInst, h5f);
+      SplineUtils<DataType>::write(multi_splines, h5f);
       hybrid_center_orbs.write_atomic_splines(h5f);
       h5f.close();
       app_log() << "  Stored spline coefficients in " << splinefile << " for potential reuse. The writing time is "
@@ -225,7 +227,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
 
   {
     Timer now;
-    SplineUtils<DataType>::bcast(*bspline->SplineInst, *myComm);
+    SplineUtils<DataType>::bcast(multi_splines, *myComm);
     hybrid_center_orbs.bcast_atomic_tables(myComm);
     app_log() << "  Time to bcast the table = " << now.elapsed() << std::endl;
   }
