@@ -19,6 +19,7 @@
 #ifndef QMCPLUSPLUS_MULTIEINSPLINEBASE_HPP
 #define QMCPLUSPLUS_MULTIEINSPLINEBASE_HPP
 
+#include <array>
 #include "spline2/bspline_traits.hpp"
 
 namespace qmcplusplus
