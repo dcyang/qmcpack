@@ -175,7 +175,8 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
 
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
 
-  bspline->SplineBase::resizeStorage(N);
+  typename SA::SplineBase& bspline_3d(*bspline);
+  bspline_3d.resizeStorage(N);
 
   bspline->HalfG = half_g;
   if (use_duplex_splines_)
