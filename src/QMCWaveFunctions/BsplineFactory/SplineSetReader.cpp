@@ -29,20 +29,21 @@
 #endif
 #include "Message/CommOperators.h"
 #include "spline2/SplineUtils.h"
+#include "spline2/MultiBsplineBase.hpp"
+
 
 namespace qmcplusplus
 {
-template<typename SA>
-SplineSetReader<SA>::SplineSetReader(EinsplineSetBuilder* e, bool use_duplex_splines)
+template<typename ST>
+SplineSetReader<ST>::SplineSetReader(EinsplineSetBuilder* e, bool use_duplex_splines)
     : BsplineReader(e, use_duplex_splines)
 {}
 
-template<typename SA>
-std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string& my_name,
+template<typename ST>
+std::unique_ptr<SPOSet> SplineSetReader<ST>::create_spline_set(const std::string& my_name,
                                                                int spin,
                                                                const BandInfoGroup& bandgroup)
 {
-  using ST    = typename SA::DataType;
   const int N = bandgroup.getNumDistinctOrbitals();
 
   if (use_duplex_splines_)
@@ -55,7 +56,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
                      bandgroup.myBands[0].TwistIndex);
 
   Ugrid xyz_grid[3];
-  typename SA::BCType xyz_bc[3];
+  typename bspline_traits<ST, 3>::BCType xyz_bc[3];
   set_grid(mybuilder->MeshSize, half_g, xyz_grid, xyz_bc);
 
   const size_t num_splines = getAlignedSize<ST>(use_duplex_splines_ ? N * 2 : N);
@@ -69,8 +70,28 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
   app_log() << "MEMORY " << multi_splines.sizeInByte() / (1 << 20) << " MB allocated "
             << "for the coefficients in 3D spline orbital representation" << std::endl;
 
-  auto bspline =
-      std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, std::move(multi_splines_ptr), use_offload);
+  std::unique_ptr<BsplineSet> bspline;
+#if defined(QMC_COMPLEX)
+  if (use_offload)
+    bspline = std::make_unique<SplineC2COMPTarget<ST>>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                                       std::move(multi_splines_ptr), use_offload);
+  else
+    bspline = std::make_unique<SplineC2C<ST>>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                              std::move(multi_splines_ptr), use_offload);
+#else
+  if (use_duplex_splines_)
+  {
+    if (use_offload)
+      bspline = std::make_unique<SplineC2ROMPTarget<ST>>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                                         std::move(multi_splines_ptr), use_offload);
+    else
+      bspline = std::make_unique<SplineC2R<ST>>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                                std::move(multi_splines_ptr), use_offload);
+  }
+  else
+    bspline = std::make_unique<SplineR2R<ST>>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                              std::move(multi_splines_ptr), use_offload);
+#endif
 
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
 
@@ -91,7 +112,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
     hdf_archive h5f(myComm);
     const auto splinefile = getSplineDumpFileName(bandgroup);
     h5f.open(splinefile, H5F_ACC_RDONLY);
-    foundspline = SplineUtils<typename SA::DataType>::read(multi_splines, h5f);
+    foundspline = SplineUtils<ST>::read(multi_splines, h5f);
     if (foundspline)
       app_log() << "  Successfully restored 3D B-spline coefficients from " << splinefile << ". The reading time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -102,7 +123,7 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
     multi_splines.flush_zero();
 
     Timer now;
-    initialize_spline_pio_gather(spin, bandgroup, *bspline);
+    initialize_spline_pio_gather(spin, bandgroup, half_g, bspline->BandIndexMap, multi_splines);
     app_log() << "  SplineSetReader initialize_spline_pio " << now.elapsed() << " sec" << std::endl;
 
     if (saveSplineCoefs && myComm->rank() == 0)
@@ -113,9 +134,9 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
       h5f.create(splinefile);
       std::string classname = bspline->getClassName();
       h5f.write(classname, "class_name");
-      int sizeD = sizeof(typename SA::DataType);
+      int sizeD = sizeof(ST);
       h5f.write(sizeD, "sizeof");
-      SplineUtils<typename SA::DataType>::write(multi_splines, h5f);
+      SplineUtils<ST>::write(multi_splines, h5f);
       h5f.close();
       app_log() << "  Stored spline coefficients in " << splinefile << " for potential reuse. The writing time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -125,15 +146,17 @@ std::unique_ptr<SPOSet> SplineSetReader<SA>::create_spline_set(const std::string
   {
     myComm->barrier();
     Timer now;
-    SplineUtils<typename SA::DataType>::bcast(multi_splines, *myComm);
+    SplineUtils<ST>::bcast(multi_splines, *myComm);
     app_log() << "  Time to bcast the table = " << now.elapsed() << std::endl;
   }
 
   return bspline;
 }
 
-template<typename SA>
-bool SplineSetReader<SA>::lookforSplineDataDumpFile(const BandInfoGroup& bandgroup, const std::string& keyword, size_t datatype_size) const
+template<typename ST>
+bool SplineSetReader<ST>::lookforSplineDataDumpFile(const BandInfoGroup& bandgroup,
+                                                    const std::string& keyword,
+                                                    size_t datatype_size) const
 {
   int foundspline = 0;
   Timer now;
@@ -160,8 +183,8 @@ bool SplineSetReader<SA>::lookforSplineDataDumpFile(const BandInfoGroup& bandgro
   return foundspline;
 }
 
-template<typename SA>
-void SplineSetReader<SA>::readOneOrbitalCoefs(const std::string& s,
+template<typename ST>
+void SplineSetReader<ST>::readOneOrbitalCoefs(const std::string& s,
                                               hdf_archive& h5f,
                                               Vector<std::complex<double>>& cG) const
 {
@@ -184,10 +207,12 @@ void SplineSetReader<SA>::readOneOrbitalCoefs(const std::string& s,
   }
 }
 
-template<typename SA>
-void SplineSetReader<SA>::initialize_spline_pio_gather(const int spin,
+template<typename ST>
+void SplineSetReader<ST>::initialize_spline_pio_gather(const int spin,
                                                        const BandInfoGroup& bandgroup,
-                                                       SA& bspline) const
+                                                       const TinyVector<int, 3>& half_g,
+                                                       const aligned_vector<int>& band_index_map,
+                                                       MultiBsplineBase<ST>& multi_splines) const
 {
   //distribute bands over processor groups
   int Nbands            = bandgroup.getNumDistinctOrbitals();
@@ -200,7 +225,7 @@ void SplineSetReader<SA>::initialize_spline_pio_gather(const int spin,
   int iorb_last  = band_groups[band_group_comm.getGroupID() + 1];
 
   app_log() << "Start transforming plane waves to 3D B-Splines." << std::endl;
-  OneSplineOrbData oneband(mybuilder->MeshSize, bspline.HalfG, use_duplex_splines_);
+  OneSplineOrbData oneband(mybuilder->MeshSize, half_g, use_duplex_splines_);
   hdf_archive h5f(&band_group_comm, false);
   Vector<std::complex<double>> cG(mybuilder->Gvecs[0].size());
   const std::vector<BandInfo>& cur_bands = bandgroup.myBands;
@@ -209,11 +234,17 @@ void SplineSetReader<SA>::initialize_spline_pio_gather(const int spin,
     h5f.open(mybuilder->H5FileName, H5F_ACC_RDONLY);
     for (int iorb = iorb_first; iorb < iorb_last; iorb++)
     {
-      const auto& cur_band = cur_bands[bspline.BandIndexMap[iorb]];
+      const auto& cur_band = cur_bands[band_index_map[iorb]];
       const int ti         = cur_band.TwistIndex;
       readOneOrbitalCoefs(psi_g_path(ti, spin, cur_band.BandIndex), h5f, cG);
       oneband.fft_spline(cG, mybuilder->Gvecs[0], mybuilder->primcell_kpoints[ti], rotate);
-      bspline.set_spline(&oneband.get_spline_r(), &oneband.get_spline_i(), cur_band.TwistIndex, iorb, 0);
+      if (use_duplex_splines_)
+      {
+        copy_spline<double, ST>(oneband.get_spline_r(), *multi_splines.getSplinePtr(), iorb * 2);
+        copy_spline<double, ST>(oneband.get_spline_i(), *multi_splines.getSplinePtr(), iorb * 2 + 1);
+      }
+      else
+        copy_spline<double, ST>(oneband.get_spline_r(), *multi_splines.getSplinePtr(), iorb);
     }
 
     {
@@ -224,31 +255,17 @@ void SplineSetReader<SA>::initialize_spline_pio_gather(const int spin,
         std::vector<int> offset(band_groups.size());
         for (int i = 0; i < offset.size(); i++)
           offset[i] = band_groups[i] * 2;
-        SplineUtils<typename SA::DataType>::gatherv(*bspline.SplineInst, offset, *band_group_comm.getGroupLeaderComm());
+        SplineUtils<ST>::gatherv(multi_splines, offset, *band_group_comm.getGroupLeaderComm());
       }
       else
-        SplineUtils<typename SA::DataType>::gatherv(*bspline.SplineInst, band_groups,
-                                                    *band_group_comm.getGroupLeaderComm());
+        SplineUtils<ST>::gatherv(multi_splines, band_groups, *band_group_comm.getGroupLeaderComm());
       app_log() << "  Time to gather the table = " << now.elapsed() << std::endl;
     }
   }
 }
 
-#if defined(QMC_COMPLEX)
-template class SplineSetReader<SplineC2C<float>>;
-template class SplineSetReader<SplineC2COMPTarget<float>>;
+template class SplineSetReader<float>;
 #if !defined(QMC_MIXED_PRECISION)
-template class SplineSetReader<SplineC2C<double>>;
-template class SplineSetReader<SplineC2COMPTarget<double>>;
-#endif
-#else
-template class SplineSetReader<SplineC2R<float>>;
-template class SplineSetReader<SplineR2R<float>>;
-template class SplineSetReader<SplineC2ROMPTarget<float>>;
-#if !defined(QMC_MIXED_PRECISION)
-template class SplineSetReader<SplineC2R<double>>;
-template class SplineSetReader<SplineR2R<double>>;
-template class SplineSetReader<SplineC2ROMPTarget<double>>;
-#endif
+template class SplineSetReader<double>;
 #endif
 } // namespace qmcplusplus

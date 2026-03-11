@@ -38,7 +38,7 @@ std::unique_ptr<BsplineReader> createBsplineComplex(EinsplineSetBuilder* e, bool
       aReader = std::make_unique<HybridRepSetReader<HybridRepCplx<SplineC2COMPTarget<ST>>>>(e, true);
     }
     else
-      aReader = std::make_unique<SplineSetReader<SplineC2COMPTarget<ST>>>(e, true);
+      aReader = std::make_unique<SplineSetReader<ST>>(e, true);
   }
   else
   {
@@ -49,7 +49,7 @@ std::unique_ptr<BsplineReader> createBsplineComplex(EinsplineSetBuilder* e, bool
       aReader = std::make_unique<HybridRepSetReader<HybridRepCplx<SplineC2C<ST>>>>(e, true);
     }
     else
-      aReader = std::make_unique<SplineSetReader<SplineC2C<ST>>>(e, true);
+      aReader = std::make_unique<SplineSetReader<ST>>(e, true);
   }
 #else //QMC_COMPLEX
   app_summary() << "    Using real valued spline SPOs with complex " << SplineStoragePrecision<ST>::value
@@ -63,7 +63,7 @@ std::unique_ptr<BsplineReader> createBsplineComplex(EinsplineSetBuilder* e, bool
       aReader = std::make_unique<HybridRepSetReader<HybridRepCplx<SplineC2ROMPTarget<ST>>>>(e, true);
     }
     else
-      aReader = std::make_unique<SplineSetReader<SplineC2ROMPTarget<ST>>>(e, true);
+      aReader = std::make_unique<SplineSetReader<ST>>(e, true);
   }
   else
   {
@@ -74,7 +74,7 @@ std::unique_ptr<BsplineReader> createBsplineComplex(EinsplineSetBuilder* e, bool
       aReader = std::make_unique<HybridRepSetReader<HybridRepCplx<SplineC2R<ST>>>>(e, true);
     }
     else
-      aReader = std::make_unique<SplineSetReader<SplineC2R<ST>>>(e, true);
+      aReader = std::make_unique<SplineSetReader<ST>>(e, true);
   }
 #endif
   return aReader;

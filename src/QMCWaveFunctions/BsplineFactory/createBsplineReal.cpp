@@ -32,7 +32,7 @@ std::unique_ptr<BsplineReader> createBsplineReal(EinsplineSetBuilder* e, bool hy
     aReader = std::make_unique<HybridRepSetReader<HybridRepReal<SplineR2R<ST>>>>(e, false);
   }
   else
-    aReader = std::make_unique<SplineSetReader<SplineR2R<ST>>>(e, false);
+    aReader = std::make_unique<SplineSetReader<ST>>(e, false);
   return aReader;
 }
 
