@@ -12,9 +12,8 @@ Note that while many supercomputer systems have an outdated system Python, a rec
 loadable module: check the local documentation or discuss with your system administrators to find the simplest installation route.
 
 .. important::
-    Currently, Nexus is not packaged with any scripts (``qmca``, ``nxs-test``, etc.), so users who wish to use those will need to proceed
-    via the instructions in the section on :ref:`manual_install`.
-
+    Currently, Nexus installed via ``pip`` or ``uv`` does not include any scripts (``qmca``, ``nxs-test``, etc.) which are readily available in QMCPACK installations. 
+    Users may install them by following the manual installation method described in :ref:`manual_install`.
 
 .. contents::
 
