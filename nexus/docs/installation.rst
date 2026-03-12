@@ -11,10 +11,6 @@ to development or (currently) if any scripts/"binaries" are needed. Administrati
 Note that while many supercomputer systems have an outdated system Python, a recent Python version is usually provided via a
 loadable module: check the local documentation or discuss with your system administrators to find the simplest installation route.
 
-.. important::
-    Currently, Nexus installed via ``pip`` or ``uv`` does not include any scripts (``qmca``, ``nxs-test``, etc.) which are readily available in QMCPACK installations. 
-    Users may install them by following the manual installation method described in :ref:`manual_install`.
-
 .. contents::
 
 Installation using ``pip``
@@ -54,8 +50,11 @@ To subsequently use the environment:
     cd $HOME/somewhere # Wherever you created the environment
     source nexusenv/bin/activate
 
-Note that any versions of Nexus found via the ``PYTHONPATH`` environment variable will take precedence over a ``pip`` installed
-version.
+Note that any versions of Nexus found via the ``PYTHONPATH`` environment variable will take precedence over a ``pip`` installed version.
+
+.. important::
+    If you install Nexus into a virtual environment, the Nexus executables (e.g. ``qmca``, ``nxs-sim``, etc.) will only be accessible if you have activated that virtual environment.
+
 
 System-wide installation (not recommended in general)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -113,7 +112,6 @@ minimum set of dependencies. You can also install the full set of optional depen
 .. code-block:: bash
 
     uv pip install "nexus[full]@git+https://github.com/QMCPACK/qmcpack.git@main#subdirectory=nexus"
-
 
 Note that when using ``uv`` as a package manager, your Python scripts can optionally use a modified `shebang
 <https://en.wikipedia.org/wiki/Shebang_(Unix)>`__ that tells it to use ``uv`` to run it. For example
