@@ -176,6 +176,22 @@ protected:
     path << "/electrons/kpoint_" << ti << "/spin_" << spin << "/state_" << ib << "/psi_g";
     return path.str();
   }
+
+  /** create data space in the spline object and try open spline dump files.
+   * @param bandgroup band info
+   * @param bspline the spline object being worked on
+   * @return true if dumpfile pass class name and data type size check
+   */
+  bool lookforSplineDataDumpFile(const BandInfoGroup& bandgroup,
+                                 const std::string& keyword,
+                                 size_t datatype_size) const;
+
+  /** read planewave coefficients from h5 file
+   * @param s data set full path in h5
+   * @param h5f hdf5 file handle
+   * @param cG vector to store coefficients
+   */
+  void readOneOrbitalCoefs(const std::string& s, hdf_archive& h5f, Vector<std::complex<double>>& cG) const;
 };
 
 } // namespace qmcplusplus

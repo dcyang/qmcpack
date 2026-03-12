@@ -17,7 +17,6 @@
 #include "SplineSetReader.h"
 #include "OneSplineOrbData.hpp"
 #include "Utilities/FairDivide.h"
-#include "einspline_helper.hpp"
 #include <Timer.h>
 #if defined(QMC_COMPLEX)
 #include "SplineC2C.h"
@@ -151,60 +150,6 @@ std::unique_ptr<SPOSet> SplineSetReader<ST>::create_spline_set(const std::string
   }
 
   return bspline;
-}
-
-template<typename ST>
-bool SplineSetReader<ST>::lookforSplineDataDumpFile(const BandInfoGroup& bandgroup,
-                                                    const std::string& keyword,
-                                                    size_t datatype_size) const
-{
-  int foundspline = 0;
-  Timer now;
-  if (myComm->rank() == 0)
-  {
-    now.restart();
-    hdf_archive h5f(myComm);
-    foundspline = h5f.open(getSplineDumpFileName(bandgroup), H5F_ACC_RDONLY);
-    if (foundspline)
-    {
-      std::string aname("none");
-      foundspline = h5f.readEntry(aname, "class_name");
-      foundspline = (aname.find(keyword) != std::string::npos);
-    }
-    if (foundspline)
-    {
-      int sizeD   = 0;
-      foundspline = h5f.readEntry(sizeD, "sizeof");
-      foundspline = (sizeD == datatype_size);
-    }
-    h5f.close();
-  }
-  myComm->bcast(foundspline);
-  return foundspline;
-}
-
-template<typename ST>
-void SplineSetReader<ST>::readOneOrbitalCoefs(const std::string& s,
-                                              hdf_archive& h5f,
-                                              Vector<std::complex<double>>& cG) const
-{
-  if (!h5f.readEntry(cG, s))
-  {
-    std::ostringstream msg;
-    msg << "SplineSetReader Failed to read band(s) from h5 file. " << "Attempted dataset " << s << " with " << cG.size()
-        << " complex numbers." << std::endl;
-    throw std::runtime_error(msg.str());
-  }
-  double total_norm = compute_norm(cG);
-  if ((checkNorm) && (std::abs(total_norm - 1.0) > PW_COEFF_NORM_TOLERANCE))
-  {
-    std::ostringstream msg;
-    msg << "SplineSetReader The orbital dataset " << s << " has a wrong norm " << total_norm
-        << ", computed from plane wave coefficients!" << std::endl
-        << "This may indicate a problem with the HDF5 library versions used "
-        << "during wavefunction conversion or read." << std::endl;
-    throw std::runtime_error(msg.str());
-  }
 }
 
 template<typename ST>

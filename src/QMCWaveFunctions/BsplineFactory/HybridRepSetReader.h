@@ -19,11 +19,12 @@
 #define QMCPLUSPLUS_HYBRIDREP_READER_H
 
 #include "BsplineReader.h"
-#include "SplineSetReader.h"
-#include "spline2/MultiBsplineBase.hpp"
 
 namespace qmcplusplus
 {
+// forward declaration
+template<typename ST>
+class MultiBsplineBase;
 template<typename ST>
 class HybridRepCenterOrbitals;
 
@@ -32,9 +33,7 @@ class HybridRepCenterOrbitals;
 template<typename ST>
 class HybridRepSetReader : public BsplineReader
 {
-  using SplineReader = SplineSetReader<ST>;
-  using HybridBase   = HybridRepCenterOrbitals<ST>;
-  SplineReader spline_reader_;
+  using HybridBase = HybridRepCenterOrbitals<ST>;
 
   std::unique_ptr<SPOSet> create_spline_set(const std::string& my_name,
                                             int spin,

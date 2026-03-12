@@ -145,7 +145,7 @@ struct Gvectors
 
 template<typename ST>
 HybridRepSetReader<ST>::HybridRepSetReader(EinsplineSetBuilder* e, bool use_duplex_splines)
-    : BsplineReader(e, use_duplex_splines), spline_reader_(e, use_duplex_splines)
+    : BsplineReader(e, use_duplex_splines)
 {}
 
 template<typename ST>
@@ -153,7 +153,6 @@ std::unique_ptr<SPOSet> HybridRepSetReader<ST>::create_spline_set(const std::str
                                                                   int spin,
                                                                   const BandInfoGroup& bandgroup)
 {
-  spline_reader_.setCheckNorm(checkNorm);
   const int N = bandgroup.getNumDistinctOrbitals();
 
   if (use_duplex_splines_)
@@ -240,7 +239,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<ST>::create_spline_set(const std::str
   // set info for Hybrid
   HybridBase& hybrid_center_orbs(hybridrep_ref.value());
   initialize_hybridrep_atomic_centers(hybrid_center_orbs);
-  bool foundspline = spline_reader_.lookforSplineDataDumpFile(bandgroup, bspline->getKeyword(), sizeof(ST));
+  bool foundspline = lookforSplineDataDumpFile(bandgroup, bspline->getKeyword(), sizeof(ST));
   hybrid_center_orbs.resizeStorage(num_splines);
   if (foundspline && myComm->rank() == 0)
   {
@@ -290,8 +289,6 @@ std::unique_ptr<SPOSet> HybridRepSetReader<ST>::create_spline_set(const std::str
 template<typename ST>
 void HybridRepSetReader<ST>::initialize_hybridrep_atomic_centers(HybridBase& bspline) const
 {
-  auto& mybuilder = spline_reader_.mybuilder;
-
   OhmmsAttributeSet a;
   std::string scheme_name("Consistent");
   std::string s_function_name("LEKS2018");
@@ -419,9 +416,8 @@ void HybridRepSetReader<ST>::initialize_hybridrep_atomic_centers(HybridBase& bsp
     }
 
     if (!success)
-      spline_reader_.myComm->barrier_and_abort(
-          "initialize_hybridrep_atomic_centers Failed to initialize atomic centers "
-          "in hybrid orbital representation!");
+      myComm->barrier_and_abort("initialize_hybridrep_atomic_centers Failed to initialize atomic centers "
+                                "in hybrid orbital representation!");
 
     for (int center_idx = 0; center_idx < ACInfo.Ncenters; center_idx++)
     {
@@ -442,7 +438,6 @@ void HybridRepSetReader<ST>::create_atomic_centers_Gspace(const Vector<std::comp
                                                           const TinyVector<int, 3>& half_g,
                                                           HybridBase& multi_atomic_splines) const
 {
-  auto& mybuilder       = spline_reader_.mybuilder;
   double rotate_phase_r = rotate_phase.real();
   double rotate_phase_i = rotate_phase.imag();
 
@@ -716,7 +711,6 @@ void HybridRepSetReader<ST>::initialize_hybrid_pio_gather(const int spin,
                                                           HybridBase& multi_atomic_splines,
                                                           MultiBsplineBase<ST>& multi_splines) const
 {
-  auto& mybuilder = spline_reader_.mybuilder;
   //distribute bands over processor groups
   int Nbands            = bandgroup.getNumDistinctOrbitals();
   const int Nprocs      = myComm->size();
@@ -740,7 +734,7 @@ void HybridRepSetReader<ST>::initialize_hybrid_pio_gather(const int spin,
     {
       const auto& cur_band = cur_bands[band_index_map[iorb]];
       const int ti         = cur_band.TwistIndex;
-      spline_reader_.readOneOrbitalCoefs(psi_g_path(ti, spin, cur_band.BandIndex), h5f, cG);
+      readOneOrbitalCoefs(psi_g_path(ti, spin, cur_band.BandIndex), h5f, cG);
       oneband.fft_spline(cG, mybuilder->Gvecs[0], mybuilder->primcell_kpoints[ti], rotate);
       if (use_duplex_splines_)
       {
