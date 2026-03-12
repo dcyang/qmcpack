@@ -63,7 +63,7 @@ TEST_CASE("EstimatorManagerNew::EstimatorManagerNew(EstimatorManagerInput,...)",
   auto& pset            = *(particle_pool.getParticleSet("e"));
   auto hamiltonian_pool = MinimalHamiltonianPool::make_hamWithEE(comm, particle_pool, wavefunction_pool);
   TrialWaveFunction& twf(wavefunction_pool.getWaveFunction().value());
-  auto& ham = *(hamiltonian_pool.getPrimary());
+  QMCHamiltonian& ham(hamiltonian_pool.getHamiltonian().value());
   EstimatorManagerNew emn(ham, comm);
   emn.constructEstimators(std::move(emi), pset, twf, ham, particle_pool.getPool());
 
@@ -110,7 +110,7 @@ TEST_CASE("EstimatorManagerNew_estimator_naming", "[estimators]")
   auto& pset            = *(particle_pool.getParticleSet("e"));
   auto hamiltonian_pool = MinimalHamiltonianPool::make_hamWithEE(comm, particle_pool, wavefunction_pool);
   TrialWaveFunction& twf(wavefunction_pool.getWaveFunction().value());
-  auto& ham = *(hamiltonian_pool.getPrimary());
+  QMCHamiltonian& ham(hamiltonian_pool.getHamiltonian().value());
   EstimatorManagerNew emn(ham, comm);
   emn.constructEstimators(std::move(emi), pset, twf, ham, particle_pool.getPool());
   EstimatorManagerNewTestAccess emnta(emn);
