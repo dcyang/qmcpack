@@ -182,17 +182,6 @@ If you want to use Nexus's command line tools, add them to your PATH:
 
     export PATH=/your_download_path/nexus/bin:$PATH
 
-Both of these environment variables can be set automatically by the ``install`` script packaged with Nexus (this script will only work for some shells). To use the installer, instead of performing the manual installation above, simply type the following at the command line:
-
-::
-
-    /your_download_path/nexus/install
-
-If you want the Nexus binaries to reside a location different than ``/your_download_path/nexus/bin``, simply provide this path to the installer:
-
-::
-
-    /your_download_path/nexus/install /some/other/location
 
 Installing Python dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
