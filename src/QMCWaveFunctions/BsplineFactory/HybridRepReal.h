@@ -232,10 +232,8 @@ public:
     BsplineSet::evaluate_notranspose(P, first, last, logdet, dlogdet, d2logdet);
   }
 
-  template<class ST>
-  friend class HybridRepSetReader;
-  template<class ST>
-  friend class SplineSetReader;
+  friend class HybridRepSetReader<ST>;
+  friend class SplineSetReader<ST>;
   friend class BsplineReader;
 };
 

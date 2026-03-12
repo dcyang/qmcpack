@@ -728,8 +728,7 @@ public:
       throw std::runtime_error("Unknown smooth scheme!");
   }
 
-  template<class ST>
-  friend class qmcplusplus::HybridRepSetReader;
+  friend class qmcplusplus::HybridRepSetReader<ST>;
 };
 
 extern template class AtomicOrbitals<float>;

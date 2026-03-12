@@ -25,6 +25,12 @@
 
 namespace qmcplusplus
 {
+
+template<class ST>
+class SplineSetReader;
+template<class ST>
+class HybridRepSetReader;
+
 /** BsplineSet is the base class for SplineC2C, SplineC2R, SplineR2R.
  * Its derived template classes manage the storage and evaluation at given precision.
  * BsplineSet also implements a few fallback routines in case optimized implementation is not necessary in the derived class.

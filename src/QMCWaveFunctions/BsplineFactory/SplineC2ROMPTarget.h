@@ -268,8 +268,7 @@ public:
                                     GradMatrix& dlogdet,
                                     ValueMatrix& d2logdet) override;
 
-  template<class ST>
-  friend class SplineSetReader;
+  friend class SplineSetReader<ST>;
   friend class BsplineReader;
 };
 
