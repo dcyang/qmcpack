@@ -233,7 +233,7 @@ public:
                      HessVector& grad_grad_psi,
                      GGGVector& grad_grad_grad_psi) override;
 
-  template<class BSPLINESPO>
+  template<class ST>
   friend class SplineSetReader;
   friend class BsplineReader;
 };

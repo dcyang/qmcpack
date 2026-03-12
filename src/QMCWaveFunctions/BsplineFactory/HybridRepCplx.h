@@ -72,6 +72,8 @@ public:
       : SPLINEBASE(my_name, size, prim_lattice, std::move(multi_spline))
   {}
 
+  HYBRIDBASE& getHybridRepCenterOrbitals() { return *this; }
+
   bool isRotationSupported() const override { return SPLINEBASE::isRotationSupported(); }
   void storeParamsBeforeRotation() override
   {
@@ -223,9 +225,9 @@ public:
     BsplineSet::evaluate_notranspose(P, first, last, logdet, dlogdet, d2logdet);
   }
 
-  template<class BSPLINESPO>
+  template<class ST>
   friend class HybridRepSetReader;
-  template<class BSPLINESPO>
+  template<class ST>
   friend class SplineSetReader;
   friend class BsplineReader;
 };

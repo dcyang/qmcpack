@@ -22,6 +22,16 @@
 #include "CPU/math.hpp"
 #include "Concurrency/OpenMP.h"
 #include <Timer.h>
+#if defined(QMC_COMPLEX)
+#include "SplineC2C.h"
+#include "SplineC2COMPTarget.h"
+#else
+#include "SplineR2R.h"
+#include "HybridRepReal.h"
+#include "SplineC2R.h"
+#include "SplineC2ROMPTarget.h"
+#endif
+#include "HybridRepCplx.h"
 #include "OneSplineOrbData.hpp"
 #include "spline2/SplineUtils.h"
 #include "Message/CommOperators.h"
@@ -133,18 +143,17 @@ struct Gvectors
   }
 };
 
-template<typename SA>
-HybridRepSetReader<SA>::HybridRepSetReader(EinsplineSetBuilder* e, bool use_duplex_splines)
+template<typename ST>
+HybridRepSetReader<ST>::HybridRepSetReader(EinsplineSetBuilder* e, bool use_duplex_splines)
     : BsplineReader(e, use_duplex_splines), spline_reader_(e, use_duplex_splines)
 {}
 
-template<typename SA>
-std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::string& my_name,
+template<typename ST>
+std::unique_ptr<SPOSet> HybridRepSetReader<ST>::create_spline_set(const std::string& my_name,
                                                                   int spin,
                                                                   const BandInfoGroup& bandgroup)
 {
   spline_reader_.setCheckNorm(checkNorm);
-  using ST    = typename SA::DataType;
   const int N = bandgroup.getNumDistinctOrbitals();
 
   if (use_duplex_splines_)
@@ -157,7 +166,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
                      bandgroup.myBands[0].TwistIndex);
 
   Ugrid xyz_grid[3];
-  typename SA::BCType xyz_bc[3];
+  typename bspline_traits<ST, 3>::BCType xyz_bc[3];
   set_grid(mybuilder->MeshSize, half_g, xyz_grid, xyz_bc);
 
   const size_t num_splines = getAlignedSize<ST>(use_duplex_splines_ ? N * 2 : N);
@@ -171,12 +180,55 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
   app_log() << "MEMORY " << multi_splines.sizeInByte() / (1 << 20) << " MB allocated "
             << "for the coefficients in 3D spline orbital representation" << std::endl;
 
-  auto bspline = std::make_unique<SA>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell, std::move(multi_splines_ptr));
+  std::unique_ptr<BsplineSet> bspline;
+  OptionalRef<HybridBase> hybridrep_ref;
+#if defined(QMC_COMPLEX)
+  if (use_offload)
+  {
+    auto ptr =
+        std::make_unique<HybridRepCplx<SplineC2COMPTarget<ST>>>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                                                std::move(multi_splines_ptr));
+    hybridrep_ref = makeOptionalRef<HybridBase>(ptr->getHybridRepCenterOrbitals());
+    bspline       = std::move(ptr);
+  }
+  else
+  {
+    auto ptr      = std::make_unique<HybridRepCplx<SplineC2C<ST>>>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                                                   std::move(multi_splines_ptr));
+    hybridrep_ref = makeOptionalRef<HybridBase>(ptr->getHybridRepCenterOrbitals());
+    bspline       = std::move(ptr);
+  }
+#else
+  if (use_duplex_splines_)
+  {
+    if (use_offload)
+    {
+      auto ptr =
+          std::make_unique<HybridRepCplx<SplineC2ROMPTarget<ST>>>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                                                  std::move(multi_splines_ptr));
+      hybridrep_ref = makeOptionalRef<HybridBase>(ptr->getHybridRepCenterOrbitals());
+      bspline       = std::move(ptr);
+    }
+    else
+    {
+      auto ptr = std::make_unique<HybridRepCplx<SplineC2R<ST>>>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                                                std::move(multi_splines_ptr));
+      hybridrep_ref = makeOptionalRef<HybridBase>(ptr->getHybridRepCenterOrbitals());
+      bspline       = std::move(ptr);
+    }
+  }
+  else
+  {
+    auto ptr      = std::make_unique<HybridRepReal<SplineR2R<ST>>>(my_name, bandgroup.getNumSPOs(), mybuilder->PrimCell,
+                                                                   std::move(multi_splines_ptr));
+    hybridrep_ref = makeOptionalRef<HybridBase>(ptr->getHybridRepCenterOrbitals());
+    bspline       = std::move(ptr);
+  }
+#endif
 
   app_log() << "  ClassName = " << bspline->getClassName() << std::endl;
 
-  typename SA::SplineBase& bspline_3d(*bspline);
-  bspline_3d.resizeStorage(N);
+  bspline->resizeStorage(N);
 
   bspline->HalfG = half_g;
   if (use_duplex_splines_)
@@ -186,17 +238,17 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
   }
 
   // set info for Hybrid
-  typename SA::HYBRIDBASE& hybrid_center_orbs = *bspline;
+  HybridBase& hybrid_center_orbs(hybridrep_ref.value());
   initialize_hybridrep_atomic_centers(hybrid_center_orbs);
   bool foundspline = spline_reader_.lookforSplineDataDumpFile(bandgroup, bspline->getKeyword(), sizeof(ST));
-  hybrid_center_orbs.resizeStorage(bspline->myV.size());
+  hybrid_center_orbs.resizeStorage(num_splines);
   if (foundspline && myComm->rank() == 0)
   {
     Timer now;
     hdf_archive h5f(myComm);
     const auto splinefile = getSplineDumpFileName(bandgroup);
     h5f.open(splinefile, H5F_ACC_RDONLY);
-    foundspline = SplineUtils<DataType>::read(multi_splines, h5f) && hybrid_center_orbs.read_atomic_splines(h5f);
+    foundspline = SplineUtils<ST>::read(multi_splines, h5f) && hybrid_center_orbs.read_atomic_splines(h5f);
     if (foundspline)
       app_log() << "  Successfully restored 3D B-spline coefficients from " << splinefile << ". The reading time is "
                 << now.elapsed() << " sec." << std::endl;
@@ -206,7 +258,7 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
   {
     multi_splines.flush_zero();
     hybrid_center_orbs.flush_zero();
-    initialize_hybrid_pio_gather(spin, bandgroup, *bspline);
+    initialize_hybrid_pio_gather(spin, bandgroup, half_g, bspline->BandIndexMap, hybrid_center_orbs, multi_splines);
 
     if (saveSplineCoefs && myComm->rank() == 0)
     {
@@ -216,9 +268,9 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
       h5f.create(splinefile);
       std::string classname = bspline->getClassName();
       h5f.write(classname, "class_name");
-      int sizeD = sizeof(DataType);
+      int sizeD = sizeof(ST);
       h5f.write(sizeD, "sizeof");
-      SplineUtils<DataType>::write(multi_splines, h5f);
+      SplineUtils<ST>::write(multi_splines, h5f);
       hybrid_center_orbs.write_atomic_splines(h5f);
       h5f.close();
       app_log() << "  Stored spline coefficients in " << splinefile << " for potential reuse. The writing time is "
@@ -228,15 +280,15 @@ std::unique_ptr<SPOSet> HybridRepSetReader<SA>::create_spline_set(const std::str
 
   {
     Timer now;
-    SplineUtils<DataType>::bcast(multi_splines, *myComm);
+    SplineUtils<ST>::bcast(multi_splines, *myComm);
     hybrid_center_orbs.bcast_atomic_tables(myComm);
     app_log() << "  Time to bcast the table = " << now.elapsed() << std::endl;
   }
   return bspline;
 }
 
-template<typename SA>
-void HybridRepSetReader<SA>::initialize_hybridrep_atomic_centers(typename SA::HYBRIDBASE& bspline) const
+template<typename ST>
+void HybridRepSetReader<ST>::initialize_hybridrep_atomic_centers(HybridBase& bspline) const
 {
   auto& mybuilder = spline_reader_.mybuilder;
 
@@ -248,11 +300,11 @@ void HybridRepSetReader<SA>::initialize_hybridrep_atomic_centers(typename SA::HY
   a.put(mybuilder->XMLRoot);
   // assign smooth_scheme
   if (scheme_name == "Consistent")
-    bspline.smooth_scheme = SA::smoothing_schemes::CONSISTENT;
+    bspline.smooth_scheme = HybridBase::smoothing_schemes::CONSISTENT;
   else if (scheme_name == "SmoothAll")
-    bspline.smooth_scheme = SA::smoothing_schemes::SMOOTHALL;
+    bspline.smooth_scheme = HybridBase::smoothing_schemes::SMOOTHALL;
   else if (scheme_name == "SmoothPartial")
-    bspline.smooth_scheme = SA::smoothing_schemes::SMOOTHPARTIAL;
+    bspline.smooth_scheme = HybridBase::smoothing_schemes::SMOOTHPARTIAL;
   else
     APP_ABORT("initialize_hybridrep_atomic_centers wrong smoothing_scheme name! Only allows Consistent, SmoothAll or "
               "SmoothPartial.");
@@ -373,7 +425,7 @@ void HybridRepSetReader<SA>::initialize_hybridrep_atomic_centers(typename SA::HY
 
     for (int center_idx = 0; center_idx < ACInfo.Ncenters; center_idx++)
     {
-      AtomicOrbitals<DataType> oneCenter(ACInfo.lmax[center_idx]);
+      AtomicOrbitals<ST> oneCenter(ACInfo.lmax[center_idx]);
       oneCenter.set_info(ACInfo.ion_pos[center_idx], ACInfo.cutoff[center_idx], ACInfo.inner_cutoff[center_idx],
                          ACInfo.spline_radius[center_idx], ACInfo.non_overlapping_radius[center_idx],
                          ACInfo.spline_npoints[center_idx]);
@@ -382,12 +434,13 @@ void HybridRepSetReader<SA>::initialize_hybridrep_atomic_centers(typename SA::HY
   }
 }
 
-template<typename SA>
-void HybridRepSetReader<SA>::create_atomic_centers_Gspace(const Vector<std::complex<double>>& cG,
+template<typename ST>
+void HybridRepSetReader<ST>::create_atomic_centers_Gspace(const Vector<std::complex<double>>& cG,
                                                           Communicate& band_group_comm,
                                                           const int iorb,
                                                           const std::complex<double>& rotate_phase,
-                                                          SA& bspline) const
+                                                          const TinyVector<int, 3>& half_g,
+                                                          HybridBase& multi_atomic_splines) const
 {
   auto& mybuilder       = spline_reader_.mybuilder;
   double rotate_phase_r = rotate_phase.real();
@@ -407,10 +460,10 @@ void HybridRepSetReader<SA>::create_atomic_centers_Gspace(const Vector<std::comp
 
   // prepare Gvecs Ylm(G)
   using UnitCellType = typename EinsplineSetBuilder::UnitCellType;
-  Gvectors<double, UnitCellType> Gvecs(mybuilder->Gvecs[0], mybuilder->PrimCell, bspline.HalfG, gvec_first, gvec_last);
+  Gvectors<double, UnitCellType> Gvecs(mybuilder->Gvecs[0], mybuilder->PrimCell, half_g, gvec_first, gvec_last);
   // if(band_group_comm.isGroupLeader()) std::cout << "print band=" << iorb << " KE=" << Gvecs.evaluate_KE(cG) << std::endl;
 
-  std::vector<AtomicOrbitals<DataType>>& centers = bspline.AtomicCenters;
+  std::vector<AtomicOrbitals<ST>>& centers = multi_atomic_splines.AtomicCenters;
   app_log() << "Transforming band " << iorb << " on Rank 0" << std::endl;
   // collect atomic centers by group
   std::vector<int> uniq_species;
@@ -655,10 +708,13 @@ void HybridRepSetReader<SA>::create_atomic_centers_Gspace(const Vector<std::comp
   }
 }
 
-template<typename SA>
-void HybridRepSetReader<SA>::initialize_hybrid_pio_gather(const int spin,
+template<typename ST>
+void HybridRepSetReader<ST>::initialize_hybrid_pio_gather(const int spin,
                                                           const BandInfoGroup& bandgroup,
-                                                          SA& bspline) const
+                                                          const TinyVector<int, 3>& half_g,
+                                                          const aligned_vector<int>& band_index_map,
+                                                          HybridBase& multi_atomic_splines,
+                                                          MultiBsplineBase<ST>& multi_splines) const
 {
   auto& mybuilder = spline_reader_.mybuilder;
   //distribute bands over processor groups
@@ -672,7 +728,7 @@ void HybridRepSetReader<SA>::initialize_hybrid_pio_gather(const int spin,
   int iorb_last  = band_groups[band_group_comm.getGroupID() + 1];
 
   app_log() << "Start transforming plane waves to 3D B-splines and atomic radial orbital 1D B-splines." << std::endl;
-  OneSplineOrbData oneband(mybuilder->MeshSize, bspline.HalfG, use_duplex_splines_);
+  OneSplineOrbData oneband(mybuilder->MeshSize, half_g, use_duplex_splines_);
   hdf_archive h5f(&band_group_comm, false);
   Vector<std::complex<double>> cG(mybuilder->Gvecs[0].size());
   const std::vector<BandInfo>& cur_bands = bandgroup.myBands;
@@ -682,14 +738,20 @@ void HybridRepSetReader<SA>::initialize_hybrid_pio_gather(const int spin,
   {
     if (band_group_comm.isGroupLeader())
     {
-      const auto& cur_band = cur_bands[bspline.BandIndexMap[iorb]];
+      const auto& cur_band = cur_bands[band_index_map[iorb]];
       const int ti         = cur_band.TwistIndex;
       spline_reader_.readOneOrbitalCoefs(psi_g_path(ti, spin, cur_band.BandIndex), h5f, cG);
       oneband.fft_spline(cG, mybuilder->Gvecs[0], mybuilder->primcell_kpoints[ti], rotate);
-      bspline.set_spline(&oneband.get_spline_r(), &oneband.get_spline_i(), cur_band.TwistIndex, iorb, 0);
+      if (use_duplex_splines_)
+      {
+        copy_spline<double, ST>(oneband.get_spline_r(), *multi_splines.getSplinePtr(), iorb * 2);
+        copy_spline<double, ST>(oneband.get_spline_i(), *multi_splines.getSplinePtr(), iorb * 2 + 1);
+      }
+      else
+        copy_spline<double, ST>(oneband.get_spline_r(), *multi_splines.getSplinePtr(), iorb);
     }
     band_group_comm.bcast(cG);
-    create_atomic_centers_Gspace(cG, band_group_comm, iorb, oneband.getRotatePhase(), bspline);
+    create_atomic_centers_Gspace(cG, band_group_comm, iorb, oneband.getRotatePhase(), half_g, multi_atomic_splines);
   }
 
   myComm->barrier();
@@ -701,34 +763,21 @@ void HybridRepSetReader<SA>::initialize_hybrid_pio_gather(const int spin,
       std::vector<int> offset(band_groups.size());
       for (int i = 0; i < offset.size(); i++)
         offset[i] = band_groups[i] * 2;
-      SplineUtils<DataType>::gatherv(*bspline.SplineInst, offset, *band_group_comm.getGroupLeaderComm());
-      bspline.gather_atomic_tables(band_group_comm.getGroupLeaderComm(), offset);
+      SplineUtils<ST>::gatherv(multi_splines, offset, *band_group_comm.getGroupLeaderComm());
+      multi_atomic_splines.gather_atomic_tables(band_group_comm.getGroupLeaderComm(), offset);
     }
     else
     {
-      SplineUtils<DataType>::gatherv(*bspline.SplineInst, band_groups, *band_group_comm.getGroupLeaderComm());
-      bspline.gather_atomic_tables(band_group_comm.getGroupLeaderComm(), band_groups);
+      SplineUtils<ST>::gatherv(multi_splines, band_groups, *band_group_comm.getGroupLeaderComm());
+      multi_atomic_splines.gather_atomic_tables(band_group_comm.getGroupLeaderComm(), band_groups);
     }
 
     app_log() << "  Time to gather the table = " << now.elapsed() << std::endl;
   }
 }
 
-#if defined(QMC_COMPLEX)
-template class HybridRepSetReader<HybridRepCplx<SplineC2C<float>>>;
-template class HybridRepSetReader<HybridRepCplx<SplineC2COMPTarget<float>>>;
+template class HybridRepSetReader<float>;
 #if !defined(QMC_MIXED_PRECISION)
-template class HybridRepSetReader<HybridRepCplx<SplineC2C<double>>>;
-template class HybridRepSetReader<HybridRepCplx<SplineC2COMPTarget<double>>>;
-#endif
-#else
-template class HybridRepSetReader<HybridRepReal<SplineR2R<float>>>;
-template class HybridRepSetReader<HybridRepCplx<SplineC2R<float>>>;
-template class HybridRepSetReader<HybridRepCplx<SplineC2ROMPTarget<float>>>;
-#if !defined(QMC_MIXED_PRECISION)
-template class HybridRepSetReader<HybridRepReal<SplineR2R<double>>>;
-template class HybridRepSetReader<HybridRepCplx<SplineC2R<double>>>;
-template class HybridRepSetReader<HybridRepCplx<SplineC2ROMPTarget<double>>>;
-#endif
+template class HybridRepSetReader<double>;
 #endif
 } // namespace qmcplusplus

@@ -69,7 +69,7 @@ public:
   virtual void resizeStorage(size_t n) = 0;
 
   /** remap kPoints to pack the double copy */
-  virtual void resize_kpoints() { }
+  virtual void resize_kpoints() {}
 
   ///remap kpoints to group general kpoints & special kpoints
   int remap_kpoints()
@@ -238,8 +238,10 @@ public:
     //Do nothing, since Einsplines don't explicitly depend on ion positions.
   }
 
-  template<class BSPLINESPO>
+  template<class ST>
   friend class SplineSetReader;
+  template<class ST>
+  friend class HybridRepSetReader;
   friend class BsplineReader;
 };
 

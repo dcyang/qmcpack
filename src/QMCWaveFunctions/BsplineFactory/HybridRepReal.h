@@ -30,7 +30,7 @@ namespace qmcplusplus
  * Only works with SPLINEBASE class containing real splines
  */
 template<typename SPLINEBASE>
-class HybridRepReal : public SPLINEBASE, private HybridRepCenterOrbitals<typename SPLINEBASE::DataType>
+class HybridRepReal : public SPLINEBASE, protected HybridRepCenterOrbitals<typename SPLINEBASE::DataType>
 {
 public:
   using SplineBase       = SPLINEBASE;
@@ -73,6 +73,8 @@ public:
                 std::unique_ptr<MultiBsplineBase<ST>>&& multi_spline)
       : SPLINEBASE(my_name, size, prim_lattice, std::move(multi_spline))
   {}
+
+  HYBRIDBASE& getHybridRepCenterOrbitals() { return *this; }
 
   bool isRotationSupported() const override { return SPLINEBASE::isRotationSupported(); }
   void storeParamsBeforeRotation() override
@@ -230,9 +232,9 @@ public:
     BsplineSet::evaluate_notranspose(P, first, last, logdet, dlogdet, d2logdet);
   }
 
-  template<class BSPLINESPO>
+  template<class ST>
   friend class HybridRepSetReader;
-  template<class BSPLINESPO>
+  template<class ST>
   friend class SplineSetReader;
   friend class BsplineReader;
 };

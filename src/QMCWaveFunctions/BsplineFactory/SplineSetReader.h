@@ -71,7 +71,7 @@ public:
   void initialize_spline_pio_gather(const int spin,
                                     const BandInfoGroup& bandgroup,
                                     const TinyVector<int, 3>& half_g,
-                                    const aligned_vector<int>& BandIndexMap,
+                                    const aligned_vector<int>& band_index_map,
                                     MultiBsplineBase<ST>& multi_splines) const;
 };
 

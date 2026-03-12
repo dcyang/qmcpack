@@ -35,7 +35,7 @@ std::unique_ptr<BsplineReader> createBsplineComplex(EinsplineSetBuilder* e, bool
     if (hybrid_rep)
     {
       app_summary() << "    Using hybrid orbital representation." << std::endl;
-      aReader = std::make_unique<HybridRepSetReader<HybridRepCplx<SplineC2COMPTarget<ST>>>>(e, true);
+      aReader = std::make_unique<HybridRepSetReader<ST>>(e, true);
     }
     else
       aReader = std::make_unique<SplineSetReader<ST>>(e, true);
@@ -46,7 +46,7 @@ std::unique_ptr<BsplineReader> createBsplineComplex(EinsplineSetBuilder* e, bool
     if (hybrid_rep)
     {
       app_summary() << "    Using hybrid orbital representation." << std::endl;
-      aReader = std::make_unique<HybridRepSetReader<HybridRepCplx<SplineC2C<ST>>>>(e, true);
+      aReader = std::make_unique<HybridRepSetReader<ST>>(e, true);
     }
     else
       aReader = std::make_unique<SplineSetReader<ST>>(e, true);
@@ -60,7 +60,7 @@ std::unique_ptr<BsplineReader> createBsplineComplex(EinsplineSetBuilder* e, bool
     if (hybrid_rep)
     {
       app_summary() << "    Using hybrid orbital representation." << std::endl;
-      aReader = std::make_unique<HybridRepSetReader<HybridRepCplx<SplineC2ROMPTarget<ST>>>>(e, true);
+      aReader = std::make_unique<HybridRepSetReader<ST>>(e, true);
     }
     else
       aReader = std::make_unique<SplineSetReader<ST>>(e, true);
@@ -71,7 +71,7 @@ std::unique_ptr<BsplineReader> createBsplineComplex(EinsplineSetBuilder* e, bool
     if (hybrid_rep)
     {
       app_summary() << "    Using hybrid orbital representation." << std::endl;
-      aReader = std::make_unique<HybridRepSetReader<HybridRepCplx<SplineC2R<ST>>>>(e, true);
+      aReader = std::make_unique<HybridRepSetReader<ST>>(e, true);
     }
     else
       aReader = std::make_unique<SplineSetReader<ST>>(e, true);
