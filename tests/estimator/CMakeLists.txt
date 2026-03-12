@@ -37,7 +37,7 @@ endif()
 check_python_reqs("numpy;h5py" estimator-latdev-free add_tests)
 
 if(add_tests)
-  simple_run_and_check(deterministic-estimator-latdev-free "${qmcpack_SOURCE_DIR}/tests/estimator/latdev/free" two.xml 1 16
+  simple_run_and_check(estimator-latdev-free "${qmcpack_SOURCE_DIR}/tests/estimator/latdev/free" two.xml 1 16
                        flatdev.py)
 endif()
 
