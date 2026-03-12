@@ -30,7 +30,7 @@ namespace qmcplusplus
  * Only works with SPLINEBASE class containing real splines
  */
 template<typename SPLINEBASE>
-class HybridRepReal : public SPLINEBASE, protected HybridRepCenterOrbitals<typename SPLINEBASE::DataType>
+class HybridRepReal : public SPLINEBASE, private HybridRepCenterOrbitals<typename SPLINEBASE::DataType>
 {
 public:
   using SplineBase       = SPLINEBASE;
