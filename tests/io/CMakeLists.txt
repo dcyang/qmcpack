@@ -205,3 +205,12 @@ run_restart_and_check(
   4
   check.sh
   true)
+
+run_restart_and_check(
+  deterministic-save_spline_coefs_hybridrep
+  "${qmcpack_SOURCE_DIR}/tests/io/save_spline_coefs_hybridrep"
+  qmc_short
+  1
+  3
+  check.sh
+  true)

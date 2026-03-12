@@ -22,8 +22,6 @@
 #define QMCPLUSPLUS_BSPLINESET_H
 
 #include "QMCWaveFunctions/SPOSet.h"
-#include "spline/einspline_engine.hpp"
-#include "spline/einspline_util.hpp"
 
 namespace qmcplusplus
 {
@@ -35,12 +33,8 @@ class BsplineSet : public SPOSet
 {
 protected:
   static const int D = DIM;
-  ///Index of this adoptor, when multiple adoptors are used for NUMA or distributed cases
-  size_t MyIndex;
-  ///first index of the SPOs this Spline handles
-  size_t first_spo;
-  ///last index of the SPOs this Spline handles
-  size_t last_spo;
+  ///primitive cell
+  const Lattice prim_lattice_;
   ///sign bits at the G/2 boundaries
   TinyVector<int, D> HalfG;
   ///flags to unpack sin/cos
@@ -52,11 +46,11 @@ protected:
   std::vector<SPOSet::PosType> kPoints;
   ///remap splines to orbitals
   aligned_vector<int> BandIndexMap;
-  ///band offsets used for communication
-  std::vector<int> offset;
 
 public:
-  BsplineSet(const std::string& my_name) : SPOSet(my_name), MyIndex(0), first_spo(0), last_spo(0) {}
+  BsplineSet(const std::string& my_name, size_t size, const Lattice& prim_lattice)
+      : SPOSet(my_name, size), prim_lattice_(prim_lattice)
+  {}
 
   virtual bool isComplex() const         = 0;
   virtual std::string getKeyword() const = 0;
@@ -118,8 +112,6 @@ public:
   using SPOSet::releaseResource;
 
   std::unique_ptr<SPOSet> makeClone() const override = 0;
-
-  void setOrbitalSetSize(int norbs) override { OrbitalSetSize = norbs; }
 
   void evaluate_notranspose(const ParticleSet& P,
                             int first,

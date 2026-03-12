@@ -18,8 +18,8 @@
 #define QMCPLUSPLUS_MULTIEINSPLINE_1D_HPP
 
 #include "spline2/MultiBsplineEval_helper.hpp"
-#include "spline/einspline_engine.hpp"
-#include "spline/einspline_util.hpp"
+#include "CPU/SIMD/aligned_allocator.hpp"
+#include "einspline_impl.hpp"
 
 namespace qmcplusplus
 {
@@ -91,21 +91,15 @@ public:
    */
   template<typename SingleSpline>
   void copy_spline(SingleSpline* aSpline, int i, const int offset_, const int base_)
-  {
-    einspline::set(spline_m, i, aSpline, offset_, base_);
-  }
+  { einspline::set(spline_m, i, aSpline, offset_, base_); }
 
   template<typename PT, typename VT>
   inline void evaluate(const PT& r, VT& psi) const
-  {
-    evaluate_v_impl(r, psi.data());
-  }
+  { evaluate_v_impl(r, psi.data()); }
 
   template<typename PT, typename VT, typename GT, typename LT>
   inline void evaluate_vgl(const PT& r, VT& psi, GT& grad, LT& lap) const
-  {
-    evaluate_vgl_impl(r, psi.data(), grad.data(), lap.data());
-  }
+  { evaluate_vgl_impl(r, psi.data(), grad.data(), lap.data()); }
 
   //template<typename PT, typename VT, typename GT, typename HT>
   //  inline void evaluate_vgh(const PT& r, VT& psi, GT& grad, HT& hess)

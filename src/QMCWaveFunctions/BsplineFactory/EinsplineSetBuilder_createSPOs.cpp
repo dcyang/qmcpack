@@ -96,7 +96,6 @@ void EinsplineSetBuilder::set_metadata(int numOrbs,
   // setup primitive cell and supercell
   PrimCell.set(Lattice);
   SuperCell.set(SuperLattice);
-  GGt = dot(transpose(PrimCell.G), PrimCell.G);
 
   // Now, analyze the k-point mesh to figure out the what k-points  are needed
   AnalyzeTwists2(twist_num_inp, twist_inp);

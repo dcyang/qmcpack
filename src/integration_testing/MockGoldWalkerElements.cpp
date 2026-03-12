@@ -25,7 +25,7 @@ MockGoldWalkerElements::MockGoldWalkerElements(Communicate* comm,
       wavefunction_pool(wavefunction_pool_fac_func(runtime_opt, comm, particle_pool)),
       hamiltonian_pool(ham_pool_fac_func(comm, particle_pool, wavefunction_pool)),
       twf(wavefunction_pool.getWaveFunction().value()),
-      ham(*(hamiltonian_pool.getPrimary()))
+      ham(hamiltonian_pool.getHamiltonian().value())
 {}
 
 MockGoldWalkerElements makeGoldWalkerElementsWithEE(Communicate* comm, RuntimeOptions runtime_opt)
