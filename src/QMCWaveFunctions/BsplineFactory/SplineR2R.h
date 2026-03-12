@@ -155,8 +155,6 @@ public:
   /// this routine can not be called from threaded region
   void finalizeConstruction() override;
 
-  void set_spline(SingleSplineType* spline_r, SingleSplineType* spline_i, int twist, int ispline, int level);
-
   /** convert position in prim_lattice_ unit and return sign */
   inline int convertPos(const PointType& r, PointType& ru) const
   {

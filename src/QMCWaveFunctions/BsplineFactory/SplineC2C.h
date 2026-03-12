@@ -136,8 +136,6 @@ public:
     }
   }
 
-  void set_spline(SingleSplineType* spline_r, SingleSplineType* spline_i, int twist, int ispline, int level);
-
   void assign_v(const PointType& r, const vContainer_type& myV, ValueVector& psi, int first, int last) const;
 
   void evaluateValue(const ParticleSet& P, const int iat, ValueVector& psi) override;

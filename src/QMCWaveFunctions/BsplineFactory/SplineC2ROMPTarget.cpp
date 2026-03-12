@@ -24,17 +24,6 @@ template<typename ST>
 SplineC2ROMPTarget<ST>::SplineC2ROMPTarget(const SplineC2ROMPTarget& in) = default;
 
 template<typename ST>
-inline void SplineC2ROMPTarget<ST>::set_spline(SingleSplineType* spline_r,
-                                               SingleSplineType* spline_i,
-                                               int twist,
-                                               int ispline,
-                                               int level)
-{
-  copy_spline<double, ST>(*spline_r, *SplineInst->getSplinePtr(), 2 * ispline);
-  copy_spline<double, ST>(*spline_i, *SplineInst->getSplinePtr(), 2 * ispline + 1);
-}
-
-template<typename ST>
 inline void SplineC2ROMPTarget<ST>::assign_v(const PointType& r,
                                              const vContainer_type& myV,
                                              ValueVector& psi,

@@ -26,17 +26,6 @@ template<typename ST>
 SplineC2C<ST>::SplineC2C(const SplineC2C& in) = default;
 
 template<typename ST>
-inline void SplineC2C<ST>::set_spline(SingleSplineType* spline_r,
-                                      SingleSplineType* spline_i,
-                                      int twist,
-                                      int ispline,
-                                      int level)
-{
-  copy_spline<double, ST>(*spline_r, *SplineInst->getSplinePtr(), 2 * ispline);
-  copy_spline<double, ST>(*spline_i, *SplineInst->getSplinePtr(), 2 * ispline + 1);
-}
-
-template<typename ST>
 void SplineC2C<ST>::storeParamsBeforeRotation()
 {
   const auto spline_ptr     = SplineInst->getSplinePtr();
