@@ -26,9 +26,6 @@ typename MultiBsplineBase<T>::SplineType* MultiBspline<T>::createImpl(const Ugri
 }
 
 template<typename T>
-MultiBspline<T>::MultiBspline() = default;
-
-template<typename T>
 MultiBspline<T>::~MultiBspline()
 {
   if (Base::spline_m != nullptr)

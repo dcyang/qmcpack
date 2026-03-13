@@ -71,8 +71,6 @@ struct BandInfoGroup
   int NumSPOs;
   ///starting band
   int FirstBand;
-  ///twist index set by the full band not by the subset
-  int TwistIndex;
   ///Bands that belong to this group
   std::vector<BandInfo> myBands;
   ///name of this band

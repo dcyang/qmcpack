@@ -25,6 +25,12 @@
 
 namespace qmcplusplus
 {
+
+template<class ST>
+class SplineSetReader;
+template<class ST>
+class HybridRepSetReader;
+
 /** BsplineSet is the base class for SplineC2C, SplineC2R, SplineR2R.
  * Its derived template classes manage the storage and evaluation at given precision.
  * BsplineSet also implements a few fallback routines in case optimized implementation is not necessary in the derived class.
@@ -52,7 +58,6 @@ public:
       : SPOSet(my_name, size), prim_lattice_(prim_lattice)
   {}
 
-  virtual bool isComplex() const         = 0;
   virtual std::string getKeyword() const = 0;
 
   auto& getHalfG() const { return HalfG; }
@@ -68,6 +73,9 @@ public:
 
   /// resize vectors related to spline evaluaton results.
   virtual void resizeStorage(size_t n) = 0;
+
+  /** remap kPoints to pack the double copy */
+  virtual void resize_kpoints() {}
 
   ///remap kpoints to group general kpoints & special kpoints
   int remap_kpoints()
@@ -236,8 +244,10 @@ public:
     //Do nothing, since Einsplines don't explicitly depend on ion positions.
   }
 
-  template<class BSPLINESPO>
+  template<class ST>
   friend class SplineSetReader;
+  template<class ST>
+  friend class HybridRepSetReader;
   friend class BsplineReader;
 };
 

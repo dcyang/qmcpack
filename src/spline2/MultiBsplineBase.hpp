@@ -19,6 +19,7 @@
 #ifndef QMCPLUSPLUS_MULTIEINSPLINEBASE_HPP
 #define QMCPLUSPLUS_MULTIEINSPLINEBASE_HPP
 
+#include <array>
 #include "spline2/bspline_traits.hpp"
 
 namespace qmcplusplus
@@ -39,48 +40,40 @@ protected:
   ///define the boundary condition type
   using BoundaryCondition = typename bspline_traits<T, 3>::BCType;
   ///actual einspline multi-bspline object
-  SplineType* spline_m;
+  SplineType* spline_m = nullptr;
 
   virtual SplineType* createImpl(const Ugrid grid[3], const BoundaryCondition bc[3], int num_splines) = 0;
 
+  /** create BoundaryCondition
+   * @tparam BCT boundary type
+   */
+  template<typename BCT>
+  static auto createBoundaryCondition(const BCT& bc)
+  {
+    std::array<BoundaryCondition, 3> xyzBC;
+    xyzBC[0].lCode = bc[0].lCode;
+    xyzBC[1].lCode = bc[1].lCode;
+    xyzBC[2].lCode = bc[2].lCode;
+    xyzBC[0].rCode = bc[0].rCode;
+    xyzBC[1].rCode = bc[1].rCode;
+    xyzBC[2].rCode = bc[2].rCode;
+    xyzBC[0].lVal  = static_cast<T>(bc[0].lVal);
+    xyzBC[1].lVal  = static_cast<T>(bc[1].lVal);
+    xyzBC[2].lVal  = static_cast<T>(bc[2].lVal);
+    xyzBC[0].rVal  = static_cast<T>(bc[0].rVal);
+    xyzBC[1].rVal  = static_cast<T>(bc[1].rVal);
+    xyzBC[2].rVal  = static_cast<T>(bc[2].rVal);
+    return xyzBC;
+  }
+
 public:
-  MultiBsplineBase() : spline_m(nullptr) {}
+  MultiBsplineBase() = default;
   MultiBsplineBase(const MultiBsplineBase& in)            = delete;
   MultiBsplineBase& operator=(const MultiBsplineBase& in) = delete;
 
   virtual ~MultiBsplineBase() = default;
 
   SplineType* getSplinePtr() { return spline_m; }
-
-  /** create the einspline as used in the builder
-   * @tparam BCT boundary type
-   * @param bc num_splines number of splines
-   *
-   * num_splines must be padded to the aligned size. The caller must be aware of padding and pad all result arrays.
-   */
-  template<typename BCT>
-  inline void create(const Ugrid grid[3], const BCT& bc, int num_splines)
-  {
-    if (spline_m == nullptr)
-    {
-      BoundaryCondition xyzBC[3];
-      xyzBC[0].lCode = bc[0].lCode;
-      xyzBC[1].lCode = bc[1].lCode;
-      xyzBC[2].lCode = bc[2].lCode;
-      xyzBC[0].rCode = bc[0].rCode;
-      xyzBC[1].rCode = bc[1].rCode;
-      xyzBC[2].rCode = bc[2].rCode;
-      xyzBC[0].lVal  = static_cast<T>(bc[0].lVal);
-      xyzBC[1].lVal  = static_cast<T>(bc[1].lVal);
-      xyzBC[2].lVal  = static_cast<T>(bc[2].lVal);
-      xyzBC[0].rVal  = static_cast<T>(bc[0].rVal);
-      xyzBC[1].rVal  = static_cast<T>(bc[1].rVal);
-      xyzBC[2].rVal  = static_cast<T>(bc[2].rVal);
-      spline_m       = createImpl(grid, xyzBC, num_splines);
-    }
-    else
-      throw std::runtime_error("MultiBsplineBase::spline_m cannot be created twice!\n");
-  }
 
   void flush_zero() const
   {
@@ -93,6 +86,8 @@ public:
   size_t sizeInByte() const { return (spline_m == nullptr) ? 0 : spline_m->coefs_size * sizeof(T); }
 
   virtual void finalize(){};
+
+private:
 };
 
 /** copy a single spline to multi spline
