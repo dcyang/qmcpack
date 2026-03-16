@@ -28,8 +28,8 @@ typename MultiBsplineBase<T>::SplineType* MultiBspline<T>::createImpl(const Ugri
 template<typename T>
 MultiBspline<T>::~MultiBspline()
 {
-  if (Base::spline_m != nullptr)
-    myAllocator.destroy(Base::spline_m);
+  for (auto spline_m : Base::spline_blocks)
+    myAllocator.destroy(spline_m);
 }
 
 template class MultiBspline<float>;

@@ -20,6 +20,7 @@
 #define QMCPLUSPLUS_MULTIEINSPLINEBASE_HPP
 
 #include <array>
+#include <vector>
 #include "spline2/bspline_traits.hpp"
 
 namespace qmcplusplus
@@ -39,8 +40,8 @@ protected:
   using real_type = typename bspline_traits<T, 3>::real_type;
   ///define the boundary condition type
   using BoundaryCondition = typename bspline_traits<T, 3>::BCType;
-  ///actual einspline multi-bspline object
-  SplineType* spline_m = nullptr;
+  ///actual vector of einspline multi-bspline objects
+  std::vector<SplineType*> spline_blocks;
 
   virtual SplineType* createImpl(const Ugrid grid[3], const BoundaryCondition bc[3], int num_splines) = 0;
 
@@ -67,25 +68,42 @@ protected:
   }
 
 public:
-  MultiBsplineBase() = default;
+  MultiBsplineBase()                                      = default;
   MultiBsplineBase(const MultiBsplineBase& in)            = delete;
   MultiBsplineBase& operator=(const MultiBsplineBase& in) = delete;
 
   virtual ~MultiBsplineBase() = default;
 
-  SplineType* getSplinePtr() { return spline_m; }
+  SplineType* getSplinePtr()
+  {
+    if (spline_blocks.size() != 1)
+      throw std::runtime_error("Bug! Cannot access splime_m. the number of spline_blocks is not 1.");
+    return spline_blocks[0];
+  }
 
   void flush_zero() const
   {
-    if (spline_m != nullptr)
+    for (auto spline_m : spline_blocks)
       std::fill(spline_m->coefs, spline_m->coefs + spline_m->coefs_size, T(0));
   }
 
-  int num_splines() const { return (spline_m == nullptr) ? 0 : spline_m->num_splines; }
+  size_t num_splines() const
+  {
+    size_t num_splines = 0;
+    for (auto spline_m : spline_blocks)
+      num_splines += spline_m->num_splines;
+    return num_splines;
+  }
 
-  size_t sizeInByte() const { return (spline_m == nullptr) ? 0 : spline_m->coefs_size * sizeof(T); }
+  size_t sizeInByte() const
+  {
+    size_t num_T = 0;
+    for (auto spline_m : spline_blocks)
+      num_T += spline_m->coefs_size * sizeof(T);
+    return num_T * sizeof(T);
+  }
 
-  virtual void finalize(){};
+  virtual void finalize() {};
 
 private:
 };
