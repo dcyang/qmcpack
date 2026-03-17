@@ -20,6 +20,7 @@
 #define QMCPLUSPLUS_MULTIEINSPLINEBASE_HPP
 
 #include <array>
+#include <cstddef>
 #include <vector>
 #include "spline2/bspline_traits.hpp"
 
@@ -44,8 +45,6 @@ protected:
   ///actual vector of einspline multi-bspline objects
   std::vector<SplineType*> spline_blocks;
 
-  virtual SplineType* createImpl(const Ugrid grid[3], const BoundaryCondition bc[3], int num_splines) = 0;
-
   /** create BoundaryCondition
    * @tparam BCT boundary type
    */
@@ -66,6 +65,61 @@ protected:
     xyzBC[1].rVal  = static_cast<T>(bc[1].rVal);
     xyzBC[2].rVal  = static_cast<T>(bc[2].rVal);
     return xyzBC;
+  }
+
+  void setMetaData(SplineType& spline,
+                   Ugrid x_grid,
+                   Ugrid y_grid,
+                   Ugrid z_grid,
+                   const BoundaryCondition bc[3],
+                   size_t num_splines,
+                   size_t num_splines_padded)
+  {
+    auto& xBC          = bc[0];
+    auto& yBC          = bc[1];
+    auto& zBC          = bc[2];
+    spline.spcode      = bspline_traits<T, 3>::spcode;
+    spline.tcode       = bspline_traits<T, 3>::tcode;
+    spline.xBC         = xBC;
+    spline.yBC         = yBC;
+    spline.zBC         = zBC;
+    spline.num_splines = num_splines;
+
+    // Setup internal variables
+    int Mx = x_grid.num;
+    int My = y_grid.num;
+    int Mz = z_grid.num;
+    int Nx, Ny, Nz;
+
+    if (xBC.lCode == PERIODIC || xBC.lCode == ANTIPERIODIC)
+      Nx = Mx + 3;
+    else
+      Nx = Mx + 2;
+    x_grid.delta     = (x_grid.end - x_grid.start) / (double)(Nx - 3);
+    x_grid.delta_inv = 1.0 / x_grid.delta;
+    spline.x_grid    = x_grid;
+
+    if (yBC.lCode == PERIODIC || yBC.lCode == ANTIPERIODIC)
+      Ny = My + 3;
+    else
+      Ny = My + 2;
+    y_grid.delta     = (y_grid.end - y_grid.start) / (double)(Ny - 3);
+    y_grid.delta_inv = 1.0 / y_grid.delta;
+    spline.y_grid    = y_grid;
+
+    if (zBC.lCode == PERIODIC || zBC.lCode == ANTIPERIODIC)
+      Nz = Mz + 3;
+    else
+      Nz = Mz + 2;
+    z_grid.delta     = (z_grid.end - z_grid.start) / (double)(Nz - 3);
+    z_grid.delta_inv = 1.0 / z_grid.delta;
+    spline.z_grid    = z_grid;
+
+    spline.x_stride = (size_t)Ny * (size_t)Nz * num_splines_padded;
+    spline.y_stride = Nz * num_splines_padded;
+    spline.z_stride = num_splines_padded;
+
+    spline.coefs_size = (size_t)Nx * spline.x_stride;
   }
 
 public:
@@ -94,6 +148,14 @@ public:
     for (auto spline_m : spline_blocks)
       num_splines += spline_m->num_splines;
     return num_splines;
+  }
+
+  size_t num_splines_padded() const
+  {
+    size_t num_splines_padded = 0;
+    for (auto spline_m : spline_blocks)
+      num_splines_padded += spline_m->z_stride;
+    return num_splines_padded;
   }
 
   size_t sizeInByte() const

@@ -37,7 +37,7 @@ private:
 
   typename Base::SplineType* createImpl(const Ugrid grid[3],
                                         const typename Base::BoundaryCondition bc[3],
-                                        int num_splines) override;
+                                        int num_splines);
 
 public:
   template<typename BCT>
