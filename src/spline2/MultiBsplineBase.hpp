@@ -25,6 +25,7 @@
 
 namespace qmcplusplus
 {
+
 /** container class to hold a 3D multi spline pointer
  * @tparam T the precision of splines
  *
@@ -103,46 +104,37 @@ public:
     return num_T * sizeof(T);
   }
 
-  virtual void finalize() {};
-
-private:
-};
-
-/** copy a single spline to multi spline
-   * @tparam SSDT single spline coefficient data type
-   * @tparam MSDT multi spline coefficient data type
-   * @param single UBspline_3d_(d,s)
-   * @param multi multi_UBspline_3d_(d,s)
+  /** copy a single spline to multi spline
+   * @param single UBspline_3d_d
    * @param int index of single in multi
    */
-template<typename SSDT, typename MSDT>
-void copy_spline(const typename bspline_traits<SSDT, 3>::SingleSplineType& single,
-                 typename bspline_traits<MSDT, 3>::SplineType& multi,
-                 int i)
-{
-  static_assert(std::is_floating_point<SSDT>::value, "SSDT must be a float point type");
-  static_assert(std::is_floating_point<MSDT>::value, "MSDT must be a float point type");
+  void set_spline(const typename bspline_traits<double, 3>::SingleSplineType& single, int i)
+  {
+    auto& multi(*spline_blocks[0]);
 
-  if (single.x_grid.num != multi.x_grid.num || single.y_grid.num != multi.y_grid.num ||
-      single.z_grid.num != multi.z_grid.num)
-    throw std::runtime_error("Cannot copy a single spline to MultiSpline with a different grid!\n");
+    if (single.x_grid.num != multi.x_grid.num || single.y_grid.num != multi.y_grid.num ||
+        single.z_grid.num != multi.z_grid.num)
+      throw std::runtime_error("Cannot copy a single spline to MultiSpline with a different grid!\n");
 
-  intptr_t x_stride_in  = single.x_stride;
-  intptr_t y_stride_in  = single.y_stride;
-  intptr_t x_stride_out = multi.x_stride;
-  intptr_t y_stride_out = multi.y_stride;
-  intptr_t z_stride_out = multi.z_stride;
-  const intptr_t istart = static_cast<intptr_t>(i);
-  const intptr_t n0 = multi.x_grid.num + 3, n1 = multi.y_grid.num + 3, n2 = multi.z_grid.num + 3;
-  for (intptr_t ix = 0; ix < n0; ++ix)
-    for (intptr_t iy = 0; iy < n1; ++iy)
-    {
-      auto* __restrict__ out      = multi.coefs + ix * x_stride_out + iy * y_stride_out + istart;
-      const auto* __restrict__ in = single.coefs + ix * x_stride_in + iy * y_stride_in;
-      for (intptr_t iz = 0; iz < n2; ++iz)
-        out[iz * z_stride_out] = in[iz];
-    }
-}
+    intptr_t x_stride_in  = single.x_stride;
+    intptr_t y_stride_in  = single.y_stride;
+    intptr_t x_stride_out = multi.x_stride;
+    intptr_t y_stride_out = multi.y_stride;
+    intptr_t z_stride_out = multi.z_stride;
+    const intptr_t istart = static_cast<intptr_t>(i);
+    const intptr_t n0 = multi.x_grid.num + 3, n1 = multi.y_grid.num + 3, n2 = multi.z_grid.num + 3;
+    for (intptr_t ix = 0; ix < n0; ++ix)
+      for (intptr_t iy = 0; iy < n1; ++iy)
+      {
+        auto* __restrict__ out      = multi.coefs + ix * x_stride_out + iy * y_stride_out + istart;
+        const auto* __restrict__ in = single.coefs + ix * x_stride_in + iy * y_stride_in;
+        for (intptr_t iz = 0; iz < n2; ++iz)
+          out[iz * z_stride_out] = in[iz];
+      }
+  }
+
+  virtual void finalize() {};
+};
 
 } // namespace qmcplusplus
 
