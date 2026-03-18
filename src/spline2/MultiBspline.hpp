@@ -38,7 +38,7 @@ private:
 
 public:
   template<typename BCT>
-  MultiBspline(const Ugrid grid[3], const BCT& bc, size_t num_splines)
+  MultiBspline(const Ugrid grid[3], const BCT& bc, size_t num_splines) : Base({0, num_splines})
   {
     Base::spline_blocks.resize(1, nullptr);
     auto* spline_m         = new typename Base::SplineType;

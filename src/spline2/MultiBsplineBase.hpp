@@ -45,6 +45,10 @@ protected:
   ///actual vector of einspline multi-bspline objects
   std::vector<SplineType*> spline_blocks;
 
+  const std::vector<size_t> offsets_;
+
+  MultiBsplineBase(const std::vector<size_t>& offsets) : offsets_(offsets) {}
+
   /** create BoundaryCondition
    * @tparam BCT boundary type
    */
@@ -172,7 +176,13 @@ public:
    */
   void set_spline(const typename bspline_traits<double, 3>::SingleSplineType& single, int i)
   {
-    auto& multi(*spline_blocks[0]);
+    size_t iblock = 0;
+    while (iblock < spline_blocks.size() && i >= offsets_[iblock + 1])
+      iblock++;
+    if (iblock == spline_blocks.size())
+      throw std::runtime_error("Bug detected in MultiBsplineBase::set_spline i goes out of bound!");
+
+    auto& multi(*spline_blocks[iblock]);
 
     if (single.x_grid.num != multi.x_grid.num || single.y_grid.num != multi.y_grid.num ||
         single.z_grid.num != multi.z_grid.num)
@@ -183,7 +193,7 @@ public:
     intptr_t x_stride_out = multi.x_stride;
     intptr_t y_stride_out = multi.y_stride;
     intptr_t z_stride_out = multi.z_stride;
-    const intptr_t istart = static_cast<intptr_t>(i);
+    const intptr_t istart = static_cast<intptr_t>(i - offsets_[iblock]);
     const intptr_t n0 = multi.x_grid.num + 3, n1 = multi.y_grid.num + 3, n2 = multi.z_grid.num + 3;
     for (intptr_t ix = 0; ix < n0; ++ix)
       for (intptr_t iy = 0; iy < n1; ++iy)
