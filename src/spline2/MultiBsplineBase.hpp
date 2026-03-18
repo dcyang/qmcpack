@@ -23,6 +23,7 @@
 #include <cstddef>
 #include <vector>
 #include "spline2/bspline_traits.hpp"
+#include "spline2/MultiBsplineEval.hpp"
 
 namespace qmcplusplus
 {
@@ -206,6 +207,58 @@ public:
   }
 
   virtual void finalize() {};
+
+  template<typename PT, typename VT>
+  inline void evaluate_v(const PT& r, VT& psi)
+  {
+    for (size_t ib = 0; ib < spline_blocks.size(); ib++)
+    {
+      const auto* spline_m(spline_blocks[ib]);
+      if (spline_m->num_splines == 0)
+        continue;
+      spline2::evaluate_v_impl(spline_m, r[0], r[1], r[2], psi.data() + offsets_[ib], 0, spline_m->num_splines);
+    }
+  }
+
+  template<typename PT, typename VT, typename GT>
+  inline void evaluate_vgl(const PT& r, VT& psi, GT& grad, GT& lap)
+  {
+    for (size_t ib = 0; ib < spline_blocks.size(); ib++)
+    {
+      const auto* spline_m(spline_blocks[ib]);
+      if (spline_m->num_splines == 0)
+        continue;
+      spline2::evaluate_vgl_impl(spline_m, r[0], r[1], r[2], psi.data() + offsets_[ib], grad.data() + offsets_[ib],
+                                 lap.data() + offsets_[ib], psi.size(), 0, spline_m->num_splines);
+    }
+  }
+
+  template<typename PT, typename VT, typename GT, typename HT>
+  inline void evaluate_vgh(const PT& r, VT& psi, GT& grad, HT& hess)
+  {
+    for (size_t ib = 0; ib < spline_blocks.size(); ib++)
+    {
+      const auto* spline_m(spline_blocks[ib]);
+      if (spline_m->num_splines == 0)
+        continue;
+      spline2::evaluate_vgh_impl(spline_m, r[0], r[1], r[2], psi.data() + offsets_[ib], grad.data() + offsets_[ib],
+                                 hess.data() + offsets_[ib], psi.size(), 0, spline_m->num_splines);
+    }
+  }
+
+  template<typename PT, typename VT, typename GT, typename HT, typename GHT>
+  inline void evaluate_vghgh(const PT& r, VT& psi, GT& grad, HT& hess, GHT& ghess)
+  {
+    for (size_t ib = 0; ib < spline_blocks.size(); ib++)
+    {
+      const auto* spline_m(spline_blocks[ib]);
+      if (spline_m->num_splines == 0)
+        continue;
+      spline2::evaluate_vghgh_impl(spline_m, r[0], r[1], r[2], psi.data() + offsets_[ib], grad.data() + offsets_[ib],
+                                   hess.data() + offsets_[ib], ghess.data() + offsets_[ib], psi.size(), 0,
+                                   spline_m->num_splines);
+    }
+  }
 };
 
 } // namespace qmcplusplus
