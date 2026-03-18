@@ -23,7 +23,7 @@ rhf.kernel()
 # Transformation matrix to ortho AO basis.
 X = get_ortho_ao_mol(mol.intor('int1e_ovlp_sph'))
 Xinv = scipy.linalg.inv(X)
-with h5py.File('scf.chk') as fh5:
+with h5py.File('scf.chk', "w") as fh5:
     fh5['scf/orthoAORot'] = X
 
 # a. Generate Hamiltonian in ortho AO basis.

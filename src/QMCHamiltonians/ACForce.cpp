@@ -20,9 +20,8 @@
 namespace qmcplusplus
 {
 ACForce::ACForce(ParticleSet& source, ParticleSet& target, TrialWaveFunction& psi_in, QMCHamiltonian& H)
-    : delta_(1e-4),
-      ions_(source),
-      ham_(H),
+    : ForceBase(source, target),
+      delta_(1e-4), ions_(source), elns_(target), psi_(psi_in), ham_(H),
       first_force_index_(-1),
       useSpaceWarp_(false),
       fastDerivatives_(false),
@@ -31,6 +30,7 @@ ACForce::ACForce(ParticleSet& source, ParticleSet& target, TrialWaveFunction& ps
       f_epsilon_(1.0)
 {
   setName("ACForce");
+  prefix_ = "ACForce";
 
   const std::size_t nIons = ions_.getTotalNum();
   hf_force_.resize(nIons);
@@ -63,6 +63,7 @@ bool ACForce::put(xmlNodePtr cur)
   std::string ionionforce("yes");
   RealType swpow(4);
   OhmmsAttributeSet attr;
+  attr.add(prefix_, "name");
   attr.add(useSpaceWarp_, "spacewarp", {false}); //"yes" or "no"
   attr.add(swpow, "swpow");                      //Real number"
   attr.add(delta_, "delta");                     //Real number"
@@ -145,10 +146,10 @@ void ACForce::addObservables(PropertySetType& plist, BufferType& collectables)
     {
       const std::string xStr(std::to_string(x));
 
-      const std::string hfname("ACForce_hf_" + iatStr + "_" + xStr);
-      const std::string pulayname("ACForce_pulay_" + iatStr + "_" + xStr);
-      const std::string wfgradname1("ACForce_Ewfgrad_" + iatStr + "_" + xStr);
-      const std::string wfgradname2("ACForce_wfgrad_" + iatStr + "_" + xStr);
+      const std::string hfname(prefix_ + "_hf_" + iatStr + "_" + xStr);
+      const std::string pulayname(prefix_ + "_pulay_" + iatStr + "_" + xStr);
+      const std::string wfgradname1(prefix_ + "_Ewfgrad_" + iatStr + "_" + xStr);
+      const std::string wfgradname2(prefix_ + "_wfgrad_" + iatStr + "_" + xStr);
 
       plist.add(hfname);
       plist.add(pulayname);
