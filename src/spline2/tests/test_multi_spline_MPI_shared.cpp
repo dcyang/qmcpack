@@ -97,8 +97,9 @@ struct test_splines : public test_splines_base<T, GRID_SIZE>
 
   void test(size_t num_splines)
   {
-    auto& comm(*OHMMS::Controller);
-    MultiBsplineMPIShared<T> bs(grid, bc, num_splines, comm);
+    auto comm_distributed = std::make_unique<Communicate>(*OHMMS::Controller, OHMMS::Controller->size());
+    auto& comm(*comm_distributed);
+    MultiBsplineMPIShared<T> bs(grid, bc, num_splines, std::move(comm_distributed));
 
     const size_t npad = getAlignedSize<T>(num_splines);
     REQUIRE(bs.num_splines_padded() == getAlignedSize<T>(num_splines));
@@ -151,8 +152,9 @@ struct test_splines<T, 5> : public test_splines_base<T, 5>
 
   void test(size_t num_splines)
   {
-    auto& comm(*OHMMS::Controller);
-    MultiBsplineMPIShared<T> bs(grid, bc, num_splines, comm);
+    auto comm_distributed = std::make_unique<Communicate>(*OHMMS::Controller, OHMMS::Controller->size());
+    auto& comm(*comm_distributed);
+    MultiBsplineMPIShared<T> bs(grid, bc, num_splines, std::move(comm_distributed));
 
     const size_t npad = getAlignedSize<T>(num_splines);
     REQUIRE(bs.num_splines_padded() == getAlignedSize<T>(num_splines));

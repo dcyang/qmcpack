@@ -17,6 +17,7 @@
 #ifndef QMCPLUSPLUS_MULTIEINSPLINE_MPISHARED_HPP
 #define QMCPLUSPLUS_MULTIEINSPLINE_MPISHARED_HPP
 
+#include <memory>
 #include "MultiBsplineBase.hpp"
 #include "CPU/SIMD/aligned_allocator.hpp"
 #include "Message/Communicate.h"
@@ -37,15 +38,18 @@ private:
   ///use allocator
   Alloc coefs_allocator;
 
+  const std::unique_ptr<Communicate> comm_;
+
   MPI_Win win;
 
   using Base::offsets_;
 
 public:
   template<typename BCT>
-  MultiBsplineMPIShared(const Ugrid grid[3], const BCT& bc, size_t num_splines, Communicate& comm)
-      : Base(FairDivideAligned<std::vector<size_t>>(num_splines, getAlignment<T>(), comm.size()))
+  MultiBsplineMPIShared(const Ugrid grid[3], const BCT& bc, size_t num_splines, std::unique_ptr<Communicate>&& comm_distributed)
+      : Base(FairDivideAligned<std::vector<size_t>>(num_splines, getAlignment<T>(), comm_distributed->size())), comm_(std::move(comm_distributed))
   {
+	auto&  comm = *comm_;
     const auto comm_rank = comm.rank();
     const auto comm_size = comm.size();
 
