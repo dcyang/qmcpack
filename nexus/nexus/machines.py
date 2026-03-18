@@ -4438,6 +4438,72 @@ class Kagayaki(Supercomputer):
 
 
 # Active
+# Nurion at KISTI
+## Added 09/01/2025 by ChangMo Yang
+class Nurion(Supercomputer):
+    name = 'nurion'
+    requires_account = True
+    batch_capable    = True
+    special_bundling = False
+
+    def process_job_options(self,job):
+        # job.run_options.add(nodefile='-machinefile $PBS_NODEFILE', np='-np '+str(job.processes))
+        # nodefile='-machinefile $PBS_NODEFILE',
+        # np='-np {}'.format(job.processes),
+        # omp='-x OMP_NUM_THREADS',
+        threads_per_proc = job.cores_per_proc // job.processes_per_proc
+        opt = obj(
+            pythonhome= '-x PYTHON_HOME',
+            pythonpath= '-x PYTHONPATH',
+            envpath= '-x PATH',
+            envldlpath= '-x LD_LIBRARY_PATH',
+            mapby= '--map-by NUMA:PE=32'
+            )
+        job.run_options.add(**opt)
+
+    def write_job_header(self,job):
+        c=''
+        c+='#!/bin/sh\n'
+        c+='#PBS -V\n'
+        c+='#PBS -N ' + job.name + '\n'
+        if job.queue is not None:
+            c+='#PBS -q ' + job.queue + '\n'
+        if job.app_name is not None:
+            c+='#PBS -A ' + job.app_name + '\n'
+        else:
+            c+='#PBS -A etc\n'
+        if 'skl' in job.queue:
+            c+='#PBS -l select={0}:ncpus=40:mpiprocs=2:ompthreads={}\n'.format(job.nodes, str(job.threads))
+        else:)
+            c+='#PBS -l select={0}:ncpus=68:mpiprocs=2:ompthreads={}\n'.format(job.nodes, str(job.threads))
+        c+='#PBS -l walltime={}\n'.format(job.pbs_walltime())
+        c+='cd $PBS_O_WORKDIR\n'
+        c+='export OMP_NUM_THREADS=' + str(job.threads) + '\n'
+        c+='''
+module load craype-mic-knl gcc/12.4.0
+export MPI_HOME=${HOME}/app/openmpi-5.0.8
+
+export HDF5_HOME=/apps/compiler/gcc/10.2.0/openmpi/4.1.1/applib2/mic-knl/hdf5-parallel/1.12.0
+export FFTW_HOME=/apps/compiler/gcc/10.2.0/openmpi/4.1.1/applib2/mic-knl/fftw_mpi/3.3.7
+export OPENSSL_HOME=/apps/applications/bio/tools/miniconda3/pkgs/openssl-3.1.1-hd590300_1
+export OPENBLAS_HOME=${HOME}/app/OpenBLAS-0.3.30k
+
+export QE_HOME=${HOME}/app/qe-7.5
+export QMCPACK_HOME=${HOME}/app/qmcpack-4.1.0
+
+export PYTHON_HOME=${HOME}/app/Python-3.12.5
+export PYTHONPATH=${HOME}/arc/qmcpack-4.1.0/src/QMCTools:${HOME}/arc/qmcpack-4.1.0/nexus/lib:${HOME}/lib/python3.12/site-packages
+export PYTHONUSERBASE=${HOME}
+
+export PATH=${HOME}/.local/bin:${HOME}/bin:${QMCPACK_HOME}/bin:${QE_HOME}/bin:${HDF5_HOME}/bin:${FFTW_HOME}/bin:${PYTHON_HOME}/bin:${OPENSSL_HOME}/bin:      ${MPI_HOME}/bin:/apps/applications/cmake/3.26.2/bin:/apps/applications/git/2.35.1/bin:/apps/compiler/gcc/12.4.0/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/   usr/bin:/usr/local/sbin:/usr/sbin:/opt/ddn/ime/bin:/cm/local/apps/environment-modules/3.2.10/bin:/opt/pbs/bin
+export LD_LIBRARY_PATH=${HOME}/.local/lib:${HOME}/lib:${HDF5_HOME}/lib:${FFTW_HOME}/lib:${OPENBLAS_HOME}/lib:${PYTHON_HOME}/lib:${OPENSSL_HOME}/lib:${HOME}/ lib:/apps/compiler/gcc/12.4.0/lib64:/apps/compiler/gcc/12.4.0/lib/gcc/x86_64-unknown-linux-gnu/12.4.0:/apps/common/gmp/6.1.2/lib:/apps/common/mpfr/4.0.1/    lib:/apps/common/mpc/1.1.0/lib:/opt/cray/lib64
+'''
+        return c
+    #end def write_job_header
+#end class Nurion
+
+
+# Active
 # Kestrel at NREL
 class Kestrel(Supercomputer):
     name = 'kestrel'
@@ -4632,6 +4698,7 @@ Baseline(      128,   2,    64,  512,  100,   'srun',   'sbatch',  'squeue', 'sc
 Besms(         166,   1,    96,  768, 1000,   'srun',   'sbatch',  'squeue', 'scancel')
 Frontier(     9856,   4,    14,   64, 1000,   'srun',   'sbatch',  'squeue', 'scancel')
 Aurora(      10624,   2,   102,  512, 1000,'mpiexec',     'qsub',   'qstat',    'qdel')
+Nurion(       8000,   1,    68,   96,   20, 'mpirun',     'qsub',   'qstat',    'qdel')
 
 #machine accessor functions
 get_machine_name = Machine.get_hostname
