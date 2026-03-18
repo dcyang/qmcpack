@@ -102,7 +102,7 @@ void BranchIO<SFNB>::initAttributes()
   iParamName[3] = "targetwalkers";
   iParamName[4] = "maxwalkers";
   iParamName[5] = "minwalkers";
-  iParamName[6] = "brnachinterval";
+  iParamName[6] = "branchinterval";
 }
 
 template<class SFNB>

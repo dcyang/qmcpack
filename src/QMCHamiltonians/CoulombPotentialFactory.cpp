@@ -35,6 +35,7 @@
 #include "QMCHamiltonians/MPC.h"
 #endif
 #endif
+#include "ModernStringUtils.hpp"
 
 //#include <iostream>
 namespace qmcplusplus
@@ -172,6 +173,8 @@ void HamiltonianFactory::addForceHam(xmlNodePtr cur)
 
   bool quantum = (a == targetPtcl.getName());
 
+  renameProperty(a);
+  mode = lowerCase(mode);
   auto pit(ptclPool.find(a));
   if (pit == ptclPool.end())
   {
@@ -193,7 +196,7 @@ void HamiltonianFactory::addForceHam(xmlNodePtr cur)
     bareforce->put(cur);
     targetH->addOperator(std::move(bareforce), title, false);
   }
-  else if (mode == "cep")
+  else if (mode.find("cep") != std::string::npos || mode == "ccz")
   {
     if (applyPBC == true)
     {

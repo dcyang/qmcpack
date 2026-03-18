@@ -16,6 +16,7 @@
 #ifndef QMCPLUSPLUS_ACFORCE_H
 #define QMCPLUSPLUS_ACFORCE_H
 
+#include "QMCHamiltonians/ForceBase.h"
 #include "QMCHamiltonians/OperatorBase.h"
 #include "QMCWaveFunctions/TrialWaveFunction.h"
 #include "QMCHamiltonians/QMCHamiltonian.h"
@@ -29,7 +30,7 @@ namespace qmcplusplus
  * or add2Hamiltonian which wraps the usual makeClone function with a QMCHamiltonian object reference added.
  * This is quite ungly but that is how things currently work.
  */
-class ACForce : public OperatorBase
+class ACForce : public OperatorBase, public ForceBase
 {
 public:
   using Forces           = ParticleSet::ParticlePos;
