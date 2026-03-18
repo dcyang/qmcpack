@@ -70,11 +70,14 @@ public:
     MPI_Info_set(info, "mpi_minimum_memory_alignment", std::to_string(Alloc::alignment).c_str());
 
     auto& spline_owned = *Base::spline_blocks[comm_rank];
+    void* coefs = nullptr;
     auto err = MPI_Win_allocate_shared(spline_owned.coefs_size * sizeof(T) + Alloc::alignment, sizeof(T), info,
-                                       comm.getMPI(), &spline_owned.coefs, &win);
+                                       comm.getMPI(), &coefs, &win);
     MPI_Info_free(&info);
     if (err != MPI_SUCCESS)
       throw UniformCommunicateError("MultiBsplineMPIShared::MultiBsplineMPIShared MPI_Win_allocate_shared failed!");
+
+    spline_owned.coefs = (T*)coefs;
 
     for (int i = 0; i < comm_size; i++)
     {
