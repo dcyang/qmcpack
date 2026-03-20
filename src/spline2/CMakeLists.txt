@@ -14,9 +14,9 @@ add_library(spline2_omptarget OBJECT MultiBsplineOffload.cpp)
 target_link_libraries(spline2_omptarget PUBLIC einspline platform_runtime)
 
 if(USE_OBJECT_TARGET)
-  add_library(spline2 OBJECT MultiBspline.cpp SplineUtils.cpp)
+  add_library(spline2 OBJECT MultiBspline.cpp SplineUtils.cpp MultiBspline1D.cpp)
 else()
-  add_library(spline2 MultiBspline.cpp SplineUtils.cpp)
+  add_library(spline2 MultiBspline.cpp SplineUtils.cpp MultiBspline1D.cpp)
 endif()
 target_link_libraries(spline2 PUBLIC spline2_omptarget message qmcio)
 
