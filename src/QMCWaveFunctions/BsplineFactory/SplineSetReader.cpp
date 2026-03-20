@@ -185,11 +185,11 @@ void SplineSetReader<ST>::initialize_spline_pio_gather(const int spin,
       oneband.fft_spline(cG, mybuilder->Gvecs[0], mybuilder->primcell_kpoints[ti], rotate);
       if (use_duplex_splines_)
       {
-        copy_spline<double, ST>(oneband.get_spline_r(), *multi_splines.getSplinePtr(), iorb * 2);
-        copy_spline<double, ST>(oneband.get_spline_i(), *multi_splines.getSplinePtr(), iorb * 2 + 1);
+        multi_splines.set_spline(oneband.get_spline_r(), iorb * 2);
+        multi_splines.set_spline(oneband.get_spline_i(), iorb * 2 + 1);
       }
       else
-        copy_spline<double, ST>(oneband.get_spline_r(), *multi_splines.getSplinePtr(), iorb);
+        multi_splines.set_spline(oneband.get_spline_r(), iorb);
     }
 
     {
