@@ -9,7 +9,7 @@ assert len(sys.argv)==2,'install_nexus_binaries only takes a single argument (th
 current_path = os.path.split(__file__)[0]
 install_path = sys.argv[1]
 
-bin_src    = os.path.join(current_path,'nexus/bin')
+bin_src    = os.path.join(current_path,'nexus/nexus/bin')
 nexus_src  = os.path.join(current_path,'nexus/nexus')
 
 bin_dest   = os.path.join(install_path,'bin')

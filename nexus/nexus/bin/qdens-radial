@@ -15,9 +15,19 @@ def find_nexus_modules():
     # Explicitly check the existence of nexus/__init__.py at the closely coupled location
     nexus_init = os.path.join(nexus_lib,'nexus/__init__.py')
     if not os.path.exists(nexus_init):
-        print('\nExpected file '+nexus_init+' does not exist!'
-              '\nBroken Nexus installation! Please follow Nexus manual regarding installation.\n')
-        sys.exit(1)
+        # If we've been installed via QMCPACK, we should be at least one level away from
+        # the libraries, this is our alternative path.
+        nexus_lib_alt = os.path.realpath(os.path.join(__file__,'..','..'))
+        nexus_init_alt = os.path.join(nexus_lib_alt,'nexus/__init__.py')
+        if not os.path.exists(nexus_init_alt):
+            print(
+                '\n'
+                'Expected file '+nexus_init+' does not exist,\n'
+                'nor does '+nexus_init_alt+'!\n'
+                'Broken Nexus installation! Please follow Nexus manual regarding installation.\n')
+            sys.exit(1)
+        else:
+            nexus_lib = nexus_lib_alt
 
     # check import of nexus modules
     sys.path.insert(0,nexus_lib)
