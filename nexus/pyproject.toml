@@ -18,14 +18,14 @@ dependencies = [
 ]
 
 [project.scripts]
-eshdf = "nexus.scripts:eshdf"
-nxs-redo = "nexus.scripts:nxs_redo"
-nxs-sim = "nexus.scripts:nxs_sim"
-nxs-test = "nexus.scripts:nxs_test"
-qdens = "nexus.scripts:qdens"
-qdens-radial = "nexus.scripts:qdens_radial"
-qmca = "nexus.scripts:qmca"
-qmc-fit = "nexus.scripts:qmc_fit"
+eshdf = "nexus._bin:eshdf"
+nxs-redo = "nexus._bin:nxs_redo"
+nxs-sim = "nexus._bin:nxs_sim"
+nxs-test = "nexus._bin:nxs_test"
+qdens = "nexus._bin:qdens"
+qdens-radial = "nexus._bin:qdens_radial"
+qmca = "nexus._bin:qmca"
+qmc-fit = "nexus._bin:qmc_fit"
 
 [build-system]
 requires = ["hatchling"]
