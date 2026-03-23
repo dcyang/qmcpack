@@ -73,7 +73,7 @@ dirs_check = [
     "rmg_analyzer.py",
     "rmg_input.py",
     "rmg.py",
-    "scripts.py",
+    "_bin.py",
     "simulation.py",
     "structure.py",
     "template_simulation.py",
