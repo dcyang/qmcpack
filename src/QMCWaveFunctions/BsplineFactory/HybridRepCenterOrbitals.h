@@ -550,8 +550,8 @@ public:
               << "for the atomic radial splines in hybrid orbital representation" << std::endl;
   }
 
-  void bcast_atomic_tables(Communicate* comm);
-  void gather_atomic_tables(Communicate* comm, const std::vector<int>& offset);
+  void bcast_atomic_tables(Communicate& comm);
+  void gather_atomic_tables(Communicate& comm, const std::vector<int>& offset);
 
   inline void flush_zero()
   {

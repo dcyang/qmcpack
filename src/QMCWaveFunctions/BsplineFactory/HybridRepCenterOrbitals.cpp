@@ -51,19 +51,19 @@ bool AtomicOrbitals<ST>::write_splines(hdf_archive& h5f)
 }
 
 template<typename ST>
-void HybridRepCenterOrbitals<ST>::bcast_atomic_tables(Communicate* comm)
+void HybridRepCenterOrbitals<ST>::bcast_atomic_tables(Communicate& comm)
 {
   for (int ic = 0; ic < AtomicCenters.size(); ic++)
-    AtomicCenters[ic].bcast_tables(*comm);
+    AtomicCenters[ic].bcast_tables(comm);
 }
 
 template<typename ST>
-void HybridRepCenterOrbitals<ST>::gather_atomic_tables(Communicate* comm, const std::vector<int>& offset)
+void HybridRepCenterOrbitals<ST>::gather_atomic_tables(Communicate& comm, const std::vector<int>& offset)
 {
-  if (comm->size() == 1)
+  if (comm.size() == 1)
     return;
   for (int ic = 0; ic < AtomicCenters.size(); ic++)
-    AtomicCenters[ic].gather_tables(*comm, offset);
+    AtomicCenters[ic].gather_tables(comm, offset);
 }
 
 template<typename ST>
