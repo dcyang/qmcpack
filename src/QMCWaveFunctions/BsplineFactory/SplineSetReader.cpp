@@ -176,6 +176,7 @@ void SplineSetReader<ST>::initialize_spline_pio_gather(const int spin,
   const std::vector<BandInfo>& cur_bands = bandgroup.myBands;
   if (band_group_comm.isGroupLeader())
   {
+    auto& group_leader_comm = band_group_comm.getInterGroupComm();
     h5f.open(mybuilder->H5FileName, H5F_ACC_RDONLY);
     for (int iorb = iorb_first; iorb < iorb_last; iorb++)
     {
@@ -193,17 +194,17 @@ void SplineSetReader<ST>::initialize_spline_pio_gather(const int spin,
     }
 
     {
-      band_group_comm.getGroupLeaderComm()->barrier();
+      group_leader_comm.barrier();
       Timer now;
       if (use_duplex_splines_)
       {
         std::vector<int> offset(band_groups.size());
         for (int i = 0; i < offset.size(); i++)
           offset[i] = band_groups[i] * 2;
-        SplineUtils<ST>::gatherv(multi_splines, offset, *band_group_comm.getGroupLeaderComm());
+        SplineUtils<ST>::gatherv(multi_splines, offset, group_leader_comm);
       }
       else
-        SplineUtils<ST>::gatherv(multi_splines, band_groups, *band_group_comm.getGroupLeaderComm());
+        SplineUtils<ST>::gatherv(multi_splines, band_groups, group_leader_comm);
       app_log() << "  Time to gather the table = " << now.elapsed() << std::endl;
     }
   }
