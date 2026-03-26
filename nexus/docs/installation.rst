@@ -424,8 +424,12 @@ To run the tests with ``pytest`` (``pip install --user pytest``), enter the unit
     test_versions.py .....                                               [ 98%]
     test_xmlreader.py .......                                            [100%]
 
-Assessing Test Coverage (Developer Topic)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Developer Topics
+----------------
+
+Assessing Test Coverage
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Code coverage can be assessed by using the ``pytest-cov`` plugin (``pip install --user pytest-cov``):
 
@@ -498,3 +502,27 @@ To obtain an annotated view of the statements in the source that are not yet cov
     > pytest --cov=nexus --cov-report html
 
 Open ``htmlcov/index.html`` in a browser to view the report. More information regarding the ``coverage`` tool can be found at https://coverage.readthedocs.io/en/v4.5.x/.
+
+
+Creating Portable Nexus Builds
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+With recent changes to Nexus's structure, it has become possible to build binary distributions of Nexus in the form of a wheel file (extension ``.whl``).
+
+Wheel files are compressed ZIP-format archives that are officially recommended by the `Python Packaging Authority (PyPA) <https://packaging.python.org/en/latest/specifications/binary-distribution-format/>`__ and can be built by anyone with the right tools.
+To get started, you must have a tool capable of building a project; here we will be describing how to use ``uv`` for building distributions.
+First, start by cloning the QMCPACK GitHub repository and navigating to the ``nexus`` directory. 
+Next, though this step is not always necessary, it is recommended to run ``nxs-test`` to ensure you have a clean Nexus installation.
+Finally, you can run the command ``uv build``, which will create a ``qmcpack/nexus/dist`` directory, and build two files to go in it.
+The first is a tar archive of the source code, and the second is a ``.whl`` file.
+This wheel file is then usable as an installation source, which you can access via the following command (if you are in a virtual environment):
+
+.. code-block:: bash
+
+    uv pip install qmcpack/nexus/dist/nexus-2.2.0-py3-none-any.whl
+
+This will install Nexus into your virtual environment and make all of its libraries and executables available to you while you are in that virtual environment.
+
+.. tip::
+    This route for installing and distributing Nexus is especially useful if you are a system administrator as you can create consistent builds of Nexus at regular intervals and ensure that your users all have up-to-date versions available to them.
+    It also allows for users to have access to their own version of Nexus if they choose to not use a global Python environment. This is because the wheels will install a copy of Nexus into their local/virtual environment, which they can edit as much as they please, without disturbing the global installation.
