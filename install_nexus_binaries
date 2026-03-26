@@ -26,7 +26,17 @@ if not os.path.exists(nexus_dest):
 qmcpack_binaries = ['qmca','qmc-fit','qdens','qdens-radial']
 for b in qmcpack_binaries:
     bin_file = os.path.join(bin_src,b)
-    shutil.copy2(bin_file,bin_dest)
+
+    with open(bin_file, "r") as bin:
+        bin_str = bin.read()
+
+    bin_str = bin_str.replace(
+        "search_basepath.parent",
+        "search_basepath # Modified by `install_nexus_binaries` for QMCPACK installation",
+    )
+
+    with open(bin_dest+b, "w") as bin_copy:
+        bin_copy.write(bin_str)
 
 nexus_modules = [m for m in os.listdir(nexus_src) if m.endswith('.py')]
 for m in nexus_modules:
