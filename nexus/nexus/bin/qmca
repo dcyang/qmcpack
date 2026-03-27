@@ -24,7 +24,7 @@ def find_nexus_modules():
         sys.exit(1)
 
     # check import of nexus modules
-    sys.path.insert(0,nexus_library_search_path)
+    sys.path.insert(0,str(nexus_library_search_path))
     try:
         import nexus
     except Exception as err:
