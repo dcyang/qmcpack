@@ -4,7 +4,7 @@ import sys
 import os
 import shutil
 
-assert len(sys.argv)==2,'make_nexus_binaries only takes a single argument (the installation path)'
+assert len(sys.argv)==2,'move_nexus_binaries only takes a single argument (the installation path)'
 
 current_path = os.path.split(__file__)[0]
 install_path = sys.argv[1]
@@ -34,7 +34,7 @@ for b in qmcpack_binaries:
 
     bin_str = bin_str.replace(
         "search_basepath.parent",
-        "search_basepath # Modified by `make_nexus_binaries` for QMCPACK installation",
+        "search_basepath # Modified by `move_nexus_binaries` for QMCPACK installation",
     )
 
     with open(bin_dest_path, "w") as bin_dest_file:
