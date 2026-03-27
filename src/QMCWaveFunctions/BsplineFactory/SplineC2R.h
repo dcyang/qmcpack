@@ -73,7 +73,7 @@ private:
 
 protected:
   ///multi bspline set
-  std::shared_ptr<MultiBspline<ST>> SplineInst;
+  const std::shared_ptr<MultiBspline<ST>> SplineInst;
   /// intermediate result vectors
   vContainer_type myV;
   vContainer_type myL;
@@ -82,14 +82,20 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineC2R(const std::string& my_name, size_t size, const Lattice& prim_lattice, bool use_offload = false)
-      : BsplineSet(my_name, size, prim_lattice), GGt(dot(transpose(prim_lattice.G), prim_lattice.G)), nComplexBands(0)
+  SplineC2R(const std::string& my_name,
+            size_t size,
+            const Lattice& prim_lattice,
+            std::unique_ptr<MultiBsplineBase<ST>>&& multi_spline,
+            bool use_offload = false)
+      : BsplineSet(my_name, size, prim_lattice),
+        GGt(dot(transpose(prim_lattice.G), prim_lattice.G)),
+        nComplexBands(0),
+        SplineInst(dynamic_cast<MultiBspline<ST>*>(multi_spline.release()))
   {}
 
   SplineC2R(const SplineC2R& in);
   virtual std::string getClassName() const override { return "SplineC2R"; }
   virtual std::string getKeyword() const override { return "SplineC2R"; }
-  bool isComplex() const override { return true; };
 
   std::unique_ptr<SPOSet> makeClone() const override { return std::make_unique<SplineC2R>(*this); }
 
@@ -104,19 +110,8 @@ public:
     mygH.resize(npad);
   }
 
-  template<typename BCT>
-  void create_spline(const Ugrid xyz_g[3], const BCT& xyz_bc)
-  {
-    resize_kpoints();
-    SplineInst = std::make_shared<MultiBspline<ST>>();
-    SplineInst->create(xyz_g, xyz_bc, myV.size());
-
-    app_log() << "MEMORY " << SplineInst->sizeInByte() / (1 << 20) << " MB allocated "
-              << "for the coefficients in 3D spline orbital representation" << std::endl;
-  }
-
   /** remap kPoints to pack the double copy */
-  inline void resize_kpoints()
+  inline void resize_kpoints() override
   {
     nComplexBands = this->remap_kpoints();
     const int nk  = kPoints.size();
@@ -128,8 +123,6 @@ public:
       myKcart(i) = kPoints[i];
     }
   }
-
-  void set_spline(SingleSplineType* spline_r, SingleSplineType* spline_i, int twist, int ispline, int level);
 
   void assign_v(const PointType& r, const vContainer_type& myV, ValueVector& psi, int first, int last) const;
 
@@ -183,8 +176,7 @@ public:
                      HessVector& grad_grad_psi,
                      GGGVector& grad_grad_grad_psi) override;
 
-  template<class BSPLINESPO>
-  friend class SplineSetReader;
+  friend class SplineSetReader<ST>;
   friend class BsplineReader;
 };
 

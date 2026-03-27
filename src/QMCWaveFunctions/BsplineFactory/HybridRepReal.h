@@ -67,9 +67,14 @@ private:
   using SPLINEBASE::prim_lattice_;
 
 public:
-  HybridRepReal(const std::string& my_name, size_t size, const Lattice& prim_lattice)
-      : SPLINEBASE(my_name, size, prim_lattice)
+  HybridRepReal(const std::string& my_name,
+                size_t size,
+                const Lattice& prim_lattice,
+                std::unique_ptr<MultiBsplineBase<ST>>&& multi_spline)
+      : SPLINEBASE(my_name, size, prim_lattice, std::move(multi_spline))
   {}
+
+  HYBRIDBASE& getHybridRepCenterOrbitals() { return *this; }
 
   bool isRotationSupported() const override { return SPLINEBASE::isRotationSupported(); }
   void storeParamsBeforeRotation() override
@@ -227,10 +232,8 @@ public:
     BsplineSet::evaluate_notranspose(P, first, last, logdet, dlogdet, d2logdet);
   }
 
-  template<class BSPLINESPO>
-  friend class HybridRepSetReader;
-  template<class BSPLINESPO>
-  friend class SplineSetReader;
+  friend class HybridRepSetReader<ST>;
+  friend class SplineSetReader<ST>;
   friend class BsplineReader;
 };
 

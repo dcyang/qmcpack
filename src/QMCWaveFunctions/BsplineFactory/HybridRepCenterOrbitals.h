@@ -29,7 +29,7 @@ namespace qmcplusplus
 {
 class hdf_archive;
 
-template<class BSPLINESPO>
+template<class ST>
 class HybridRepSetReader;
 
 template<typename ST>
@@ -550,8 +550,8 @@ public:
               << "for the atomic radial splines in hybrid orbital representation" << std::endl;
   }
 
-  void bcast_atomic_tables(Communicate* comm);
-  void gather_atomic_tables(Communicate* comm, const std::vector<int>& offset);
+  void bcast_atomic_tables(Communicate& comm);
+  void gather_atomic_tables(Communicate& comm, const std::vector<int>& offset);
 
   inline void flush_zero()
   {
@@ -728,8 +728,7 @@ public:
       throw std::runtime_error("Unknown smooth scheme!");
   }
 
-  template<class BSPLINESPO>
-  friend class qmcplusplus::HybridRepSetReader;
+  friend class qmcplusplus::HybridRepSetReader<ST>;
 };
 
 extern template class AtomicOrbitals<float>;

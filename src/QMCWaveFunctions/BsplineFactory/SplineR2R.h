@@ -82,7 +82,7 @@ private:
 
 protected:
   ///multi bspline set
-  std::shared_ptr<MultiBsplineBase<ST>> SplineInst;
+  const std::shared_ptr<MultiBsplineBase<ST>> SplineInst;
   /// intermediate result vectors
   vContainer_type myV;
   vContainer_type myL;
@@ -91,11 +91,14 @@ protected:
   ghContainer_type mygH;
 
 public:
-  SplineR2R(const std::string& my_name, size_t size, const Lattice& prim_lattice, bool use_offload = false);
+  SplineR2R(const std::string& my_name,
+            size_t size,
+            const Lattice& prim_lattice,
+            std::unique_ptr<MultiBsplineBase<ST>>&& multi_spline,
+            bool use_offload = false);
   SplineR2R(const SplineR2R& in);
   virtual std::string getClassName() const override { return "SplineR2R"; }
   virtual std::string getKeyword() const override { return "SplineR2R"; }
-  bool isComplex() const override { return false; };
   bool isRotationSupported() const override { return true; }
   virtual bool isOMPoffload() const override { return use_offload_; }
 
@@ -149,19 +152,8 @@ public:
     IsGamma = ((HalfG[0] == 0) && (HalfG[1] == 0) && (HalfG[2] == 0));
   }
 
-  template<typename BCT>
-  void create_spline(const Ugrid xyz_g[3], const BCT& xyz_bc)
-  {
-    SplineInst->create(xyz_g, xyz_bc, myV.size());
-
-    app_log() << "MEMORY " << SplineInst->sizeInByte() / (1 << 20) << " MB allocated "
-              << "for the coefficients in 3D spline orbital representation" << std::endl;
-  }
-
   /// this routine can not be called from threaded region
   void finalizeConstruction() override;
-
-  void set_spline(SingleSplineType* spline_r, SingleSplineType* spline_i, int twist, int ispline, int level);
 
   /** convert position in prim_lattice_ unit and return sign */
   inline int convertPos(const PointType& r, PointType& ru) const
@@ -239,8 +231,7 @@ public:
                      HessVector& grad_grad_psi,
                      GGGVector& grad_grad_grad_psi) override;
 
-  template<class BSPLINESPO>
-  friend class SplineSetReader;
+  friend class SplineSetReader<ST>;
   friend class BsplineReader;
 };
 
