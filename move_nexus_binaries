@@ -4,12 +4,12 @@ import sys
 import os
 import shutil
 
-assert len(sys.argv)==2,'install_nexus_binaries only takes a single argument (the installation path)'
+assert len(sys.argv)==2,'move_nexus_binaries only takes a single argument (the installation path)'
 
 current_path = os.path.split(__file__)[0]
 install_path = sys.argv[1]
 
-bin_src    = os.path.join(current_path,'nexus/bin')
+bin_src    = os.path.join(current_path,'nexus/nexus/bin')
 nexus_src  = os.path.join(current_path,'nexus/nexus')
 
 bin_dest   = os.path.join(install_path,'bin')
@@ -25,8 +25,20 @@ if not os.path.exists(nexus_dest):
 
 qmcpack_binaries = ['qmca','qmc-fit','qdens','qdens-radial']
 for b in qmcpack_binaries:
-    bin_file = os.path.join(bin_src,b)
-    shutil.copy2(bin_file,bin_dest)
+    bin_path = os.path.join(bin_src,b)
+    shutil.copy2(bin_path,bin_dest)
+    bin_dest_path = os.path.join(bin_dest,b)
+
+    with open(bin_dest_path, "r") as bin_dest_file:
+        bin_str = bin_dest_file.read()
+
+    bin_str = bin_str.replace(
+        "search_basepath.parent",
+        "search_basepath # Modified by `move_nexus_binaries` for QMCPACK installation",
+    )
+
+    with open(bin_dest_path, "w") as bin_dest_file:
+        bin_dest_file.write(bin_str)
 
 nexus_modules = [m for m in os.listdir(nexus_src) if m.endswith('.py')]
 for m in nexus_modules:
