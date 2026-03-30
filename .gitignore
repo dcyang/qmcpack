@@ -2,6 +2,7 @@
 *.aux
 .python-version
 .coverage
+uv.lock
 .venv
 .DS_Store
 /build_*/
