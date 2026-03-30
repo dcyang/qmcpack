@@ -40,7 +40,7 @@ usage = 'usage: "install <rc_file>"'
 installer  = os.path.realpath(__file__)
 source_dir = os.path.dirname(installer)
 lib_dir    = source_dir
-bin_dir    = os.path.join(source_dir,'bin')
+bin_dir    = os.path.join(source_dir,'nexus/bin')
 
 # function to report errors
 def error(msg):
