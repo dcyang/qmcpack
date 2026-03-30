@@ -7,13 +7,13 @@ This script performs a path-based installation of Nexus by
 updating the PATH and PYTHONPATH environment variables in a        
 user's .bashrc file (or similar for other shells):                
                                                                   
-  export PATH=/your/path/to/nexus/bin:$PATH                       
+  export PATH=/your/path/to/nexus/nexus/bin:$PATH                       
   export PYTHONPATH=/your/path/to/nexus:$PYTHONPATH               
                                                                   
 Text similar to this is added directly to the end of the rc file. 
                                                                   
-In this example, this script (install) resides at:                 
-                                                                  
+In this example, this script (manual_install) resides at:
+
   /your/path/to/nexus/manual_install                                     
                                                                   
 Since these path environment variables are added to a user's      
@@ -118,7 +118,13 @@ if not force:
     print('\nThe following will be appended to file "{}"'.format(rc_file))
     print()
     print(path_install)
-    print('Note: this installation will override any prior ones (e.g. via pip/uv).\n')
+    print('Note: this installation will override any prior ones (e.g. via pip/uv).')
+    try:
+        import nexus
+        print('      A prior Nexus installation exists at:\n        {}\n'.format(os.path.split(nexus.__file__)[0]))
+    except:
+        print()
+        pass
     response = input('Do you want to proceed? [y/n]')
     if response.lower() not in ('y','yes'):
         print('\nNexus installation aborted.')
