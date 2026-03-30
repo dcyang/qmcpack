@@ -1,29 +1,28 @@
 #! /usr/bin/env python3
 
-######################################################################
-#  Users can execute this script to install Nexus in a simple way.   #
-#                                                                    #
-#  This script performs a path-based installation of Nexus by        #
-#  updating the PATH and PYTHONPATH environment variables in a       # 
-#  user's .bashrc file (or similar for other shells):                #
-#                                                                    #
-#    export PATH=/your/path/to/nexus/bin:$PATH                       #
-#    export PYTHONPATH=/your/path/to/nexus:$PYTHONPATH               #
-#                                                                    #
-#  Text similar to this is added directly to the end of the rc file. #
-#                                                                    #
-#  In this example, this script (install) resides at:                # 
-#                                                                    #
-#    /your/path/to/nexus/install                                     #
-#                                                                    #
-#  Since these path environment variables are added to a user's      #
-#  shell configuration file, they will have persistent access to     #
-#  Nexus' binaries and be able to create operational Nexus workflow  #
-#  scripts each time they login to their machine.                    #
-#                                                                    #
-#  See the README for more details.                                  #
-#                                                                    #
-######################################################################
+"""
+Users can execute this script to install Nexus in a simple way.   
+                                                                  
+This script performs a path-based installation of Nexus by        
+updating the PATH and PYTHONPATH environment variables in a        
+user's .bashrc file (or similar for other shells):                
+                                                                  
+  export PATH=/your/path/to/nexus/bin:$PATH                       
+  export PYTHONPATH=/your/path/to/nexus:$PYTHONPATH               
+                                                                  
+Text similar to this is added directly to the end of the rc file. 
+                                                                  
+In this example, this script (install) resides at:                 
+                                                                  
+  /your/path/to/nexus/install                                     
+                                                                  
+Since these path environment variables are added to a user's      
+shell configuration file, they will have persistent access to     
+Nexus' binaries and be able to create operational Nexus workflow  
+scripts each time they login to their machine.                    
+                                                                  
+See the README for more details.                                  
+"""                                                                 
 
 
 import os
@@ -40,7 +39,7 @@ usage = 'usage: "install <rc_file>"'
 # find paths to install script and source directory
 installer  = os.path.realpath(__file__)
 source_dir = os.path.dirname(installer)
-lib_dir    = os.path.join(source_dir,'nexus')
+lib_dir    = source_dir
 bin_dir    = os.path.join(source_dir,'bin')
 
 # function to report errors
@@ -122,14 +121,13 @@ if not force:
     response = input('Do you want to proceed? [y/n]')
     if response.lower() not in ('y','yes'):
         print('\nNexus installation aborted.')
-        print('No changes have been made to file "{}"\n'.format(rc_file))
+        print('\nNo changes have been made to file "{}"\n'.format(rc_file))
         sys.exit(0)
 
 # add lib path to PYTHONPATH in config file
 shutil.copy2(rc_file,rc_file+'-nexus.bak')
-f = open(rc_file,'r')
-rc_contents = f.read()
-f.close()
+with open(rc_file,'r') as f:
+    rc_contents = f.read()
 if header_start in rc_contents and footer in rc_contents:
     header_loc = rc_contents.find(header_start)
     footer_loc = rc_contents.find(footer)
