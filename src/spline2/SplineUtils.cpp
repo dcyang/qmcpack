@@ -49,19 +49,19 @@ bool SplineUtils<ST>::write(MultiBspline1D<ST>& spline, hdf_archive& h5f)
 }
 
 template<typename ST>
-void SplineUtils<ST>::gatherv(MultiBsplineBase<ST>& spline, const std::vector<int>& offset, Communicate& comm)
+void SplineUtils<ST>::gatherv(einpline3D& spline, const std::vector<int>& offset, Communicate& comm)
 {
   if (comm.size() == 1)
     return;
-  qmcplusplus::gatherv<ST, 3>(&comm, spline.getSplinePtr(), spline.getSplinePtr()->z_stride, offset);
+  qmcplusplus::gatherv<ST, 3>(&comm, &spline, spline.z_stride, offset);
 }
 
 template<typename ST>
-void SplineUtils<ST>::bcast(MultiBsplineBase<ST>& spline, Communicate& comm)
+void SplineUtils<ST>::bcast(einpline3D& spline, Communicate& comm)
 {
   if (comm.size() == 1)
     return;
-  chunked_bcast(&comm, spline.getSplinePtr());
+  chunked_bcast(&comm, &spline);
 }
 
 template<typename ST>

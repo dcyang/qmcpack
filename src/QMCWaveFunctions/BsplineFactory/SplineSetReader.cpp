@@ -46,6 +46,8 @@ std::unique_ptr<SPOSet> SplineSetReader<ST>::create_spline_set(const std::string
 {
   const int N = bandgroup.getNumDistinctOrbitals();
 
+  Communicate dist_comm(*myComm, myComm->size());
+
   if (use_duplex_splines_)
     app_log() << "  Using complex einspline table" << std::endl;
   else
@@ -120,10 +122,10 @@ std::unique_ptr<SPOSet> SplineSetReader<ST>::create_spline_set(const std::string
 
   if (!foundspline)
   {
-    multi_splines.flush_zero();
+    multi_splines.flush_zero(dist_comm.rank());
 
     Timer now;
-    initialize_spline_pio_gather(spin, bandgroup, half_g, bspline->BandIndexMap, multi_splines);
+    initialize_spline_pio_gather(spin, bandgroup, half_g, bspline->BandIndexMap, multi_splines, dist_comm);
     app_log() << "  SplineSetReader initialize_spline_pio " << now.elapsed() << " sec" << std::endl;
 
     if (saveSplineCoefs && myComm->rank() == 0)
@@ -146,7 +148,8 @@ std::unique_ptr<SPOSet> SplineSetReader<ST>::create_spline_set(const std::string
   {
     myComm->barrier();
     Timer now;
-    SplineUtils<ST>::bcast(multi_splines, *myComm);
+    SplineUtils<ST>::bcast(multi_splines.getBlock(dist_comm.rank()), dist_comm.getInterGroupComm());
+    myComm->barrier();
     app_log() << "  Time to bcast the table = " << now.elapsed() << std::endl;
   }
 
@@ -158,17 +161,23 @@ void SplineSetReader<ST>::initialize_spline_pio_gather(const int spin,
                                                        const BandInfoGroup& bandgroup,
                                                        const TinyVector<int, 3>& half_g,
                                                        const aligned_vector<int>& band_index_map,
-                                                       MultiBsplineBase<ST>& multi_splines) const
+                                                       MultiBsplineBase<ST>& multi_splines,
+                                                       Communicate& dist_comm) const
 {
+  const auto& block_offsets = multi_splines.getBlockOffsets();
+  const size_t iblock       = dist_comm.rank();
+  auto& comm                = dist_comm.getInterGroupComm();
   //distribute bands over processor groups
-  int Nbands            = bandgroup.getNumDistinctOrbitals();
-  const int Nprocs      = myComm->size();
-  const int Nbandgroups = std::min(Nbands, Nprocs);
-  Communicate band_group_comm(*myComm, Nbandgroups);
+  const int orb_block_start = use_duplex_splines_ ? block_offsets[iblock] / 2 : block_offsets[iblock];
+  const int orb_block_end   = use_duplex_splines_ ? block_offsets[iblock + 1] / 2 : block_offsets[iblock + 1];
+  const int Nbands          = std::min(orb_block_end, bandgroup.getNumDistinctOrbitals()) - orb_block_start;
+  const int Nprocs          = comm.size();
+  const int Nbandgroups     = std::min(Nbands, Nprocs);
+  Communicate band_group_comm(comm, Nbandgroups);
   std::vector<int> band_groups(Nbandgroups + 1, 0);
   FairDivideLow(Nbands, Nbandgroups, band_groups);
-  int iorb_first = band_groups[band_group_comm.getGroupID()];
-  int iorb_last  = band_groups[band_group_comm.getGroupID() + 1];
+  const int iorb_first = orb_block_start + band_groups[band_group_comm.getGroupID()];
+  const int iorb_last  = orb_block_start + band_groups[band_group_comm.getGroupID() + 1];
 
   app_log() << "Start transforming plane waves to 3D B-Splines." << std::endl;
   OneSplineOrbData oneband(mybuilder->MeshSize, half_g, use_duplex_splines_);
@@ -202,10 +211,10 @@ void SplineSetReader<ST>::initialize_spline_pio_gather(const int spin,
         std::vector<int> offset(band_groups.size());
         for (int i = 0; i < offset.size(); i++)
           offset[i] = band_groups[i] * 2;
-        SplineUtils<ST>::gatherv(multi_splines, offset, group_leader_comm);
+        SplineUtils<ST>::gatherv(multi_splines.getBlock(iblock), offset, group_leader_comm);
       }
       else
-        SplineUtils<ST>::gatherv(multi_splines, band_groups, group_leader_comm);
+        SplineUtils<ST>::gatherv(multi_splines.getBlock(iblock), band_groups, group_leader_comm);
       app_log() << "  Time to gather the table = " << now.elapsed() << std::endl;
     }
   }

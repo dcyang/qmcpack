@@ -23,6 +23,7 @@ namespace qmcplusplus
 template<typename ST>
 class SplineUtils
 {
+  using einpline3D                 = typename bspline_traits<ST, 3>::SplineType;
   static constexpr size_t my_index = 0;
 
 public:
@@ -32,8 +33,8 @@ public:
   static bool read(MultiBspline1D<ST>& spline, hdf_archive& h5f);
   static bool write(MultiBspline1D<ST>& spline, hdf_archive& h5f);
 
-  static void gatherv(MultiBsplineBase<ST>& spline, const std::vector<int>& offset, Communicate& comm);
-  static void bcast(MultiBsplineBase<ST>& spline, Communicate& comm);
+  static void gatherv(einpline3D& spline, const std::vector<int>& offset, Communicate& comm);
+  static void bcast(einpline3D& spline, Communicate& comm);
 
   static void gatherv(MultiBspline1D<ST>& spline, size_t stride, const std::vector<int>& offset, Communicate& comm);
   static void bcast(MultiBspline1D<ST>& spline, Communicate& comm);
