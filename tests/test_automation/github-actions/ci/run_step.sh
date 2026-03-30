@@ -127,6 +127,7 @@ case "$1" in
               -DCMAKE_C_COMPILER=gcc-14 \
               -DCMAKE_CXX_COMPILER=g++-14 \
               -DCMAKE_EXE_LINKER_FLAGS="-Wl,-ld_classic" \
+              -DQMC_INSTALL_NEXUS=OFF \
               ${GITHUB_WORKSPACE}
       ;;
       *"GCC9"*"-CUDA-AFQMC"*)
