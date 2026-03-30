@@ -134,6 +134,7 @@ public:
 
   virtual ~MultiBsplineBase() = default;
 
+  size_t getNumBlocks() const { return spline_blocks.size(); }
   const auto& getBlockOffsets() const { return offsets_; }
 
   SplineType* getSplinePtr()
