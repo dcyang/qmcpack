@@ -8232,7 +8232,7 @@ def generate_batched_vmc_calculations(
     optional_vmc_inputs = obj(
         total_walkers = total_walkers,
         walkers_per_rank = walkers_per_rank,
-        #checkpoint       = checkpoint, # no checkpointing support yet
+        checkpoint       = checkpoint,
         maxcpusecs       = maxcpusecs,
         crowds           = crowds,
         spin_mass        = spin_mass,
@@ -8307,7 +8307,7 @@ def generate_batched_dmc_calculations(
         walkers_per_rank = walkers_per_rank,
         crowds           = crowds,
         spin_mass         = vmc_spin_mass,
-        #checkpoint       = vmc_checkpoint, # not supported yet
+        checkpoint       = vmc_checkpoint,
         )
     for name,value in optional_vmc_inputs.items():
         if value is not None:
@@ -8325,7 +8325,7 @@ def generate_batched_dmc_calculations(
                 blocks        = eq_blocks,
                 steps         = eq_steps,
                 timestep      = eq_timestep,
-                #checkpoint    = eq_checkpoint, # not supported yet
+                checkpoint    = eq_checkpoint,
                 )
             )
     #end if
@@ -8338,7 +8338,7 @@ def generate_batched_dmc_calculations(
                 blocks        = blocks,
                 steps         = int(sfac*steps),
                 timestep      = tfac*timestep,
-                #checkpoint    = checkpoint,  # not supported yet
+                checkpoint    = checkpoint,
                 )
             )
         tfac *= timestep_factor
