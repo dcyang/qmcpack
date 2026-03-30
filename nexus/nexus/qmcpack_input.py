@@ -8306,7 +8306,7 @@ def generate_batched_dmc_calculations(
         total_walkers    = total_walkers,
         walkers_per_rank = walkers_per_rank,
         crowds           = crowds,
-        spin_mass         = vmc_spin_mass,
+        spin_mass        = vmc_spin_mass,
         checkpoint       = vmc_checkpoint,
         )
     for name,value in optional_vmc_inputs.items():
@@ -8325,7 +8325,6 @@ def generate_batched_dmc_calculations(
                 blocks        = eq_blocks,
                 steps         = eq_steps,
                 timestep      = eq_timestep,
-                checkpoint    = eq_checkpoint,
                 )
             )
     #end if
@@ -8338,7 +8337,6 @@ def generate_batched_dmc_calculations(
                 blocks        = blocks,
                 steps         = int(sfac*steps),
                 timestep      = tfac*timestep,
-                checkpoint    = checkpoint,
                 )
             )
         tfac *= timestep_factor
@@ -8357,6 +8355,7 @@ def generate_batched_dmc_calculations(
         feedback                = feedback,
         sigmabound              = sigmabound,
         spin_mass               = spin_mass,
+        checkpoint              = checkpoint,
         )
     for calc in dmc_calcs:
         if isinstance(calc,dmc):
