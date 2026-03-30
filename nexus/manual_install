@@ -14,7 +14,7 @@ Text similar to this is added directly to the end of the rc file.
                                                                   
 In this example, this script (install) resides at:                 
                                                                   
-  /your/path/to/nexus/install                                     
+  /your/path/to/nexus/manual_install                                     
                                                                   
 Since these path environment variables are added to a user's      
 shell configuration file, they will have persistent access to     
