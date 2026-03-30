@@ -144,7 +144,7 @@ TEST_CASE("StructureFactorEstimator::Accumulate", "[estimators]")
   // These hamiltomians are just pro forma arguments needed to hold off UBSan,
   // StructureFactorEstimator never accesses into them.
   auto hamiltonian_pool  = MinimalHamiltonianPool::makeHamWithEEEI(comm, particle_pool, wavefunction_pool);
-  auto& gold_hamiltonian = *(hamiltonian_pool.getPrimary());
+  QMCHamiltonian& gold_hamiltonian(hamiltonian_pool.getHamiltonian().value());
   std::vector<UPtr<QMCHamiltonian>> hams(nwalkers);
   for (int iw = 0; iw < nwalkers; ++iw)
     hams[iw] = gold_hamiltonian.makeClone(psets[iw], ref_wfns[iw]);

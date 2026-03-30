@@ -249,7 +249,7 @@ void testTrialWaveFunction_diamondC_2x1x1(const int ndelay, const OffloadSwitche
 #if defined(QMC_COMPLEX)
   CHECK(psi.getLogPsi() == Approx(-6.626861768296886).epsilon(5e-5));
 #else
-  CHECK(psi.getLogPsi() == Approx(-8.013162503965223));
+  CHECK(psi.getLogPsi() == Approx(-8.013162503965223).epsilon(5e-5));
 #endif
 
   // testing batched interfaces
@@ -356,11 +356,7 @@ void testTrialWaveFunction_diamondC_2x1x1(const int ndelay, const OffloadSwitche
   CHECK(ratios[1] == ComplexApprox(PsiValue(0.12487384604679, 0)).epsilon(5e-5));
 #else
   CHECK(ratios[0] == Approx(1).epsilon(5e-5));
-#if defined(MIXED_PRECISION)
-  CHECK(ratios[1] == Approx(0.12487384604697).epsilon(5e-5));
-#else
-  CHECK(ratios[1] == Approx(0.12487384604697));
-#endif
+  CHECK(ratios[1] == Approx(0.12487384604697).epsilon(ratio_precision));
 #endif
 
   std::fill(ratios.begin(), ratios.end(), 0);

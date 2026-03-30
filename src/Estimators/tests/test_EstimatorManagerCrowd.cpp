@@ -44,7 +44,7 @@ TEST_CASE("EstimatorManagerCrowd::EstimatorManagerCrowd", "[estimators]")
   auto& pset            = *(particle_pool.getParticleSet("e"));
   auto hamiltonian_pool = MinimalHamiltonianPool::make_hamWithEE(comm, particle_pool, wavefunction_pool);
   TrialWaveFunction& twf(wavefunction_pool.getWaveFunction().value());
-  auto& ham = *(hamiltonian_pool.getPrimary());
+  QMCHamiltonian& ham(hamiltonian_pool.getHamiltonian().value());
 
   EstimatorManagerNew emn(ham, comm);
   emn.constructEstimators(std::move(emi), pset, twf, ham, particle_pool.getPool());
@@ -73,7 +73,7 @@ TEST_CASE("EstimatorManagerCrowd PerParticleHamiltonianLogger integration", "[es
   auto hamiltonian_pool = MinimalHamiltonianPool::make_hamWithEE(comm, particle_pool, wavefunction_pool);
 
   TrialWaveFunction& twf(wavefunction_pool.getWaveFunction().value());
-  auto& ham = *(hamiltonian_pool.getPrimary());
+  QMCHamiltonian& ham(hamiltonian_pool.getHamiltonian().value());
 
   ham.informOperatorsOfListener();
 
@@ -101,7 +101,7 @@ TEST_CASE("EstimatorManagerCrowd PerParticleHamiltonianLogger integration", "[es
     psets.emplace_back(pset);
     psets.back().randomizeFromSource(*particle_pool.getParticleSet("ion"));
     twfs.emplace_back(twf.makeClone(psets.back()));
-    hams.emplace_back(hamiltonian_pool.getPrimary()->makeClone(psets.back(), *twfs.back()));
+    hams.emplace_back(ham.makeClone(psets.back(), *twfs.back()));
   }
 
   EstimatorManagerCrowd emc(emn);

@@ -65,7 +65,7 @@ public:
 
   //data members
   bool energy_mat;
-  CompositeSPOSet<Value_t> basis_functions;
+  std::unique_ptr<CompositeSPOSet<Value_t>> basis_functions;
   ValueVector basis_values;
   ValueVector basis_norms;
   GradVector basis_gradients;
