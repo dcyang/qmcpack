@@ -119,7 +119,6 @@ if not force:
     print('\nThe following will be appended to file "{}"'.format(rc_file))
     print()
     print(path_install)
-    print()
     response = input('Do you want to proceed? [y/n]')
     if response.lower() not in ('y','yes'):
         print('\nNexus installation aborted.')
