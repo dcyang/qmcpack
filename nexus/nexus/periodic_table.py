@@ -277,13 +277,12 @@ class Elements(ElementData, Enum):
         elif val_len >= 3 and value[2:].isdigit(): # He1 / He10
             value = value[0:2].title()
 
-        try:
-            elem = Elements(value)
+        if value in Elements.__members__:
             if return_element:
-                return True, elem
+                return True, Elements(value)
             else:
                 return True
-        except ValueError:
+        else:
             if return_element:
                 return False, value
             else:
