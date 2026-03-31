@@ -34,9 +34,6 @@ import shutil
 # setup #
 #=======#
 
-# define usage
-usage = 'usage: "install <rc_file>"'
-
 # find paths to install script and source directory
 installer  = os.path.realpath(__file__)
 source_dir = os.path.dirname(installer)
