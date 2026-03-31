@@ -54,7 +54,7 @@ class Elements(ElementData, Enum):
     symbol : str
         In titlecase (H, He, ...)
     atomic_number : int
-        Use 0 for a dummy element 
+        Use 0 for a dummy element
         (symbol "Xx", name "Unknown", all properties zero)
     atomic_weight : float
         Average atomic weight in amu [1]_.
@@ -110,12 +110,12 @@ class Elements(ElementData, Enum):
     just the atomic symbol.
 
     >>> print(Elements.Hydrogen)
-    H 
+    H
 
     This also works with f-strings and ``str.format`` calls.
 
     >>> print(f"{Elements.Hydrogen}")
-    H 
+    H
 
     If you want to see the data attached to the enum member
     (minus the isotopes), use ``repr``.
@@ -170,20 +170,21 @@ class Elements(ElementData, Enum):
             value = value.strip()
             if value.isalpha(): # `Elements("h")` or `Elements("hydrogen")`
                 val_title = value.title()
-                if val_title in Elements.__members__:
-                    return Elements(val_title)
+                for elem in cls:
+                    if val_title == elem.symbol or val_title == elem.name:
+                        return elem
 
             elif value.isdecimal(): # `Elements("1")`
                 try:
                     value = int(value)
-                    if value > 118:
-                        pass
-                    else:
-                        for elem in cls:
-                            if value == elem.atomic_number:
-                                return elem
                 except ValueError: # We don't support `Elements("1.0")`
                     pass
+
+                if isinstance(value, int) and value <= 118:
+                    for elem in cls:
+                        if value == elem.atomic_number:
+                            return elem
+
         raise ValueError(f"Can not determine element for input value: {value}!")
 
 
@@ -273,10 +274,11 @@ class Elements(ElementData, Enum):
         elif "-" in value: # H-1
             value = value.split("-", maxsplit=1)[0]
         elif val_len >= 2 and value[1:].isdigit(): # H1 / H10
-            value = value[0:1].title()
+            value = value[0:1]
         elif val_len >= 3 and value[2:].isdigit(): # He1 / He10
-            value = value[0:2].title()
+            value = value[0:2]
 
+        value = value.title()
         if value in Elements.__members__:
             if return_element:
                 return True, Elements(value)
@@ -287,11 +289,10 @@ class Elements(ElementData, Enum):
                 return False, value
             else:
                 return False
-            
+
     @staticmethod
     def num_elements() -> int:
         return len(Elements) - 1 # Dummy atom
-
 
     # Name        Symbol  Number   Mass      Group  Isotopes
     Unknown       = "Xx",    0,    0.0,          0, {0:0.0}

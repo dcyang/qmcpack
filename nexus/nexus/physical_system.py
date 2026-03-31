@@ -234,33 +234,29 @@ plist = [
     ]
 
 for elem in Elements:
-    spin = 0 # don't have this data
-    protons  = elem.atomic_number
-    neutrons = int(round(elem.atomic_weight-elem.atomic_number))
-    p = Ion(
-        elem.symbol,
-        elem.atomic_weight * amu_me,
-        elem.atomic_number,
-        spin,
-        protons,
-        neutrons,
+    plist.append(
+        Ion(
+            name     = elem.symbol,
+            mass     = elem.atomic_weight * amu_me,
+            charge   = elem.atomic_number,
+            spin     = 0, # Don't have this data
+            protons  = elem.atomic_number,
+            neutrons = round(elem.atomic_weight-elem.atomic_number),
+        )
     )
-    plist.append(p)
 #end for
 for elem in Elements:
     for mass_number, rel_atomic_mass in elem.isotopes.items():
-        spin = 0 # don't have this data
-        protons  = elem.atomic_number
-        neutrons = int(round(rel_atomic_mass - elem.atomic_number))
-        p = Ion(
-            f"{elem.symbol}_{mass_number}",
-            rel_atomic_mass * amu_me,
-            elem.atomic_number,
-            spin,
-            protons,
-            neutrons,
+        plist.append(
+            Ion(
+                name     = f"{elem.symbol}_{mass_number}",
+                mass     = rel_atomic_mass * amu_me,
+                charge   = elem.atomic_number,
+                spin     = 0, # Don't have this data
+                protons  = elem.atomic_number,
+                neutrons = round(rel_atomic_mass - elem.atomic_number),
+            )
         )
-        plist.append(p)
     #end for
 #end for
 
