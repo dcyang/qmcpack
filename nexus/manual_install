@@ -7,7 +7,7 @@ This script performs a path-based installation of Nexus by
 updating the PATH and PYTHONPATH environment variables in a        
 user's .bashrc file (or similar for other shells):                
                                                                   
-  export PATH=/your/path/to/nexus/nexus/bin:$PATH                       
+  export PATH=/your/path/to/nexus/bin:$PATH                       
   export PYTHONPATH=/your/path/to/nexus:$PYTHONPATH               
                                                                   
 Text similar to this is added directly to the end of the rc file. 
@@ -21,7 +21,8 @@ shell configuration file, they will have persistent access to
 Nexus' binaries and be able to create operational Nexus workflow  
 scripts each time they login to their machine.                    
                                                                   
-See the README for more details.                                  
+See README.md section 2 for details on the pip, uv, and manual 
+installation routes.
 """                                                                 
 
 
@@ -40,7 +41,7 @@ usage = 'usage: "install <rc_file>"'
 installer  = os.path.realpath(__file__)
 source_dir = os.path.dirname(installer)
 lib_dir    = source_dir
-bin_dir    = os.path.join(source_dir,'nexus/bin')
+bin_dir    = os.path.join(source_dir,'bin')
 
 # function to report errors
 def error(msg):
@@ -121,7 +122,7 @@ if not force:
     print('Note: this installation will override any prior ones (e.g. via pip/uv).')
     try:
         import nexus
-        print('      A prior Nexus installation exists at:\n        {}\n'.format(os.path.split(nexus.__file__)[0]))
+        print('\n      A prior Nexus installation exists at:\n        {}\n'.format(os.path.split(nexus.__file__)[0]))
     except:
         print()
         pass
@@ -148,5 +149,6 @@ f.write(rc_contents)
 f.close()
 
 print('\nNexus installation complete.')
-print(f'\nExecute "source {rc_file}" to make Nexus available in the current session.\n')
+print(f'\nExecute "source {rc_file}" to make Nexus available in the current session.')
+print(f'\nIf you later wish to remove this installation, remove the text headed by "added by Nexus" from {rc_file}.\n')
 

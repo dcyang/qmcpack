@@ -98,7 +98,7 @@ The executables packaged with Nexus can be used once they are added to the PATH 
 export PATH=/your/path/to/nexus/bin/:$PATH
 ```
 Both of these steps can alternately be performed by the installer packaged with Nexus. To use it, simply type the following at the command line (shown for bash):
-```
+```bash
 > /your/path/to/nexus/manual_install ~/.bashrc
 ```
 Check the end of your `.bashrc` (or equivalent) to make sure the `$PATH` and `$PYTHONPATH` variables have been set properly.
