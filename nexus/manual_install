@@ -7,7 +7,7 @@ This script performs a path-based installation of Nexus by
 updating the PATH and PYTHONPATH environment variables in a        
 user's .bashrc file (or similar for other shells):                
                                                                   
-  export PATH=/your/path/to/nexus/bin:$PATH                       
+  export PATH=/your/path/to/nexus/nexus/bin:$PATH                       
   export PYTHONPATH=/your/path/to/nexus:$PYTHONPATH               
                                                                   
 Text similar to this is added directly to the end of the rc file. 
@@ -38,7 +38,7 @@ import shutil
 installer  = os.path.realpath(__file__)
 source_dir = os.path.dirname(installer)
 lib_dir    = source_dir
-bin_dir    = os.path.join(source_dir,'bin')
+bin_dir    = os.path.join(source_dir,'nexus/bin')
 
 # function to report errors
 def error(msg):
