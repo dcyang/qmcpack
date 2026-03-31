@@ -2612,7 +2612,7 @@ class CasinoPP(SemilocalPP):
         file = TextFile(filepath)
         # read scalar values at the top
         Zatom,Z = file.readtokensf('Atomic number and pseudo-charge',int,float)
-        if Zatom > (len(Elements) - 1): # Subtract the dummy element
+        if Zatom > Elements.num_elements():
             self.error('element {0} is not in the periodic table')
         #end if
         element = Elements(Zatom).symbol

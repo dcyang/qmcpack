@@ -60,7 +60,7 @@ class Matter(DevBase):
     #end def new_particles
 
     def is_element(self,name,symbol=False):
-        if symbol is True:
+        if symbol:
             is_elem, element = Elements.is_element(name, return_element=symbol)
             return is_elem, element.symbol
         else:

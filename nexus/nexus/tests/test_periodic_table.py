@@ -160,7 +160,7 @@ def test_is_element():
         assert(elem is element)
     #end for
     
-    funky_carbon_strs = (
+    carbon_strs = (
         "C",
         "C1",
         "C2",
@@ -197,7 +197,7 @@ def test_is_element():
         "c-abc",
     )
 
-    for string in funky_carbon_strs:
+    for string in carbon_strs:
         assert(Elements.is_element(string))
 
         is_elem, elem = Elements.is_element(string, return_element=True)
@@ -207,7 +207,7 @@ def test_is_element():
         assert(elem.name == "Carbon")
     #end for
 
-    funky_cobalt_strs = [
+    cobalt_strs = [
         "Co",
         "Co1",
         "Co2",
@@ -243,7 +243,7 @@ def test_is_element():
         "co-a",
         "co-abc",
     ]
-    for string in funky_cobalt_strs:
+    for string in cobalt_strs:
         assert(Elements.is_element(string))
 
         is_elem, element = Elements.is_element(string, return_element=True)

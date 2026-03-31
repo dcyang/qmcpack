@@ -170,9 +170,9 @@ class Elements(ElementData, Enum):
             value = value.strip()
             if value.isalpha(): # `Elements("h")` or `Elements("hydrogen")`
                 val_title = value.title()
-                for elem in cls:
-                    if val_title == elem.symbol or val_title == elem.name:
-                        return elem
+                if val_title in Elements.__members__:
+                    return Elements(val_title)
+
             elif value.isdecimal(): # `Elements("1")`
                 try:
                     value = int(value)
@@ -287,6 +287,10 @@ class Elements(ElementData, Enum):
                 return False, value
             else:
                 return False
+            
+    @staticmethod
+    def num_elements() -> int:
+        return len(Elements) - 1 # Dummy atom
 
 
     # Name        Symbol  Number   Mass      Group  Isotopes

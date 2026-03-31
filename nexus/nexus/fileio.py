@@ -826,9 +826,9 @@ class XsfFile(StandardFile):
         s.recenter()
         elem = []
         for e in s.elem:
-            is_elem, element = Elements.is_element(e, return_element=True)
+            is_elem, e = Elements.is_element(e, return_element=True)
             if is_elem:
-                elem.append(element.atomic_number)
+                elem.append(e.atomic_number)
             else:
                 elem.append(0)
             #end if
@@ -1127,9 +1127,9 @@ class PoscarFile(StandardFile):
                 msgs.append('elem must be an array of text')
             else:
                 for e in self.elem:
-                    iselem, element = Elements.is_element(e, return_element=True)
+                    iselem, e = Elements.is_element(e, return_element=True)
                     if not iselem:
-                        msgs.append('elem entry "{0}" is not an element'.format(element))
+                        msgs.append('elem entry "{0}" is not an element'.format(e))
                     #end if
                 #end for
             #end for
@@ -1193,9 +1193,9 @@ class PoscarFile(StandardFile):
         #end for
         if self.elem is not None:
             for e in self.elem:
-                iselem, element = Elements.is_element(e, return_element=True)
+                iselem, e = Elements.is_element(e, return_element=True)
                 if not iselem:
-                    self.error('{0} is not an element'.format(element))
+                    self.error('{0} is not an element'.format(e))
                 #end if
                 text += e+' '
             #end for
