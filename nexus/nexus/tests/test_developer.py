@@ -1,3 +1,7 @@
+import pytest
+
+pytestmark = pytest.mark.order(9)
+
 
 from ..testing import failed,FailedTest
 

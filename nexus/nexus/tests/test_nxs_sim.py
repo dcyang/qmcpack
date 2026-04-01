@@ -1,3 +1,6 @@
+import pytest
+
+pytestmark = pytest.mark.order(56)
 
 import sys
 from .. import testing

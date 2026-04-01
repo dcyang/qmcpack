@@ -1,3 +1,6 @@
+import pytest
+
+pytestmark = pytest.mark.order(42)
 
 from .. import testing
 from ..testing import value_eq,object_eq,text_eq

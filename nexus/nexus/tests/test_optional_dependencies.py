@@ -1,3 +1,6 @@
+import pytest
+
+pytestmark = pytest.mark.order(3)
 
 
 def test_scipy_available():

@@ -1,3 +1,6 @@
+import pytest
+
+pytestmark = pytest.mark.order(12)
 
 from nexus.versions import scipy_available
 

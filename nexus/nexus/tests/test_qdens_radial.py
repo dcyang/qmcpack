@@ -1,3 +1,6 @@
+import pytest
+
+pytestmark = pytest.mark.order(59)
 
 from .. import versions
 from .. import testing

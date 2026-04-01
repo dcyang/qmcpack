@@ -1,5 +1,10 @@
 #!/env/bin/python
 
+import pytest
+
+pytestmark = pytest.mark.order(17)
+
+
 import numpy as np
 from .. import versions
 from .. import testing

@@ -1,3 +1,6 @@
+import pytest
+
+pytestmark = pytest.mark.order(46)
 
 from .. import testing
 from ..testing import divert_nexus,restore_nexus,clear_all_sims

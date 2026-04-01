@@ -1,3 +1,6 @@
+import pytest
+
+pytestmark = pytest.mark.order(33)
 
 from .. import testing
 from ..testing import failed

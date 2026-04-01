@@ -1,4 +1,7 @@
 #! /usr/bin/env python3
+import pytest
+
+pytestmark = pytest.mark.order(18)
 
 import numpy as np
 from .. import testing

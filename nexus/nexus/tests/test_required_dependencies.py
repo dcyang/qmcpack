@@ -1,3 +1,7 @@
+import pytest
+
+pytestmark = pytest.mark.order(2)
+
 
 def test_numpy_available():
     from .. import versions

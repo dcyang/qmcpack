@@ -1,3 +1,6 @@
+import pytest
+
+pytestmark = pytest.mark.order(13)
 
 
 def test_imports():

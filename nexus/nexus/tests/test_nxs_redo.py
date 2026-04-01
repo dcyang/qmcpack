@@ -1,3 +1,6 @@
+import pytest
+
+pytestmark = pytest.mark.order(55)
 
 from .. import testing
 from ..testing import create_file,create_path,execute
