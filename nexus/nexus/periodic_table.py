@@ -170,9 +170,8 @@ class Elements(ElementData, Enum):
             value = value.strip()
             if value.isalpha(): # `Elements("h")` or `Elements("hydrogen")`
                 val_title = value.title()
-                for elem in cls:
-                    if val_title == elem.symbol or val_title == elem.name:
-                        return elem
+                if val_title in cls.__members__:
+                    return cls.__members__[val_title]
 
             elif value.isdecimal(): # `Elements("1")`
                 try:
@@ -180,10 +179,8 @@ class Elements(ElementData, Enum):
                 except ValueError: # We don't support `Elements("1.0")`
                     pass
 
-                if isinstance(value, int) and value <= 118:
-                    for elem in cls:
-                        if value == elem.atomic_number:
-                            return elem
+                if isinstance(value, int) and value <= cls.num_elements():
+                    return cls._value2member_map_[value]
 
         raise ValueError(f"Can not determine element for input value: {value}!")
 

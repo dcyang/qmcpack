@@ -64,6 +64,8 @@ def test_periodic_table():
     assert(Elements.C.isotopes      == ref_carbon_isotopes)
 
     assert(Elements.Carbon is Elements.C)
+
+    assert(Elements.num_elements() == 118)
 #end def test_periodic_table
 
 
