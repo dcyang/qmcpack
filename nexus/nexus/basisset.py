@@ -5,7 +5,7 @@
 
 import os
 import numpy as np
-from .periodic_table import is_element
+from .periodic_table import Elements
 from .developer import DevBase, obj, error, to_str, unavailable
 from .fileio import TextFile
 
@@ -110,11 +110,11 @@ class BasisFile(DevBase):
             self.filename = os.path.basename(filepath)
             self.location = os.path.abspath(filepath)
             elem_label = self.filename.split('.')[0]
-            is_elem,symbol = is_element(elem_label,symbol=True)
+            is_elem, elem = Elements.is_element(elem_label, return_element=True)
             if not is_elem:
                 self.error('cannot determine element for basis file: {0}\nbasis file names must be prefixed by an atomic symbol or label\n(e.g. Si, Si1, etc)'.format(filepath))
             #end if
-            self.element = symbol
+            self.element = elem.symbol
             self.element_label = elem_label
         #end if
     #end def __init__
