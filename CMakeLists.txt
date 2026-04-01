@@ -685,7 +685,7 @@ if(ENABLE_CUDA AND NOT QMC_CUDA2HIP)
   if(ENABLE_CUDA)
     include(TestCUDAHostCompatibility)
   endif()
-  find_package(CUDAToolkit 11.0 REQUIRED)
+  find_package(CUDAToolkit 12.3 REQUIRED)
   if(NOT TARGET CUDA::cublas)
     message(
       FATAL_ERROR
