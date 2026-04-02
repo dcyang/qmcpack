@@ -2,7 +2,8 @@
 
 try:
     import pytest
-    pytestmark = pytest.mark.order(17)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.STRUCTURE)
 except ImportError:
     pass
 

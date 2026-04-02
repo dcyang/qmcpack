@@ -1,6 +1,7 @@
 try:
     import pytest
-    pytestmark = pytest.mark.order(20)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.PSEUDOPOTENTIAL)
 except ImportError:
     pass
 

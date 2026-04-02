@@ -1,6 +1,7 @@
 try:
     import pytest
-    pytestmark = pytest.mark.order(16)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.XMLREADER)
 except ImportError:
     pass
 

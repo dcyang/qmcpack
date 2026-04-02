@@ -1,6 +1,7 @@
 try:
     import pytest
-    pytestmark = pytest.mark.order(34)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.QMCPACK_CONVERTER_INPUT)
 except ImportError:
     pass
 

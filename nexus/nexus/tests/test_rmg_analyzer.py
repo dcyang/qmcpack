@@ -1,6 +1,7 @@
 try:
     import pytest
-    pytestmark = pytest.mark.order(42)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.RMG_ANALYZER)
 except ImportError:
     pass
 

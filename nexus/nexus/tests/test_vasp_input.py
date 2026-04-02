@@ -1,6 +1,7 @@
 try:
     import pytest
-    pytestmark = pytest.mark.order(27)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.VASP_ANALYZER)
 except ImportError:
     pass
 

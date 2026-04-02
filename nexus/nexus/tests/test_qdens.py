@@ -1,6 +1,7 @@
 try:
     import pytest
-    pytestmark = pytest.mark.order(58)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.QDENS)
 except ImportError:
     pass
 

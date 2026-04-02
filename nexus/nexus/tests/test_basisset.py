@@ -1,6 +1,7 @@
 try:
     import pytest
-    pytestmark = pytest.mark.order(19)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.BASISSET)
 except ImportError:
     pass
 

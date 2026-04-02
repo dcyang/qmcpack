@@ -1,6 +1,7 @@
 try:
     import pytest
-    pytestmark = pytest.mark.order(29)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.PWSCF_POSTPROCESSOR_INPUT)
 except ImportError:
     pass
 

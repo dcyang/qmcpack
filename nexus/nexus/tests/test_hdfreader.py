@@ -1,6 +1,7 @@
 try:
     import pytest
-    pytestmark = pytest.mark.order(15)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.HDFREADER)
 except ImportError:
     pass
 

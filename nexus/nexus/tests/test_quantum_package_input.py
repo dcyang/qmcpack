@@ -1,6 +1,7 @@
 try:
     import pytest
-    pytestmark = pytest.mark.order(32)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.QUANTUM_PACKAGE_INPUT)
 except ImportError:
     pass
 

@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 try:
     import pytest
-    pytestmark = pytest.mark.order(18)
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.PHYSICAL_SYSTEM)
 except ImportError:
     pass
 
