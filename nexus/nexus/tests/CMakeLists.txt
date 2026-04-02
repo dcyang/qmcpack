@@ -2,7 +2,7 @@
 include("${PROJECT_SOURCE_DIR}/CMake/test_labels.cmake")
 include("${PROJECT_SOURCE_DIR}/CMake/python.cmake")
 
-check_python_reqs("numpy;pytest;pytest_cov;pytest_order" "nexus base" ADD_TEST)
+check_python_reqs(numpy "nexus base" ADD_TEST)
 
 if(ADD_TEST)
   file(TIMESTAMP ${qmcpack_SOURCE_DIR}/nexus/nexus/bin/nxs-test NEXUS_TESTLIST_TIMESTAMP)
