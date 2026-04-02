@@ -1,6 +1,8 @@
-import pytest
-
-pytestmark = pytest.mark.order(2)
+try:
+    import pytest
+    pytestmark = pytest.mark.order(2)
+except ImportError:
+    pass
 
 
 def test_numpy_available():

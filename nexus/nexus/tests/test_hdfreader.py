@@ -1,6 +1,8 @@
-import pytest
-
-pytestmark = pytest.mark.order(15)
+try:
+    import pytest
+    pytestmark = pytest.mark.order(15)
+except ImportError:
+    pass
 
 from nexus.versions import h5py_available
 from .. import testing

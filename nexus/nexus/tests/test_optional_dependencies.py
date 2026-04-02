@@ -1,6 +1,8 @@
-import pytest
-
-pytestmark = pytest.mark.order(3)
+try:
+    import pytest
+    pytestmark = pytest.mark.order(3)
+except ImportError:
+    pass
 
 
 def test_scipy_available():

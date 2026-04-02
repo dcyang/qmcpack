@@ -1,8 +1,10 @@
 #!/env/bin/python
 
-import pytest
-
-pytestmark = pytest.mark.order(17)
+try:
+    import pytest
+    pytestmark = pytest.mark.order(17)
+except ImportError:
+    pass
 
 
 import numpy as np

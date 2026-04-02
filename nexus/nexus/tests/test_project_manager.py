@@ -1,6 +1,8 @@
-import pytest
-
-pytestmark = pytest.mark.order(25)
+try:
+    import pytest
+    pytestmark = pytest.mark.order(25)
+except ImportError:
+    pass
 
 from .. import testing
 from ..testing import value_eq,object_eq

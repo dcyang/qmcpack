@@ -1,6 +1,8 @@
-import pytest
-
-pytestmark = pytest.mark.order(51)
+try:
+    import pytest
+    pytestmark = pytest.mark.order(51)
+except ImportError:
+    pass
 
 from .. import testing
 from ..testing import divert_nexus,restore_nexus,clear_all_sims

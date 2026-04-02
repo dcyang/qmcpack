@@ -1,6 +1,8 @@
-import pytest
-
-pytestmark = pytest.mark.order(33)
+try:
+    import pytest
+    pytestmark = pytest.mark.order(33)
+except ImportError:
+    pass
 
 from .. import testing
 from ..testing import failed
