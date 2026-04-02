@@ -11,6 +11,21 @@ test_root     = nexus_root / "nexus/tests"
 reference_dir = test_root / "reference/user_examples"
 output_root   = test_root / "test_user_examples_output"
 
+qmcpack_pseudos  = example_root / "qmcpack/pseudopotentials"
+espresso_pseudos = example_root / "quantum_espresso/pseudopotentials"
+
+
+def copy_pseudos(code: str):
+
+    if code == "qmcpack":
+        output_path = output_root / "qmcpack/pseudopotentials"
+        shutil.copytree(qmcpack_pseudos, output_path, dirs_exist_ok=True)
+    elif code == "quantum_espresso":
+        output_path = output_root / "quantum_espresso/pseudopotentials"
+        shutil.copytree(espresso_pseudos, output_path, dirs_exist_ok=True)
+    else:
+        raise ValueError(f"Invalid code for pseudopotential identification: {code}")
+
 
 def copy_example_files(example_dir: str):
 
@@ -137,7 +152,11 @@ def check_generated_files(
         #end if
     #end if
     return True, "Success!"
-#end for
+
+
+# Move pseudos
+copy_pseudos("qmcpack")
+copy_pseudos("quantum_espresso")
 
 
 def test_pwscf_relax_Ge_T():
