@@ -734,6 +734,7 @@ def periodic_table():
     nunit('representation')
 
     nunit_all()
+#end def periodic_table
 
 
 
