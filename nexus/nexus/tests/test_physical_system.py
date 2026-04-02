@@ -1,7 +1,10 @@
 #! /usr/bin/env python3
-import pytest
-
-pytestmark = pytest.mark.order(18)
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.PHYSICAL_SYSTEM)
+except ImportError:
+    pass
 
 import numpy as np
 from .. import testing

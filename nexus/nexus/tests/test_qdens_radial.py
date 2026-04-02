@@ -1,6 +1,9 @@
-import pytest
-
-pytestmark = pytest.mark.order(59)
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.QDENS_RADIAL)
+except ImportError:
+    pass
 
 from .. import versions
 from .. import testing

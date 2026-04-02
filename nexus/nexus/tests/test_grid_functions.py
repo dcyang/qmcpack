@@ -1,6 +1,9 @@
-import pytest
-
-pytestmark = pytest.mark.order(13)
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.GRID_FUNCTIONS)
+except ImportError:
+    pass
 
 
 def test_imports():

@@ -1,6 +1,9 @@
-import pytest
-
-pytestmark = pytest.mark.order(28)
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.PWSCF_INPUT)
+except ImportError:
+    pass
 
 from .. import testing
 from ..testing import failed

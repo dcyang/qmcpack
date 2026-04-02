@@ -1,6 +1,9 @@
-import pytest
-
-pytestmark = pytest.mark.order(11)
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.PERIODIC_TABLE)
+except ImportError:
+    pass
 
 
 def test_import():

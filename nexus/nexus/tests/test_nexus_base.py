@@ -1,6 +1,9 @@
-import pytest
-
-pytestmark = pytest.mark.order(21)
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.NEXUS_BASE)
+except ImportError:
+    pass
 
 from .. import testing
 from ..testing import value_eq,object_eq

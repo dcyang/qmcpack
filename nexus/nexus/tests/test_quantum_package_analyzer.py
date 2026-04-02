@@ -1,6 +1,9 @@
-import pytest
-
-pytestmark = pytest.mark.order(41)
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.QUANTUM_PACKAGE_ANALYZER)
+except ImportError:
+    pass
 
 
 def test_import():

@@ -1,6 +1,9 @@
-import pytest
-
-pytestmark = pytest.mark.order(54)
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.OBSERVABLES)
+except ImportError:
+    pass
 
 from .. import testing
 from ..testing import value_eq,object_eq,text_eq,check_object_eq

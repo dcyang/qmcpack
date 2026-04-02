@@ -1,6 +1,9 @@
-import pytest
-
-pytestmark = pytest.mark.order(45)
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.VASP_SIMULATION)
+except ImportError:
+    pass
 
 from .. import testing
 from ..testing import divert_nexus,restore_nexus,clear_all_sims

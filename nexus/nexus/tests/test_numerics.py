@@ -1,6 +1,9 @@
-import pytest
-
-pytestmark = pytest.mark.order(12)
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.NUMERICS)
+except ImportError:
+    pass
 
 from nexus.versions import scipy_available
 

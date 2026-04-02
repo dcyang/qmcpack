@@ -1,8 +1,11 @@
 #!/env/bin/python
 
-import pytest
-
-pytestmark = pytest.mark.order(17)
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.STRUCTURE)
+except ImportError:
+    pass
 
 
 import numpy as np
