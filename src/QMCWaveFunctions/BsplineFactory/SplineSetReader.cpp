@@ -30,6 +30,9 @@
 #include "spline2/SplineUtils.h"
 #include "spline2/MultiBspline.hpp"
 #include "spline2/MultiBsplineOffload.hpp"
+#if defined(HAVE_MPI)
+#include "spline2/MultiBsplineMPIShared.hpp"
+#endif
 
 
 namespace qmcplusplus
@@ -42,16 +45,27 @@ SplineSetReader<ST>::SplineSetReader(EinsplineSetBuilder* e, bool use_duplex_spl
 template<typename ST>
 std::unique_ptr<SPOSet> SplineSetReader<ST>::create_spline_set(const std::string& my_name,
                                                                int spin,
+                                                               int ndistributed,
                                                                const BandInfoGroup& bandgroup)
 {
   const int N = bandgroup.getNumDistinctOrbitals();
 
-  Communicate dist_comm(*myComm, myComm->size());
+  if (use_offload)
+  {
+    if (ndistributed > 1)
+      app_warning()
+          << "Offload implemenation doesn't distribute the memory of spline coefficients. Overriding ndistributed to 1."
+          << std::endl;
+    ndistributed = 1;
+  }
 
-  if (use_duplex_splines_)
-    app_log() << "  Using complex einspline table" << std::endl;
-  else
-    app_log() << "  Using real einspline table" << std::endl;
+  auto dist_comm_ptr = std::make_unique<Communicate>(*myComm, myComm->size() / ndistributed);
+  auto& dist_comm(*dist_comm_ptr);
+
+  app_log() << "  Using " << (use_duplex_splines_ ? "complex" : "real") << " einspline table." << std::endl;
+  if (ndistributed > 1)
+    app_log() << "  Distributed across " << ndistributed << " MPI ranks." << std::endl;
+
   const TinyVector<int, 3> half_g = use_duplex_splines_
       ? TinyVector<int, 3>(0, 0, 0)
       : computeHalfG(mybuilder->TargetPtcl.getLattice().BoxBConds, mybuilder->primcell_kpoints,
@@ -65,6 +79,11 @@ std::unique_ptr<SPOSet> SplineSetReader<ST>::create_spline_set(const std::string
   std::unique_ptr<MultiBsplineBase<ST>> multi_splines_ptr;
   if (use_offload)
     multi_splines_ptr = std::make_unique<MultiBsplineOffload<ST>>(xyz_grid, xyz_bc, num_splines);
+#if defined(HAVE_MPI)
+  else if (ndistributed > 1)
+    multi_splines_ptr =
+        std::make_unique<MultiBsplineMPIShared<ST>>(xyz_grid, xyz_bc, num_splines, std::move(dist_comm_ptr));
+#endif
   else
     multi_splines_ptr = std::make_unique<MultiBspline<ST>>(xyz_grid, xyz_bc, num_splines);
 
@@ -172,7 +191,8 @@ void SplineSetReader<ST>::initialize_spline_pio_gather(const int spin,
   const int orb_block_end   = use_duplex_splines_ ? block_offsets[iblock + 1] / 2 : block_offsets[iblock + 1];
   const int Nbands          = std::min(orb_block_end, bandgroup.getNumDistinctOrbitals()) - orb_block_start;
   const int Nprocs          = comm.size();
-  const int Nbandgroups     = std::min(Nbands, Nprocs);
+  const int Nbandgroups     = Nbands > 0 ? std::min(Nbands, Nprocs) : 1;
+
   Communicate band_group_comm(comm, Nbandgroups);
   std::vector<int> band_groups(Nbandgroups + 1, 0);
   FairDivideLow(Nbands, Nbandgroups, band_groups);

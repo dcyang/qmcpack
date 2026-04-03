@@ -42,6 +42,7 @@ class SplineSetReader : public BsplineReader
 {
   std::unique_ptr<SPOSet> create_spline_set(const std::string& my_name,
                                             int spin,
+                                            int ndistributed,
                                             const BandInfoGroup& bandgroup) override;
 
 public:
