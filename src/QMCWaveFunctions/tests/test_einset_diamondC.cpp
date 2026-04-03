@@ -72,7 +72,7 @@ void test_einset_diamond_1x1x1(bool use_offload)
   std::string spo_xml = R"XML(
 <sposet_collection type="einspline" href="diamondC_1x1x1.pwscf.h5" tilematrix="1 0 0 0 1 0 0 0 1" twistnum="0" source="ion" meshfactor="1.0" precision="float" gpu="omptarget">
     <sposet name="updet" size="8">
-        <memory distributed="2"/>
+        <coefs_mem distributed="2"/>
     </sposet>
 </sposet_collection>)XML";
 

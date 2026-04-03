@@ -108,7 +108,7 @@ int EinsplineSetBuilder::obtainMemoryAttributes(const xmlNodePtr cur)
 {
   int ndistributed = 0;
   processChildren(cur, [&](const std::string& cname, const xmlNodePtr element) {
-    if (cname == "memory")
+    if (cname == "coefs_mem")
     {
       OhmmsAttributeSet mem_attr;
       mem_attr.add(ndistributed, "distributed");
