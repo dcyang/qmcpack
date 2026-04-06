@@ -725,7 +725,13 @@ def periodic_table():
 
     nunit('periodic_table')
 
+    nunit('call_elements')
+
     nunit('is_element')
+
+    nunit('element_set')
+
+    nunit('representation')
 
     nunit_all()
 #end def periodic_table
@@ -746,6 +752,8 @@ def numerics():
     nunit('simstats')
 
     nunit('equilibration_length')
+
+    nunit('jackknife')
 
     nunit('morse')
 
@@ -800,6 +808,8 @@ def grid_functions():
     nunit('grid_cell_volumes')
 
     nunit('grid_unit_metric')
+
+    nunit('grid_function_initialization')
 
     # GridFunction tests
 
@@ -872,6 +882,10 @@ def structure():
     nunit('generate_init')
 
     nunit('crystal_init')
+
+    nunit('change_units')
+
+    nunit('rotate')
 
     nunit('diagonal_tiling')
 
@@ -1331,6 +1345,8 @@ def qmcpack_input():
 
     nunit('excited_state')
 
+    nunit('magnetization_density')
+
     nunit_all()
 #end def qmcpack_input
 
@@ -1696,6 +1712,26 @@ def qmca():
 
 
 
+def user_examples_alt():
+
+    nunit('pwscf_relax_Ge_T')
+
+    nunit('gamess_H2O')
+
+    nunit('qmcpack_H2O')
+
+    nunit('qmcpack_LiH')
+
+    nunit('qmcpack_c20')
+
+    nunit('qmcpack_diamond')
+
+    nunit('qmcpack_graphene')
+
+    nunit('qmcpack_oxygen_dimer')
+
+    nunit_all()
+
 
 example_information = dict(
     pwscf_relax_Ge_T = dict(
@@ -2008,6 +2044,8 @@ NexusTest( qmca                            )
 NexusTest( qmc_fit                         )
 NexusTest( qdens                           )
 NexusTest( qdens_radial                    )
+NexusTest( user_examples_alt               )
+
 
 # ordered alphabetically (pytest order)
 #NexusTest( basisset                        )
