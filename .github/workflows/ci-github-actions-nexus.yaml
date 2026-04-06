@@ -1,0 +1,44 @@
+name: Nexus Testing
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - pytest-workflow
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.10", "3.14"]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout Action
+      uses: actions/checkout@v6
+
+    - name: Install uv and Setup Python ${{ matrix.python-version }}
+      uses: astral-sh/setup-uv@v7
+      with:
+        version: "0.11.3"
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install project and all dependencies
+      run: uv sync --locked --all-extras --dev
+      working-directory: ./nexus
+
+    - name: Test Numpy == 1.22.0
+      if: contains(matrix.python-version, '3.10')
+      run: uv pip install numpy==1.22.0
+      working-directory: ./nexus
+
+    - name: Run quadrupole tests
+      run: uv run pytest nexus/tests/
+      working-directory: ./nexus
