@@ -46,3 +46,17 @@ full = [
 
 [project.urls]
 Repository = "https://github.com/QMCPACK/qmcpack"
+
+[tool.coverage.run]
+patch = ["subprocess"]
+parallel = true
+omit = [
+    "nexus/tests/*",
+    "nexus/examples/*",
+]
+
+[tool.coverage.report]
+omit = [
+    "nexus/tests/*",
+    "nexus/examples/*",
+]
