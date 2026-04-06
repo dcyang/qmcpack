@@ -33,15 +33,15 @@ jobs:
         version: "0.11.3"
         python-version: ${{ matrix.python-version }}
 
-    - name: Install project and all dependencies
+    - name: Install Project and All Dependencies
       run: uv sync --locked --all-extras --dev
       working-directory: ./nexus
 
-    - name: Test Numpy == 1.22.0
+    - name: Switch to Numpy == 1.22.0
       if: contains(matrix.python-version, '3.10')
       run: uv pip install numpy==1.22.0
       working-directory: ./nexus
 
-    - name: Run quadrupole tests
+    - name: Run Nexus Tests
       run: uv run pytest nexus/tests/
       working-directory: ./nexus
