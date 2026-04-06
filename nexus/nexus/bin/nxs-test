@@ -1712,6 +1712,26 @@ def qmca():
 
 
 
+def user_examples_alt():
+
+    nunit('pwscf_relax_Ge_T')
+
+    nunit('gamess_H2O')
+
+    nunit('qmcpack_H2O')
+
+    nunit('qmcpack_LiH')
+
+    nunit('qmcpack_c20')
+
+    nunit('qmcpack_diamond')
+
+    nunit('qmcpack_graphene')
+
+    nunit('qmcpack_oxygen_dimer')
+
+    nunit_all()
+
 
 example_information = dict(
     pwscf_relax_Ge_T = dict(
@@ -2024,6 +2044,8 @@ NexusTest( qmca                            )
 NexusTest( qmc_fit                         )
 NexusTest( qdens                           )
 NexusTest( qdens_radial                    )
+NexusTest( user_examples_alt               )
+
 
 # ordered alphabetically (pytest order)
 #NexusTest( basisset                        )
