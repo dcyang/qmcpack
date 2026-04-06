@@ -24,6 +24,9 @@ jobs:
     - name: Checkout Action
       uses: actions/checkout@v6
 
+    - name: Setup Graphviz
+      uses: ts-graphviz/setup-graphviz@v2
+
     - name: Install uv and Setup Python ${{ matrix.python-version }}
       uses: astral-sh/setup-uv@v7
       with:
