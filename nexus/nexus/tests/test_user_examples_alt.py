@@ -1,3 +1,10 @@
+try:
+    import pytest
+    from . import NexusTestOrder
+    pytestmark = pytest.mark.order(NexusTestOrder.USER_EXAMPLES)
+except ImportError:
+    pass
+
 from pathlib import Path
 import os
 import sys
