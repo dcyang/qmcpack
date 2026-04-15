@@ -31,7 +31,6 @@
 #include "BsplineSet.h"
 #include "SplineSetReader.h"
 #include "HybridRepSetReader.h"
-#include "Message/UniformCommunicateError.h"
 
 #include <array>
 #include <string_view>
@@ -125,9 +124,9 @@ std::pair<int, int> EinsplineSetBuilder::obtainMemoryAttributes(const xmlNodePtr
     shared_ranks = 1;
 
   if (auto node_comm_size = OHMMS::Controller->NodeComm().size(); node_comm_size % distributed_ranks * shared_ranks > 0)
-    throw UniformCommunicateError("The number of MPI ranks per node (" + std::to_string(node_comm_size) +
-                                  ") is not divisible by the product of distributed_ranks and shared_ranks (" +
-                                  std::to_string(distributed_ranks * shared_ranks) + ").");
+    throw std::runtime_error("The number of MPI ranks per node (" + std::to_string(node_comm_size) +
+                             ") is not divisible by the product of distributed_ranks and shared_ranks (" +
+                             std::to_string(distributed_ranks * shared_ranks) + ").");
 
   return {distributed_ranks, shared_ranks};
 }
