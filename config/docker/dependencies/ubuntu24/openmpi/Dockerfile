@@ -10,6 +10,7 @@ RUN export DEBIAN_FRONTEND=noninteractive &&\
     apt-get install gcc g++ \
     clang clang-format clang-tidy \
     libomp-dev \
+    gcovr \
     python3 \
     cmake \
     ninja-build \
