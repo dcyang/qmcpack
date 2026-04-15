@@ -49,7 +49,7 @@ RUN export DEBIAN_FRONTEND=noninteractive &&\
 # Install gcovr from pip since the Ubuntu 24.04 apt version doesn't support files >9999 lines 
 # https://github.com/gcovr/gcovr/pull/883
 RUN export DEBIAN_FRONTEND=noninteractive &&\
-    pip3 install --user --break-system-packages gcovr==8.6
+    sudo pip3 install --break-system-packages gcovr==8.6
 
 # must add a user different from root to run MPI executables
 RUN useradd -ms /bin/bash user
