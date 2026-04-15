@@ -10,7 +10,6 @@ RUN export DEBIAN_FRONTEND=noninteractive &&\
     apt-get install gcc g++ \
     clang clang-format clang-tidy \
     libomp-dev \
-    gcovr \
     python3 \
     cmake \
     ninja-build \
@@ -46,6 +45,8 @@ RUN export DEBIAN_FRONTEND=noninteractive &&\
     python3-pip \
     -y
 
+# Install gcovr from pip since the Ubuntu 24.04 apt version doesn't support files >9999 lines 
+# https://github.com/gcovr/gcovr/pull/883
 RUN export DEBIAN_FRONTEND=noninteractive &&\
     pip3 install --user --break-system-packages gcovr==8.6
 
