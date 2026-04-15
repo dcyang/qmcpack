@@ -46,6 +46,9 @@ RUN export DEBIAN_FRONTEND=noninteractive &&\
     python3-pip \
     -y
 
+RUN export DEBIAN_FRONTEND=noninteractive &&\
+    pip3 install --user --break-system-packages gcovr==8.6
+
 # must add a user different from root to run MPI executables
 RUN useradd -ms /bin/bash user
 # allow in sudoers to install packages
