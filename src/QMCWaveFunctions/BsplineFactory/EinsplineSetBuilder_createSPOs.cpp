@@ -33,7 +33,6 @@
 #include "HybridRepSetReader.h"
 #include "Message/UniformCommunicateError.h"
 
-#include <numeric>
 #include <array>
 #include <string_view>
 
