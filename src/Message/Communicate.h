@@ -78,7 +78,7 @@ public:
 
   /** constructor that splits in_comm
    */
-  Communicate(const Communicate& in_comm, int nparts);
+  Communicate(const Communicate& in_comm, int nparts, int stripe = 0);
 
   /**destructor
    * Call proper finalization of Communication library
