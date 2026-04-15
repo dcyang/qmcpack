@@ -156,6 +156,6 @@ endif(QMC_BUILD_STATIC)
 # Coverage
 if(ENABLE_GCOV)
   set(GCOV_SUPPORTED TRUE)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -O0 -fno-inline -fno-inline-small-functions -fno-default-inline")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -O0 -fno-inline -fno-inline-small-functions -fno-default-inline")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -O0 -fno-inline -fno-inline-small-functions -fno-default-inline -fprofile-dir=coverage.%p")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -O0 -fno-inline -fno-inline-small-functions -fno-default-inline -fprofile-dir=coverage.%p")
 endif(ENABLE_GCOV)
