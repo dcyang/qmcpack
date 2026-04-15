@@ -50,23 +50,23 @@ std::unique_ptr<SPOSet> SplineSetReader<ST>::create_spline_set(const std::string
 {
   const int N = bandgroup.getNumDistinctOrbitals();
 
-  auto [ndistributed, shared_ranks] = distributed_and_shared_ranks;
+  auto [distributed_ranks, shared_ranks] = distributed_and_shared_ranks;
 
   if (use_offload)
   {
-    if (ndistributed > 1 || shared_ranks > 1)
+    if (distributed_ranks > 1 || shared_ranks > 1)
       app_warning() << "Offload implemenation doesn't support distributing or sharing the memory of spline "
-                       "coefficients. Overriding ndistributed and shared_ranks to 1."
+                       "coefficients. Overriding distributed_ranks and shared_ranks to 1."
                     << std::endl;
-    ndistributed = 1;
-    shared_ranks = 1;
+    distributed_ranks = 1;
+    shared_ranks      = 1;
   }
 
-  auto dist_comm_ptr = std::make_unique<Communicate>(*myComm, myComm->size() / (ndistributed * shared_ranks));
+  auto dist_comm_ptr = std::make_unique<Communicate>(*myComm, myComm->size() / (distributed_ranks * shared_ranks));
 
   app_log() << "  Using " << (use_duplex_splines_ ? "complex" : "real") << " einspline table." << std::endl;
-  if (ndistributed > 1)
-    app_log() << "  Distributed across " << ndistributed << " MPI ranks." << std::endl;
+  if (distributed_ranks > 1)
+    app_log() << "  Distributed across " << distributed_ranks << " MPI ranks." << std::endl;
   if (shared_ranks > 1)
     app_log() << "  Shared across " << shared_ranks << " MPI ranks." << std::endl;
 
@@ -84,9 +84,9 @@ std::unique_ptr<SPOSet> SplineSetReader<ST>::create_spline_set(const std::string
   if (use_offload)
     multi_splines_ptr = std::make_unique<MultiBsplineOffload<ST>>(xyz_grid, xyz_bc, num_splines);
 #if defined(HAVE_MPI)
-  else if (ndistributed * shared_ranks > 1)
+  else if (distributed_ranks * shared_ranks > 1)
     multi_splines_ptr = std::make_unique<MultiBsplineMPIShared<ST>>(xyz_grid, xyz_bc, num_splines,
-                                                                    std::move(dist_comm_ptr), ndistributed);
+                                                                    std::move(dist_comm_ptr), distributed_ranks);
 #endif
   else
     multi_splines_ptr = std::make_unique<MultiBspline<ST>>(xyz_grid, xyz_bc, num_splines);
@@ -144,13 +144,13 @@ std::unique_ptr<SPOSet> SplineSetReader<ST>::create_spline_set(const std::string
   }
 
   /* create a sub communicator. spline table is shared across MPI ranks with identical subcomm rank id.
-   *  myComm->size() == 12 ; shared_ranks = 2; ndistributed = 3;
+   *  myComm->size() == 12 ; shared_ranks = 2; distributed_ranks = 3;
    *          | group 0 | group 1 |
    *          |  0 1 2  |  3 4 5  |
    *          |  6 7 8  | 9 10 11 |
    */
-  Communicate shared_comm(*myComm, shared_ranks, ndistributed);
-  Communicate dist_comm(shared_comm, shared_comm.size() / ndistributed);
+  Communicate shared_comm(*myComm, shared_ranks, distributed_ranks);
+  Communicate dist_comm(shared_comm, shared_comm.size() / distributed_ranks);
 
   if (!foundspline)
   {
