@@ -54,4 +54,4 @@ on the :ref:`examples` page is a good way to proceed.
 Citing Nexus
 ------------
 
-Please cite J. T. Krogel, Computer Physics Communications **198** 154 (2016), https://doi.org/10.1016/j.cpc.2015.08.012 .
+The citation paper for Nexus is J. T. Krogel, Computer Physics Communications **198** 154 (2016), https://doi.org/10.1016/j.cpc.2015.08.012 .
