@@ -14,6 +14,7 @@
 
 #include "OhmmsSoA/VectorSoaContainer.h"
 #include "spline2/MultiBsplineMPIShared.hpp"
+#include "spline2/MultiBsplineOffloadMapper.hpp"
 #include "spline2/SingleBsplineAllocator.hpp"
 #include "spline2/MultiBsplineEval.hpp"
 #include "QMCWaveFunctions/BsplineFactory/contraction_helper.hpp"
@@ -263,6 +264,14 @@ struct test_splines<T, 5> : public test_splines_base<T, 5>
     CHECK(ghess[0][7] == Approx(-2.575826885e-09).epsilon(eps));
     CHECK(ghess[0][8] == Approx(-4.683496702e-09).epsilon(eps));
     CHECK(ghess[0][9] == Approx(-81.53283531));
+
+    // Test MultiBsplineOffloadMapper when distributed_rank == 1
+    if (comm.size() / shared_ranks == 1)
+    {
+      MultiBsplineOffloadMapper<T> mapped_bs(bs);
+      mapped_bs.mapToDevice();
+      mapped_bs.updateToDevice();
+    }
   }
 };
 
