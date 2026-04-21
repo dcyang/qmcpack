@@ -19,6 +19,7 @@
 
 #include "MultiBsplineBase.hpp"
 #include <vector>
+#include "SoAFields3D.hpp"
 
 namespace qmcplusplus
 {
@@ -41,6 +42,9 @@ public:
   virtual void mapToDevice();
 
   void updateToDevice();
+
+  void mw_evaluate_v(int num_pos, T* pos_arr, T* spline_v);
+  void mw_evaluate_vgh(int num_pos, T* pos_arr, T* spline_vgh);
 };
 
 extern template class MultiBsplineOffloadMapper<float>;

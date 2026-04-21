@@ -15,6 +15,7 @@
 #include "spline2/MultiBsplineEval_OMPoffload.hpp"
 #include "QMCWaveFunctions/BsplineFactory/contraction_helper.hpp"
 #include "Platforms/OMPTarget/ompReductionComplex.hpp"
+#include "spline2/SoAFields3D.hpp"
 #include "ApplyPhaseC2C.hpp"
 #include "Concurrency/OpenMP.h"
 #include "CPU/BLAS.hpp"
