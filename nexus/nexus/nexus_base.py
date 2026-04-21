@@ -216,6 +216,19 @@ _____________________________________________________
     #end def tlog
 
     def enter(self, directory: PathLike, changedir: bool = True, msg: str = ''):
+        """Have Nexus enter a directory and change its current working directory.
+        
+        Parameters
+        ----------
+        directory : PathLike
+            Directory to enter. Can be a ``str`` or ``pathlib.Path``
+            object.
+        changedir : bool, default=True
+            Default of ``True`` will change the CWD, setting to ``False``
+            will not change the CWD.
+        msg : str, optional
+            Optional message to pass to the output log.
+        """
         NexusCore.working_directory = os.getcwd()
         if isinstance(directory, Path):
             directory = str(directory.resolve())
