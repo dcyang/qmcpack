@@ -220,7 +220,7 @@ _____________________________________________________
         if isinstance(directory, Path):
             directory = str(directory.resolve())
 
-        self.log('    Entering '+directory,msg)
+        self.log('    Entering ' + directory, msg)
         if changedir:
             os.chdir(directory)
         #end if
