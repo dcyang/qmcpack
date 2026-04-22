@@ -58,7 +58,9 @@ jobs:
       uses: actions/checkout@v6
 
     - name: Setup Graphviz
-      run: brew upgrade || brew install graphviz
+      run: |
+        brew update
+        brew install graphviz
 
     - name: Install uv and Setup Python ${{ matrix.python-version }}
       uses: astral-sh/setup-uv@v7
