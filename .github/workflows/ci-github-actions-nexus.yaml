@@ -5,7 +5,6 @@ on:
     branches:
       - develop
       - main
-      - nexus-workflow-graphviz
   pull_request:
     branches:
       - develop
@@ -37,7 +36,7 @@ jobs:
       run: uv sync --locked --all-extras --dev
       working-directory: ./nexus
 
-    - name: Switch to Numpy == 1.22.0
+    - name: Use Numpy 1.22.0 (Python 3.10 only)
       if: contains(matrix.python-version, '3.10')
       run: uv pip install numpy==1.22.0
       working-directory: ./nexus
@@ -70,7 +69,7 @@ jobs:
       run: uv sync --locked --all-extras --dev
       working-directory: ./nexus
 
-    - name: Switch to Numpy == 1.22.0
+    - name: Use Numpy 1.22.0 (Python 3.10 only)
       if: contains(matrix.python-version, '3.10')
       run: uv pip install numpy==1.22.0
       working-directory: ./nexus
