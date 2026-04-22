@@ -23,7 +23,6 @@
 #include "Platforms/CPU/BLAS.hpp"
 #include "CPU/SIMD/inner_product.hpp"
 #include "OMPTarget/OMPTargetMath.hpp"
-#include "spline2/SoAFields3D.hpp"
 #include <cstdint>
 
 namespace qmcplusplus

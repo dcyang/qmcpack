@@ -62,10 +62,9 @@ void MultiBsplineOffloadMapper<T>::updateToDevice()
 }
 
 template<typename T>
-void MultiBsplineOffloadMapper<T>::mw_evaluate_v(int num_pos, T* pos_arr, T* spline_v)
+void MultiBsplineOffloadMapper<T>::mw_evaluate_v(int num_pos, T* pos_arr, T* spline_v, size_t walker_stride)
 {
-  const auto spline_padded_size = host_bsplines_.num_splines_padded();
-  const auto block_offsets      = host_bsplines_.getBlockOffsets();
+  const auto block_offsets = host_bsplines_.getBlockOffsets();
   for (size_t ib = 0; ib < host_bsplines_.getNumBlocks(); ib++)
   {
     const auto& host_block = host_bsplines_.getBlock(ib);
@@ -88,7 +87,7 @@ void MultiBsplineOffloadMapper<T>::mw_evaluate_v(int num_pos, T* pos_arr, T* spl
         const size_t first = ChunkSizePerTeam * team_id;
         const size_t last  = omptarget::min(first + ChunkSizePerTeam, num_splines);
 
-        auto* spline_v_iw = spline_v + spline_padded_size * iw;
+        auto* spline_v_iw = spline_v + walker_stride * iw;
         int ix, iy, iz;
         T a[4], b[4], c[4];
         spline2::computeLocationAndFractional(spline_ptr, pos_arr[iw * 3], pos_arr[iw * 3 + 1], pos_arr[iw * 3 + 2], ix,
@@ -103,10 +102,13 @@ void MultiBsplineOffloadMapper<T>::mw_evaluate_v(int num_pos, T* pos_arr, T* spl
 }
 
 template<typename T>
-void MultiBsplineOffloadMapper<T>::mw_evaluate_vgh(int num_pos, T* pos_arr, T* spline_vgh)
+void MultiBsplineOffloadMapper<T>::mw_evaluate_vgh(int num_pos,
+                                                   T* pos_arr,
+                                                   T* spline_vgh,
+                                                   size_t walker_stride,
+                                                   size_t field_stride)
 {
-  const auto spline_padded_size = host_bsplines_.num_splines_padded();
-  const auto block_offsets      = host_bsplines_.getBlockOffsets();
+  const auto block_offsets = host_bsplines_.getBlockOffsets();
   for (size_t ib = 0; ib < host_bsplines_.getNumBlocks(); ib++)
   {
     const auto& host_block = host_bsplines_.getBlock(ib);
@@ -129,7 +131,7 @@ void MultiBsplineOffloadMapper<T>::mw_evaluate_vgh(int num_pos, T* pos_arr, T* s
         const size_t first = ChunkSizePerTeam * team_id;
         const size_t last  = omptarget::min(first + ChunkSizePerTeam, num_splines);
 
-        auto* spline_vgh_iw = spline_vgh + spline_padded_size * iw * SoAFields3D::NUM_FIELDS;
+        auto* spline_vgh_iw = spline_vgh + walker_stride * iw;
         int ix, iy, iz;
         T a[4], b[4], c[4], da[4], db[4], dc[4], d2a[4], d2b[4], d2c[4];
         spline2::computeLocationAndFractional(spline_ptr, pos_arr[iw * 3], pos_arr[iw * 3 + 1], pos_arr[iw * 3 + 2], ix,
@@ -139,7 +141,7 @@ void MultiBsplineOffloadMapper<T>::mw_evaluate_vgh(int num_pos, T* pos_arr, T* s
         for (int index = 0; index < last - first; index++)
           spline2offload::evaluate_vgh_impl_v2(spline_ptr, spline_coefs, ix, iy, iz, first + index, a, b, c, da, db, dc,
                                                d2a, d2b, d2c, spline_vgh_iw + block_offset + first + index,
-                                               spline_padded_size);
+                                               field_stride);
       }
   }
 }

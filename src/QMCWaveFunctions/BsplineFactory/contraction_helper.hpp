@@ -15,6 +15,24 @@
 
 namespace qmcplusplus
 {
+
+/// spline evaluation result layout
+enum SoAFields3D
+{
+  VAL = 0,
+  GRAD0,
+  GRAD1,
+  GRAD2,
+  HESS00,
+  HESS01,
+  HESS02,
+  HESS11,
+  HESS12,
+  HESS22,
+  LAPL,
+  NUM_FIELDS
+};
+
 /** compute Trace(H*G)
    *
    * gg is symmetrized as
