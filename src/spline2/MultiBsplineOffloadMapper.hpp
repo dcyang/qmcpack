@@ -8,14 +8,10 @@
 //
 // File created by: Ye Luo, yeluo@anl.gov, Argonne National Laboratory
 //////////////////////////////////////////////////////////////////////////////////////
-// -*- C++ -*-
-/**@file MultiBsplineOffload.hpp
- *
- * define classes MultiBsplineOffload
- * The evaluation functions are defined in MultiBsplineOffloadEval.hpp
- */
-#ifndef QMCPLUSPLUS_MULTIEINSPLINEOFFLOAD_HPP
-#define QMCPLUSPLUS_MULTIEINSPLINEOFFLOAD_HPP
+
+
+#ifndef QMCPLUSPLUS_MULTIEINSPLINEOFFLOADMAPPER_HPP
+#define QMCPLUSPLUS_MULTIEINSPLINEOFFLOADMAPPER_HPP
 
 #include "MultiBsplineBase.hpp"
 #include <vector>
